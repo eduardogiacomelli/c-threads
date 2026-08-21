@@ -1,0 +1,1271 @@
+<title>Inspetor de Memória</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:ital,wght@0,400;0,500;1,400&display=swap">
+
+<style>
+:root {
+  --paper:    #f5f6f8;
+  --surface:  #ffffff;
+  --sunken:   #eceef3;
+  --ink:      #151922;
+  --ink-soft: #5a6273;
+  --ink-faint:#8b93a3;
+  --line:     #d7dbe3;
+  --line-soft:#e6e9ef;
+  --accent:   #2f53d8;
+  --accent-w: #e8ecfd;
+  --danger:   #c81e3a;
+  --danger-w: #fbe9ec;
+  --ok:       #0f7a4d;
+
+  --t0: #2f53d8;
+  --t1: #c2185b;
+  --t2: #0f8b76;
+  --t3: #b45309;
+  --t4: #6d28d9;
+  --t5: #0369a1;
+
+  --grid:     rgba(21,25,34,.055);
+  --shadow:   0 1px 2px rgba(21,25,34,.05), 0 8px 24px -18px rgba(21,25,34,.35);
+
+  --sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --serif:"IBM Plex Serif", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --step: clamp(.9rem, .4rem + .6vw, 1.05rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:    #12151c;
+    --surface:  #191d26;
+    --sunken:   #10131a;
+    --ink:      #e7eaf0;
+    --ink-soft: #99a2b4;
+    --ink-faint:#6b7488;
+    --line:     #2b313e;
+    --line-soft:#232936;
+    --accent:   #839cff;
+    --accent-w: #1d2540;
+    --danger:   #ff7386;
+    --danger-w: #331a20;
+    --ok:       #4ec48c;
+
+    --t0: #7d9bff;
+    --t1: #ff7fa8;
+    --t2: #3fc9ac;
+    --t3: #f0a04b;
+    --t4: #b393ff;
+    --t5: #4fb6e8;
+
+    --grid:   rgba(231,234,240,.06);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.9);
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:    #12151c;
+  --surface:  #191d26;
+  --sunken:   #10131a;
+  --ink:      #e7eaf0;
+  --ink-soft: #99a2b4;
+  --ink-faint:#6b7488;
+  --line:     #2b313e;
+  --line-soft:#232936;
+  --accent:   #839cff;
+  --accent-w: #1d2540;
+  --danger:   #ff7386;
+  --danger-w: #331a20;
+  --ok:       #4ec48c;
+
+  --t0: #7d9bff;
+  --t1: #ff7fa8;
+  --t2: #3fc9ac;
+  --t3: #f0a04b;
+  --t4: #b393ff;
+  --t5: #4fb6e8;
+
+  --grid:   rgba(231,234,240,.06);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -20px rgba(0,0,0,.9);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--step);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 78rem;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 4rem) clamp(1rem, 3vw, 2.5rem) 6rem;
+  display: grid;
+  gap: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+.prose { max-width: 40rem; }
+.prose p { margin: 0 0 1rem; }
+.prose p:last-child { margin-bottom: 0; }
+
+/* ---------- masthead ---------- */
+
+.masthead {
+  display: grid;
+  gap: 1.25rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--line);
+}
+.eyebrow {
+  font-family: var(--sans);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.eyebrow span::after { content: "·"; margin-left: .6rem; color: var(--line); }
+.eyebrow span:last-child::after { content: ""; }
+
+h1 {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: clamp(2rem, 1.2rem + 3.4vw, 3.4rem);
+  line-height: 1.02;
+  letter-spacing: -.028em;
+  margin: 0;
+  text-wrap: balance;
+}
+h1 em {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+.lede {
+  font-size: 1.1em;
+  color: var(--ink-soft);
+  max-width: 38rem;
+  margin: 0;
+}
+
+/* ---------- modules ---------- */
+
+.module {
+  display: grid;
+  gap: 1.5rem;
+  scroll-margin-top: 1rem;
+}
+
+.mhead { display: grid; gap: .7rem; max-width: 42rem; }
+.mtag {
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--accent);
+  background: var(--accent-w);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  padding: .12rem .5rem;
+  border-radius: 3px;
+  justify-self: start;
+}
+h2 {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: clamp(1.3rem, 1rem + 1.1vw, 1.75rem);
+  letter-spacing: -.02em;
+  line-height: 1.15;
+  margin: 0;
+  text-wrap: balance;
+}
+.mhead p { margin: 0; color: var(--ink-soft); }
+
+/* instrument panel */
+.bench {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.stage {
+  padding: clamp(1rem, 2.5vw, 1.75rem);
+  background-color: var(--surface);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+  position: relative;
+  overflow-x: auto;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+  padding: .75rem clamp(1rem, 2.5vw, 1.75rem);
+  border-top: 1px solid var(--line-soft);
+  background: var(--sunken);
+}
+.controls .spacer { flex: 1 1 auto; }
+
+button {
+  font-family: var(--sans);
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: .38rem .75rem;
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease, transform .06s ease;
+}
+button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { opacity: .4; cursor: not-allowed; }
+button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+:root[data-theme="dark"] button[aria-pressed="true"],
+:root:not([data-theme="light"]) button[aria-pressed="true"] { color: #10131a; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) button[aria-pressed="true"] { color: #fff; }
+}
+button.warn[aria-pressed="true"] { background: var(--danger); border-color: var(--danger); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+
+.ctl-label {
+  font-family: var(--sans);
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+input[type="range"] { accent-color: var(--accent); width: 7rem; vertical-align: middle; }
+
+/* ---------- memory boxes ---------- */
+
+.mem-row { display: flex; flex-wrap: wrap; gap: 2.5rem; align-items: flex-start; }
+
+.cell {
+  display: grid;
+  gap: .3rem;
+  min-width: 9.5rem;
+}
+.cell .addr {
+  font-family: var(--mono);
+  font-size: .7rem;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+.cell .box {
+  border: 1.5px solid var(--ink-soft);
+  border-radius: 3px;
+  background: var(--surface);
+  padding: .55rem .7rem;
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  transition: background .18s ease, border-color .18s ease, color .18s ease;
+}
+.cell .name {
+  font-family: var(--mono);
+  font-size: .8rem;
+  color: var(--ink-soft);
+}
+.cell.hot .box { border-color: var(--accent); background: var(--accent-w); color: var(--accent); }
+.cell.bad .box { border-color: var(--danger); background: var(--danger-w); color: var(--danger); }
+.cell.dead .box {
+  border-style: dashed;
+  color: var(--ink-faint);
+  background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--line-soft) 5px 10px);
+}
+.cell.ptr .box { font-size: .82rem; letter-spacing: -.02em; }
+
+/* readout table */
+.readout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .15rem 1rem;
+  font-family: var(--mono);
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+  align-content: start;
+  padding: .8rem 1rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: var(--sunken);
+  min-width: 15rem;
+}
+.readout dt { color: var(--ink-faint); }
+.readout dd { margin: 0; color: var(--ink); }
+.readout dd.em { color: var(--accent); font-weight: 500; }
+
+/* narration */
+.narrate {
+  font-family: var(--sans);
+  font-size: .86rem;
+  line-height: 1.5;
+  padding: .7rem 1rem;
+  border-left: 2px solid var(--accent);
+  background: var(--accent-w);
+  color: var(--ink);
+  border-radius: 0 4px 4px 0;
+  min-height: 3.4rem;
+  display: flex;
+  align-items: center;
+}
+.narrate.bad { border-left-color: var(--danger); background: var(--danger-w); }
+.narrate code { font-family: var(--mono); font-size: .92em; }
+
+.stepdots { display: flex; gap: .3rem; align-items: center; }
+.stepdots i {
+  width: .45rem; height: .45rem; border-radius: 50%;
+  background: var(--line); display: block;
+}
+.stepdots i.on { background: var(--accent); }
+
+/* ---------- stack frames ---------- */
+
+.stack { display: grid; gap: .35rem; min-width: 21rem; max-width: 30rem; }
+.frame {
+  border: 1.5px solid var(--line);
+  border-radius: 4px;
+  padding: .55rem .7rem;
+  background: var(--surface);
+  display: grid;
+  gap: .35rem;
+  transition: opacity .2s ease, border-color .2s ease;
+}
+.frame .flabel {
+  font-family: var(--sans);
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.frame.live { border-color: var(--accent); }
+.frame.free {
+  border-style: dashed;
+  background: repeating-linear-gradient(-45deg, transparent 0 6px, var(--line-soft) 6px 12px);
+}
+.slot {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: .84rem;
+  font-variant-numeric: tabular-nums;
+  padding: .3rem .5rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  background: var(--sunken);
+}
+.slot .sv { font-weight: 600; }
+.slot.hot { border-color: var(--accent); background: var(--accent-w); color: var(--accent); }
+.slot.bad { border-color: var(--danger); background: var(--danger-w); color: var(--danger); }
+
+/* ---------- thread cards ---------- */
+
+.threads { display: flex; flex-wrap: wrap; gap: .6rem; }
+.tcard {
+  border: 1.5px solid var(--tc, var(--line));
+  border-radius: 4px;
+  padding: .5rem .65rem;
+  min-width: 8.5rem;
+  background: var(--surface);
+  display: grid;
+  gap: .25rem;
+}
+.tcard .tname {
+  font-family: var(--sans);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--tc);
+}
+.tcard .tval {
+  font-family: var(--mono);
+  font-size: .95rem;
+  font-variant-numeric: tabular-nums;
+}
+.tcard .tsub { font-family: var(--mono); font-size: .7rem; color: var(--ink-faint); }
+.tcard.pending { opacity: .45; }
+.tcard.wrong .tval { color: var(--danger); font-weight: 600; }
+.tcard.right .tval { color: var(--ok); font-weight: 600; }
+
+svg.wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+
+/* module 3: two vertical stacks so the wires never cross a card */
+#m3-boxes, #m3-threads { flex-direction: column; align-items: stretch; }
+#m3-boxes { justify-content: center; gap: .5rem; }
+#m3-threads { gap: .5rem; }
+#m3-boxes .cell { min-width: 10rem; }
+#m3-boxes .cell .box { padding: .35rem .7rem; }
+#m3-stage .mem-row { align-items: center; }
+
+/* ---------- race table ---------- */
+
+.race-grid {
+  display: grid;
+  grid-template-columns: 2.2rem 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--line-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: .82rem;
+  font-variant-numeric: tabular-nums;
+  min-width: 32rem;
+}
+.race-grid > div { background: var(--surface); padding: .35rem .6rem; }
+.race-grid .rh {
+  font-family: var(--sans);
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: var(--sunken);
+}
+.race-grid .rh.a { color: var(--t0); }
+.race-grid .rh.b { color: var(--t1); }
+.race-grid .op { color: var(--ink-faint); }
+.race-grid .row-now { background: var(--accent-w); }
+.race-grid .row-past { color: var(--ink-faint); }
+.race-grid .lost { background: var(--danger-w); color: var(--danger); font-weight: 600; }
+
+.bigread {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.bigread div { display: grid; gap: .1rem; }
+.bigread .bl {
+  font-family: var(--sans);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+.bigread .bv { font-size: 1.6rem; font-weight: 600; line-height: 1; }
+.bigread .bv.bad { color: var(--danger); }
+.bigread .bv.ok { color: var(--ok); }
+
+/* ---------- distribution grid ---------- */
+
+.dist { display: grid; gap: 1.25rem; }
+.cells {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
+  gap: .3rem;
+  max-width: 44rem;
+}
+.dcell {
+  aspect-ratio: 1.5;
+  border-radius: 3px;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: .8rem;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  border: 1px solid transparent;
+}
+:root[data-theme="dark"] .dcell,
+:root:not([data-theme="light"]) .dcell { color: #10131a; font-weight: 600; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .dcell { color: #fff; font-weight: 400; }
+}
+.dcell.orphan {
+  background: repeating-linear-gradient(-45deg, transparent 0 5px, var(--line) 5px 10px) !important;
+  color: var(--danger) !important;
+  border-color: var(--danger);
+  font-weight: 600;
+}
+.loadbars { display: grid; gap: .4rem; max-width: 44rem; }
+.loadrow { display: grid; grid-template-columns: 4.5rem 1fr 4rem; gap: .6rem; align-items: center; }
+.loadrow .ln {
+  font-family: var(--sans); font-size: .72rem; font-weight: 700;
+  letter-spacing: .05em; text-transform: uppercase;
+}
+.loadrow .track {
+  display: block; background: var(--sunken); border-radius: 3px;
+  height: 1.1rem; overflow: hidden;
+}
+.loadrow .fill { display: block; height: 100%; border-radius: 3px; transition: width .25s ease; }
+.loadrow .lv {
+  font-family: var(--mono); font-size: .75rem; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+
+/* ---------- misc ---------- */
+
+.note {
+  font-family: var(--sans);
+  font-size: .84rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--line-soft);
+  padding-top: .9rem;
+  max-width: 42rem;
+}
+.note strong { color: var(--ink); font-weight: 600; }
+code.inline {
+  font-family: var(--mono);
+  font-size: .88em;
+  background: var(--sunken);
+  border: 1px solid var(--line-soft);
+  border-radius: 3px;
+  padding: .05em .3em;
+}
+.legend {
+  display: flex; flex-wrap: wrap; gap: .9rem;
+  font-family: var(--sans); font-size: .74rem; color: var(--ink-soft);
+}
+.legend span { display: inline-flex; align-items: center; gap: .35rem; }
+.legend i { width: .7rem; height: .7rem; border-radius: 2px; display: block; }
+
+footer {
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+  font-family: var(--sans);
+  font-size: .82rem;
+  color: var(--ink-soft);
+  max-width: 42rem;
+}
+footer code { font-family: var(--mono); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">
+      <span>INE5645 · UFSC</span><span>C do zero → pthreads</span><span>use as setas ← →</span>
+    </div>
+    <h1>Inspetor de <em>Memória</em></h1>
+    <p class="lede">
+      Cinco coisas que os passos explicam em texto e que ficam bem mais fáceis de entender
+      vendo mexer. Cada painel é o mesmo programa que está na pasta — só que passo a passo,
+      com os endereços à mostra.
+    </p>
+  </header>
+
+  <!-- ============================================================ 1 -->
+  <section class="module" id="m1">
+    <div class="mhead">
+      <span class="mtag">c-do-zero · passo-05</span>
+      <h2>Uma caixa, um endereço, e a seta entre os dois</h2>
+      <p>
+        <code class="inline">*p = 30</code> muda o que está <em>dentro</em> da caixa apontada.
+        <code class="inline">p = &amp;outra</code> muda <em>para onde a seta aponta</em>.
+        Os dois usam o mesmo símbolo e fazem coisas opostas — aperte os dois e veja.
+      </p>
+    </div>
+    <div class="bench">
+      <div class="stage" id="m1-stage">
+        <svg class="wires" id="m1-wires" aria-hidden="true"></svg>
+        <div class="mem-row">
+          <div class="cell" id="m1-idade">
+            <div class="addr">0x7ffd1234</div>
+            <div class="box">25</div>
+            <div class="name">int idade</div>
+          </div>
+          <div class="cell ptr" id="m1-p">
+            <div class="addr">0x7ffd9999</div>
+            <div class="box">0x7ffd1234</div>
+            <div class="name">int *p</div>
+          </div>
+          <div class="cell" id="m1-outra">
+            <div class="addr">0x7ffd1240</div>
+            <div class="box">99</div>
+            <div class="name">int outra</div>
+          </div>
+          <dl class="readout" id="m1-readout"></dl>
+        </div>
+        <div class="narrate" id="m1-narr" style="margin-top:1.5rem"></div>
+      </div>
+      <div class="controls">
+        <button data-m1="deref">*p = 30</button>
+        <button data-m1="repoint">p = &amp;outra</button>
+        <button data-m1="direct">idade = 7</button>
+        <button data-m1="null">p = NULL</button>
+        <span class="spacer"></span>
+        <button data-m1="reset">reiniciar</button>
+      </div>
+    </div>
+    <p class="note">
+      <strong>Por que isso importa para threads:</strong> a função de uma thread recebe um
+      <code class="inline">void *</code> — um endereço, exatamente como <code class="inline">p</code>.
+      Tudo o que ela pode fazer com o seu dado, ela faz por essa seta.
+    </p>
+  </section>
+
+  <!-- ============================================================ 2 -->
+  <section class="module" id="m2">
+    <div class="mhead">
+      <span class="mtag">c-do-zero · passo-14</span>
+      <h2>O quadro da pilha morre, o endereço fica</h2>
+      <p>
+        Guardar o endereço de uma variável local é anotar o número de uma caixa que está
+        sendo desmontada. O ponteiro continua válido como <em>número</em> — e é isso que
+        engana.
+      </p>
+    </div>
+    <div class="bench">
+      <div class="stage">
+        <div class="mem-row" style="gap:2rem">
+          <div class="stack" id="m2-stack"></div>
+          <div class="cell ptr" id="m2-ptr" style="min-width:11rem">
+            <div class="addr">global</div>
+            <div class="box">—</div>
+            <div class="name">int *guardado</div>
+          </div>
+        </div>
+        <div class="narrate" id="m2-narr" style="margin-top:1.5rem"></div>
+      </div>
+      <div class="controls">
+        <button data-step="m2" data-dir="-1">◀ voltar</button>
+        <button data-step="m2" data-dir="1">avançar ▶</button>
+        <div class="stepdots" id="m2-dots"></div>
+        <span class="spacer"></span>
+        <button data-step="m2" data-dir="0">reiniciar</button>
+      </div>
+    </div>
+    <p class="note">
+      <strong>O mesmo bug com threads:</strong> troque “a função retornou” por “a thread
+      ainda não rodou”. É o <code class="inline">&amp;i</code> do laço — o painel seguinte.
+    </p>
+  </section>
+
+  <!-- ============================================================ 3 -->
+  <section class="module" id="m3">
+    <div class="mhead">
+      <span class="mtag">pthreads · passo-03 e 04</span>
+      <h2>Uma caixa para todas, ou uma caixa por thread</h2>
+      <p>
+        O erro mais caro da lista, e a correção, lado a lado. Troque o botão e avance:
+        repare que na versão errada as quatro setas chegam no <em>mesmo</em> lugar.
+      </p>
+    </div>
+    <div class="bench">
+      <div class="stage" id="m3-stage">
+        <svg class="wires" id="m3-wires" aria-hidden="true"></svg>
+        <div class="mem-row" style="gap:2.5rem; align-items:flex-start">
+          <div style="display:grid; gap:.6rem">
+            <div class="ctl-label">memória de main</div>
+            <div class="mem-row" id="m3-boxes" style="gap:.6rem"></div>
+          </div>
+          <div style="display:grid; gap:.6rem">
+            <div class="ctl-label">o que cada thread leu</div>
+            <div class="threads" id="m3-threads"></div>
+          </div>
+        </div>
+        <div class="narrate" id="m3-narr" style="margin-top:1.75rem"></div>
+      </div>
+      <div class="controls">
+        <button data-m3mode="wrong" class="warn" aria-pressed="true">❌ pthread_create(…, &amp;i)</button>
+        <button data-m3mode="right" aria-pressed="false">✅ pthread_create(…, &amp;ids[i])</button>
+        <span class="spacer"></span>
+        <button data-step="m3" data-dir="-1">◀</button>
+        <button data-step="m3" data-dir="1">avançar ▶</button>
+        <div class="stepdots" id="m3-dots"></div>
+        <button data-step="m3" data-dir="0">reiniciar</button>
+      </div>
+    </div>
+    <p class="note">
+      <strong>É isto que a struct resolve:</strong> precisa mandar id <em>e</em> vetor para
+      a thread? Um <code class="inline">Args a[N]</code> — um pacote por thread, no mesmo
+      espírito do <code class="inline">ids[N]</code> aqui. Uma struct só, reaproveitada no
+      laço, é a coluna da esquerda de novo.
+    </p>
+  </section>
+
+  <!-- ============================================================ 4 -->
+  <section class="module" id="m4">
+    <div class="mhead">
+      <span class="mtag">pthreads · passo-12</span>
+      <h2><code class="inline" style="font-size:.85em">contador++</code> são três operações, não uma</h2>
+      <p>
+        Ler, somar, gravar. O sistema pode trocar de thread entre quaisquer duas delas.
+        Escolha uma ordem e avance passo a passo — ou sorteie e veja quantas somas somem.
+      </p>
+    </div>
+    <div class="bench">
+      <div class="stage">
+        <div class="bigread" style="margin-bottom:1.25rem">
+          <div><span class="bl">registrador A</span><span class="bv" id="m4-ra" style="color:var(--t0)">—</span></div>
+          <div><span class="bl">registrador B</span><span class="bv" id="m4-rb" style="color:var(--t1)">—</span></div>
+          <div><span class="bl">contador (memória)</span><span class="bv" id="m4-mem">10</span></div>
+          <div><span class="bl">esperado</span><span class="bv" id="m4-exp">12</span></div>
+        </div>
+        <div class="race-grid" id="m4-grid"></div>
+        <div class="narrate" id="m4-narr" style="margin-top:1.25rem"></div>
+      </div>
+      <div class="controls">
+        <button data-m4seq="serial" aria-pressed="true">ordem tranquila</button>
+        <button data-m4seq="lost" class="warn" aria-pressed="false">ordem que perde</button>
+        <button data-m4seq="random">sortear</button>
+        <span class="spacer"></span>
+        <button data-step="m4" data-dir="-1">◀</button>
+        <button data-step="m4" data-dir="1">avançar ▶</button>
+        <div class="stepdots" id="m4-dots"></div>
+        <button data-step="m4" data-dir="0">reiniciar</button>
+      </div>
+    </div>
+    <p class="note">
+      <strong>No programa de verdade</strong> são dois milhões de voltas, e o sorteio
+      acontece a cada uma. Por isso o resultado muda toda execução — e por isso “rodei e
+      deu certo” não prova nada em programação concorrente.
+    </p>
+  </section>
+
+  <!-- ============================================================ 5 -->
+  <section class="module" id="m5">
+    <div class="mhead">
+      <span class="mtag">Desafio 2 · Ex. 6 e 7</span>
+      <h2>Chunk, esparsa, e o resto que ninguém processa</h2>
+      <p>
+        Mexa nos dois controles até a divisão não ser exata. As células riscadas em vermelho
+        são as que a divisão ingênua deixa órfãs — é o aviso em letras miúdas do enunciado.
+        As barras mostram o <em>custo</em>, não a quantidade.
+      </p>
+    </div>
+    <div class="bench">
+      <div class="stage">
+        <div class="dist">
+          <div class="cells" id="m5-cells"></div>
+          <div>
+            <div class="ctl-label" style="margin-bottom:.5rem">
+              custo por thread (classificar 999 custa mais que classificar 9)
+            </div>
+            <div class="loadbars" id="m5-bars"></div>
+          </div>
+          <div class="narrate" id="m5-narr"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button data-m5mode="chunk" aria-pressed="true">chunk</button>
+        <button data-m5mode="sparse" aria-pressed="false">esparsa</button>
+        <button data-m5fix aria-pressed="false">tratar o resto</button>
+        <span class="spacer"></span>
+        <label class="ctl-label" for="m5-n">worksize <output id="m5-nout">16</output></label>
+        <input type="range" id="m5-n" min="8" max="26" value="16">
+        <label class="ctl-label" for="m5-t">threads <output id="m5-tout">4</output></label>
+        <input type="range" id="m5-t" min="2" max="6" value="4">
+      </div>
+    </div>
+    <div class="legend" id="m5-legend"></div>
+    <p class="note">
+      <strong>A pergunta do desafio:</strong> as duas distribuições processam a mesma
+      quantidade de números por thread. Por que os tempos dão diferente? A resposta está nas
+      barras, não nas células.
+    </p>
+  </section>
+
+  <footer>
+    Os programas ficam em <code>~/c-playground/c-do-zero/</code> (fundamentos de C) e
+    <code>~/vaultin/…/07_Pthreads_Do_Zero/</code> (threads). Rode <code>make 11</code> e
+    <code>make 12</code> lá — os números que aparecem na sua máquina são a resposta real;
+    esta página é só o desenho do que está acontecendo.
+  </footer>
+
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $  = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const TC = ["--t0", "--t1", "--t2", "--t3", "--t4", "--t5"];
+  const tcolor = i => `var(${TC[i % TC.length]})`;
+
+  /* shared: numbered stepper -------------------------------------- */
+  const steppers = {};
+  function stepper(key, total, render) {
+    steppers[key] = { i: 0, total, render };
+    render(0);
+    dots(key);
+  }
+  function dots(key) {
+    const el = $(`#${key}-dots`);
+    if (!el) return;
+    const s = steppers[key];
+    el.innerHTML = "";
+    for (let k = 0; k < s.total; k++) {
+      const d = document.createElement("i");
+      if (k <= s.i) d.className = "on";
+      el.appendChild(d);
+    }
+  }
+  function go(key, dir) {
+    const s = steppers[key];
+    if (!s) return;
+    s.i = dir === 0 ? 0 : Math.max(0, Math.min(s.total - 1, s.i + dir));
+    s.render(s.i);
+    dots(key);
+  }
+  $$("[data-step]").forEach(b =>
+    b.addEventListener("click", () => go(b.dataset.step, Number(b.dataset.dir)))
+  );
+  document.addEventListener("keydown", e => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    const sec = document.activeElement?.closest?.(".module");
+    if (!sec || !steppers[sec.id]) return;
+    e.preventDefault();
+    go(sec.id, e.key === "ArrowRight" ? 1 : -1);
+  });
+
+  /* shared: arrow wires ------------------------------------------- */
+  function wire(svg, fromEl, toEl, opts = {}) {
+    const S = svg.getBoundingClientRect();
+    const a = fromEl.getBoundingClientRect();
+    const b = toEl.getBoundingClientRect();
+    /* connect side-to-side at mid height: never crosses the address/name
+       labels that sit above and below every box */
+    const leftToRight = a.left + a.width / 2 < b.left + b.width / 2;
+    const x1 = (leftToRight ? a.right : a.left) - S.left;
+    const y1 = a.top - S.top + a.height / 2;
+    const x2 = (leftToRight ? b.left : b.right) - S.left;
+    const y2 = b.top - S.top + b.height / 2;
+    const bow = Math.max(24, Math.abs(x2 - x1) * 0.45) * (leftToRight ? 1 : -1);
+    const d = `M ${x1} ${y1} C ${x1 + bow} ${y1}, ${x2 - bow} ${y2}, ${x2} ${y2}`;
+    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    p.setAttribute("d", d);
+    p.setAttribute("fill", "none");
+    p.setAttribute("stroke", opts.color || "var(--accent)");
+    p.setAttribute("stroke-width", opts.width || 1.6);
+    if (opts.dashed) p.setAttribute("stroke-dasharray", "5 4");
+    p.setAttribute("marker-end", `url(#${opts.marker || "arw"})`);
+    svg.appendChild(p);
+  }
+  function wiresInit(svg) {
+    svg.innerHTML = "";
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    defs.innerHTML =
+      ['arw', 'arwbad', 'arw0', 'arw1', 'arw2', 'arw3'].map((id, k) => {
+        const c = id === 'arw' ? 'var(--accent)'
+                : id === 'arwbad' ? 'var(--danger)'
+                : tcolor(k - 2);
+        return `<marker id="${id}" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6"
+                 markerHeight="6" orient="auto-start-reverse">
+                 <path d="M0 0 L8 4 L0 8 z" fill="${c}"/></marker>`;
+      }).join("");
+    svg.appendChild(defs);
+  }
+
+  /* ============================================================ 1 */
+  const M1 = { boxAddr: "0x7ffd1234", idade: 25, outra: 99, pnull: false };
+  const M1_ADDR = { idade: "0x7ffd1234", outra: "0x7ffd1240" };
+
+  function m1Render(msg, bad) {
+    const idadeEl = $("#m1-idade"), outraEl = $("#m1-outra"), pEl = $("#m1-p");
+    idadeEl.querySelector(".box").textContent = M1.idade;
+    outraEl.querySelector(".box").textContent = M1.outra;
+    pEl.querySelector(".box").textContent = M1.pnull ? "NULL" : M1.boxAddr;
+
+    [idadeEl, outraEl].forEach(e => e.classList.remove("hot"));
+    pEl.classList.toggle("bad", M1.pnull);
+    const target = M1.pnull ? null
+      : (M1.boxAddr === M1_ADDR.idade ? idadeEl : outraEl);
+    if (target) target.classList.add("hot");
+
+    const val = M1.pnull ? "—"
+      : (M1.boxAddr === M1_ADDR.idade ? M1.idade : M1.outra);
+    $("#m1-readout").innerHTML = `
+      <dt>&amp;idade</dt><dd>${M1_ADDR.idade}</dd>
+      <dt>idade</dt><dd>${M1.idade}</dd>
+      <dt>p</dt><dd class="em">${M1.pnull ? "NULL" : M1.boxAddr}</dd>
+      <dt>*p</dt><dd class="em">${val}</dd>
+      <dt>&amp;p</dt><dd>0x7ffd9999</dd>`;
+
+    const n = $("#m1-narr");
+    n.textContent = msg;
+    n.classList.toggle("bad", !!bad);
+
+    const svg = $("#m1-wires");
+    wiresInit(svg);
+    if (target) {
+      wire(svg, pEl.querySelector(".box"), target.querySelector(".box"));
+    } else {
+      const b = pEl.querySelector(".box").getBoundingClientRect();
+      const S = svg.getBoundingClientRect();
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", b.left - S.left + b.width / 2);
+      t.setAttribute("y", b.top - S.top - 12);
+      t.setAttribute("text-anchor", "middle");
+      t.setAttribute("fill", "var(--danger)");
+      t.setAttribute("font-family", "IBM Plex Mono, monospace");
+      t.setAttribute("font-size", "12");
+      t.textContent = "aponta para lugar nenhum";
+      svg.appendChild(t);
+    }
+  }
+  const m1Msgs = {
+    init: "Estado inicial. `p` guarda o endereço de `idade` — a seta é literalmente o conteúdo da caixa `p`.",
+    deref: "*p = 30 → foi até o endereço guardado em p e escreveu lá. A seta não se mexeu; o conteúdo da caixa apontada, sim.",
+    repoint: "p = &outra → agora p guarda OUTRO endereço. Nada foi escrito em `idade` nem em `outra`: só a seta mudou.",
+    direct: "idade = 7 → escrita direta, sem ponteiro. Se p aponta para `idade`, *p também mudou — mesma caixa, dois nomes.",
+    null: "p = NULL → a seta não aponta para nada. Ler *p agora mata o programa: 'load of null pointer'."
+  };
+  $$("[data-m1]").forEach(b => b.addEventListener("click", () => {
+    const a = b.dataset.m1;
+    if (a === "deref") {
+      if (M1.pnull) { m1Render("*p com p == NULL: o sanitizer mata o programa aqui.", true); return; }
+      if (M1.boxAddr === M1_ADDR.idade) M1.idade = 30; else M1.outra = 30;
+      m1Render(m1Msgs.deref);
+    } else if (a === "repoint") {
+      M1.pnull = false; M1.boxAddr = M1_ADDR.outra; m1Render(m1Msgs.repoint);
+    } else if (a === "direct") {
+      M1.idade = 7; m1Render(m1Msgs.direct);
+    } else if (a === "null") {
+      M1.pnull = true; m1Render(m1Msgs.null, true);
+    } else {
+      M1.idade = 25; M1.outra = 99; M1.pnull = false; M1.boxAddr = M1_ADDR.idade;
+      m1Render(m1Msgs.init);
+    }
+  }));
+
+  /* ============================================================ 2 */
+  const M2_STEPS = [
+    { frames: [["main", []]], ptr: "—", narr: "main começa. `guardado` ainda não aponta para nada.", bad: false },
+    { frames: [["main", []], ["fabricar_numero", [["numero", 42, "hot"]]]],
+      ptr: "0x7ffd1bf4",
+      narr: "A função criou `numero = 42` na pilha, no endereço 0x7ffd1bf4, e anotou esse endereço em `guardado`.", bad: false },
+    { frames: [["main", []], ["(livre)", [["…", 42, "dead"]]]],
+      ptr: "0x7ffd1bf4",
+      narr: "A função retornou. O quadro foi abandonado — mas o 42 ainda está lá e `guardado` ainda tem o número do endereço. Ler agora dá 42, e é aqui que o bug se disfarça de código correto.", bad: false },
+    { frames: [["main", []], ["outra_funcao", [["outro", 777, "hot"]]]],
+      ptr: "0x7ffd1bf4",
+      narr: "Outra função foi chamada e recebeu exatamente o mesmo pedaço de pilha. `outro` nasceu em 0x7ffd1bf4 — o endereço que `guardado` guarda.", bad: false },
+    { frames: [["main", []], ["outra_funcao", [["outro", 777, "bad"]]]],
+      ptr: "0x7ffd1bf4",
+      narr: "*guardado agora lê 777. Sem sanitizer o programa não reclama de nada: só devolve o valor errado. Com ASan: stack-use-after-return.", bad: true }
+  ];
+  stepper("m2", M2_STEPS.length, i => {
+    const s = M2_STEPS[i];
+    $("#m2-stack").innerHTML = s.frames.map(([name, slots], k) => `
+      <div class="frame ${name === "(livre)" ? "free" : (k === s.frames.length - 1 ? "live" : "")}">
+        <div class="flabel">${name}</div>
+        ${slots.map(([n, v, cls]) => `
+          <div class="slot ${cls === "hot" ? "hot" : cls === "bad" ? "bad" : ""}">
+            <span>${n} <span style="color:var(--ink-faint)">@ 0x7ffd1bf4</span></span>
+            <span class="sv">${v}</span>
+          </div>`).join("")}
+        ${slots.length === 0 ? '<div class="slot" style="opacity:.5"><span>…</span></div>' : ""}
+      </div>`).join("");
+    const pe = $("#m2-ptr");
+    pe.querySelector(".box").textContent = s.ptr;
+    pe.classList.toggle("bad", s.bad);
+    const n = $("#m2-narr");
+    n.textContent = s.narr;
+    n.classList.toggle("bad", s.bad);
+  });
+
+  /* ============================================================ 3 */
+  let m3mode = "wrong";
+  const M3_N = 4;
+  /* steps: 0 = nada; 1..4 = cria thread k com i=k; 5 = laço acaba (i=4);
+     6..9 = thread k finalmente roda e lê */
+  const M3_TOTAL = 10;
+
+  function m3Render(step) {
+    const wrong = m3mode === "wrong";
+    const created = Math.min(step, M3_N);
+    const loopDone = step >= 5;
+    const ran = Math.max(0, step - 5);
+    const iVal = loopDone ? 4 : created;
+
+    /* boxes */
+    const boxes = $("#m3-boxes");
+    if (wrong) {
+      boxes.innerHTML = `
+        <div class="cell ${loopDone ? "bad" : "hot"}" id="m3-b0">
+          <div class="addr">0x7ffd1000</div>
+          <div class="box">${iVal}</div>
+          <div class="name">int i</div>
+        </div>`;
+    } else {
+      boxes.innerHTML = Array.from({ length: M3_N }, (_, k) => `
+        <div class="cell ${k < created ? "hot" : ""}" id="m3-b${k}" style="min-width:6.2rem">
+          <div class="addr">0x7ffd10${(k * 4).toString(16).padStart(2, "0")}</div>
+          <div class="box">${k < created ? k : "?"}</div>
+          <div class="name">ids[${k}]</div>
+        </div>`).join("");
+    }
+
+    /* thread cards */
+    $("#m3-threads").innerHTML = Array.from({ length: M3_N }, (_, k) => {
+      const isCreated = k < created;
+      const hasRun = k < ran;
+      const read = wrong ? 4 : k;
+      const ok = read === k;
+      return `
+        <div class="tcard ${isCreated ? "" : "pending"} ${hasRun ? (ok ? "right" : "wrong") : ""}"
+             id="m3-t${k}" style="--tc:${tcolor(k)}">
+          <div class="tname">thread ${k}</div>
+          <div class="tval">${hasRun ? `leu ${read}` : (isCreated ? "criada…" : "—")}</div>
+          <div class="tsub">${isCreated ? (wrong ? "&amp;i" : `&amp;ids[${k}]`) : ""}</div>
+        </div>`;
+    }).join("");
+
+    /* narration */
+    const n = $("#m3-narr");
+    let msg, bad = false;
+    if (step === 0) {
+      msg = wrong
+        ? "Antes do laço. Existe UMA caixa `i` em main, e é o endereço dela que vai ser passado quatro vezes."
+        : "Antes do laço. Existe um vetor `ids[4]` — quatro caixas em endereços diferentes.";
+    } else if (step <= M3_N) {
+      msg = wrong
+        ? `Thread ${step - 1} criada com &i = 0x7ffd1000. Repare: o mesmo endereço da anterior. i vale ${iVal} agora, mas a thread ainda não leu nada.`
+        : `Thread ${step - 1} criada com &ids[${step - 1}] — um endereço só dela, que ninguém mais vai escrever.`;
+    } else if (step === 5) {
+      msg = wrong
+        ? "O laço terminou e deixou i = 4. As quatro threads seguram esse mesmo endereço, e nenhuma leu ainda."
+        : "O laço terminou. Cada caixa guarda o seu valor, intacto.";
+      bad = wrong;
+    } else {
+      const k = step - 6;
+      msg = wrong
+        ? `Thread ${k} finalmente roda e lê *arg → 4. Não existe thread 4. As quatro vão ler a mesma coisa.`
+        : `Thread ${k} roda e lê *arg → ${k}. Cada uma encontra o próprio id, rode quando rodar.`;
+      bad = wrong;
+    }
+    n.textContent = msg;
+    n.classList.toggle("bad", bad);
+
+    /* wires */
+    requestAnimationFrame(() => {
+      const svg = $("#m3-wires");
+      wiresInit(svg);
+      for (let k = 0; k < created; k++) {
+        const from = $(`#m3-t${k}`);
+        const to = wrong ? $("#m3-b0") : $(`#m3-b${k}`);
+        if (!from || !to) continue;
+        wire(svg, from, to, {
+          color: wrong ? "var(--danger)" : tcolor(k),
+          marker: wrong ? "arwbad" : `arw${k}`,
+          dashed: wrong
+        });
+      }
+    });
+  }
+  stepper("m3", M3_TOTAL, m3Render);
+  $$("[data-m3mode]").forEach(b => b.addEventListener("click", () => {
+    m3mode = b.dataset.m3mode;
+    $$("[data-m3mode]").forEach(o =>
+      o.setAttribute("aria-pressed", String(o.dataset.m3mode === m3mode)));
+    steppers.m3.i = 0;
+    m3Render(0);
+    dots("m3");
+  }));
+
+  /* ============================================================ 4 */
+  const OPS = { ler: "LER", somar: "SOMAR +1", gravar: "GRAVAR" };
+  const SEQ_SERIAL = [["A","ler"],["A","somar"],["A","gravar"],["B","ler"],["B","somar"],["B","gravar"]];
+  const SEQ_LOST   = [["A","ler"],["B","ler"],["A","somar"],["B","somar"],["A","gravar"],["B","gravar"]];
+  let m4seq = SEQ_SERIAL;
+
+  function m4State(upto) {
+    let mem = 10, ra = null, rb = null;
+    const rows = [];
+    m4seq.forEach(([t, op], k) => {
+      const done = k < upto;
+      let detail = "";
+      if (done) {
+        if (op === "ler")    { if (t === "A") ra = mem; else rb = mem; detail = `← ${mem}`; }
+        if (op === "somar")  { if (t === "A") ra += 1;  else rb += 1;  detail = `= ${t === "A" ? ra : rb}`; }
+        if (op === "gravar") { mem = (t === "A" ? ra : rb);            detail = `→ ${mem}`; }
+      }
+      rows.push({ t, op, detail, done, mem });
+    });
+    return { mem, ra, rb, rows };
+  }
+
+  function m4Render(step) {
+    const st = m4State(step);
+    $("#m4-ra").textContent = st.ra === null ? "—" : st.ra;
+    $("#m4-rb").textContent = st.rb === null ? "—" : st.rb;
+    $("#m4-mem").textContent = st.mem;
+    $("#m4-exp").textContent = 12;
+    const done = step >= m4seq.length;
+    $("#m4-mem").className = "bv" + (done ? (st.mem === 12 ? " ok" : " bad") : "");
+
+    $("#m4-grid").innerHTML =
+      `<div class="rh">#</div><div class="rh a">thread A</div>
+       <div class="rh b">thread B</div><div class="rh">contador</div>` +
+      st.rows.map((r, k) => {
+        const now = k === step - 1;
+        const cls = now ? "row-now" : (r.done ? "" : "row-past");
+        const cellA = r.t === "A" ? `${OPS[r.op]} <span class="op">${r.detail}</span>` : "";
+        const cellB = r.t === "B" ? `${OPS[r.op]} <span class="op">${r.detail}</span>` : "";
+        return `<div class="${cls}">${k + 1}</div>
+                <div class="${cls}" style="color:${r.t === "A" ? "var(--t0)" : "inherit"}">${cellA}</div>
+                <div class="${cls}" style="color:${r.t === "B" ? "var(--t1)" : "inherit"}">${cellB}</div>
+                <div class="${cls}">${r.done ? r.mem : "·"}</div>`;
+      }).join("");
+
+    const n = $("#m4-narr");
+    if (step === 0) {
+      n.textContent = "contador = 10. As duas threads vão somar 1. O resultado correto é 12.";
+      n.classList.remove("bad");
+    } else if (!done) {
+      const r = st.rows[step - 1];
+      const txt = {
+        ler: `Thread ${r.t} copiou o valor da memória para o registrador dela. A memória não mudou.`,
+        somar: `Thread ${r.t} somou 1 no registrador. A memória continua igual — ninguém gravou ainda.`,
+        gravar: `Thread ${r.t} gravou o registrador na memória, por cima do que estivesse lá.`
+      }[r.op];
+      n.textContent = txt;
+      n.classList.remove("bad");
+    } else {
+      const lost = 12 - st.mem;
+      n.textContent = lost === 0
+        ? "Deu 12. Nesta ordem nenhuma das duas leu antes da outra gravar — não houve conflito. Note que o código é exatamente o mesmo da ordem que perde."
+        : `Deu ${st.mem}: ${lost} soma${lost > 1 ? "s" : ""} desapareceu. As duas leram 10 antes de qualquer gravação, então a segunda gravação escreveu por cima da primeira.`;
+      n.classList.toggle("bad", lost !== 0);
+    }
+  }
+  stepper("m4", SEQ_SERIAL.length + 1, m4Render);
+  function m4Set(seq, key) {
+    m4seq = seq;
+    steppers.m4.total = seq.length + 1;
+    steppers.m4.i = 0;
+    m4Render(0);
+    dots("m4");
+    $$("[data-m4seq]").forEach(o =>
+      o.setAttribute("aria-pressed", String(o.dataset.m4seq === key)));
+  }
+  $$("[data-m4seq]").forEach(b => b.addEventListener("click", () => {
+    const k = b.dataset.m4seq;
+    if (k === "serial") m4Set(SEQ_SERIAL, "serial");
+    else if (k === "lost") m4Set(SEQ_LOST, "lost");
+    else {
+      /* interleave A's three ops with B's three, keeping each thread's order */
+      const a = ["ler", "somar", "gravar"], bb = ["ler", "somar", "gravar"];
+      const out = [];
+      while (a.length || bb.length) {
+        const takeA = bb.length === 0 || (a.length > 0 && Math.random() < 0.5);
+        out.push(takeA ? ["A", a.shift()] : ["B", bb.shift()]);
+      }
+      m4Set(out, "random");
+    }
+  }));
+
+  /* ============================================================ 5 */
+  const M5 = { mode: "chunk", fix: false, n: 16, t: 4 };
+  const cost = i => 1 + i * 0.6;   /* custo cresce com o número — divisores */
+
+  function m5Assign() {
+    const { n, t, mode, fix } = M5;
+    const owner = new Array(n).fill(-1);
+    if (mode === "sparse") {
+      for (let i = 0; i < n; i++) owner[i] = i % t;
+    } else {
+      const base = Math.floor(n / t), rest = n % t;
+      let start = 0;
+      for (let k = 0; k < t; k++) {
+        const size = base + (fix && k < rest ? 1 : 0);
+        for (let i = start; i < start + size && i < n; i++) owner[i] = k;
+        start += size;
+      }
+    }
+    return owner;
+  }
+
+  function m5Render() {
+    const { n, t, mode, fix } = M5;
+    const owner = m5Assign();
+    $("#m5-nout").textContent = n;
+    $("#m5-tout").textContent = t;
+
+    $("#m5-cells").innerHTML = owner.map((o, i) =>
+      o < 0
+        ? `<div class="dcell orphan" title="ninguém processa">${i}</div>`
+        : `<div class="dcell" style="background:${tcolor(o)}">${i}</div>`
+    ).join("");
+
+    const loads = new Array(t).fill(0);
+    const counts = new Array(t).fill(0);
+    owner.forEach((o, i) => { if (o >= 0) { loads[o] += cost(i); counts[o]++; } });
+    const max = Math.max(...loads, 1);
+    $("#m5-bars").innerHTML = loads.map((l, k) => `
+      <div class="loadrow">
+        <span class="ln" style="color:${tcolor(k)}">thread ${k}</span>
+        <span class="track"><span class="fill" style="width:${(l / max) * 100}%;background:${tcolor(k)}"></span></span>
+        <span class="lv">${counts[k]} nº</span>
+      </div>`).join("");
+
+    $("#m5-legend").innerHTML = Array.from({ length: t }, (_, k) =>
+      `<span><i style="background:${tcolor(k)}"></i> thread ${k}</span>`).join("") +
+      (owner.includes(-1) ? `<span><i style="background:var(--danger)"></i> ninguém</span>` : "");
+
+    const orphans = owner.filter(o => o < 0).length;
+    const spread = ((max - Math.min(...loads)) / max * 100).toFixed(0);
+    const nar = $("#m5-narr");
+    let msg;
+    if (orphans > 0) {
+      msg = `${n} ÷ ${t} não é exato: ${orphans} número${orphans > 1 ? "s ficam" : " fica"} sem dono. ` +
+            `A conta final vai fechar errado, e o programa não vai reclamar de nada. Aperte “tratar o resto”.`;
+    } else if (mode === "chunk") {
+      msg = `Chunk: faixas contínuas, divisão certa. Mas a thread ${loads.indexOf(max)} pegou os números maiores ` +
+            `e carrega ${spread}% mais trabalho que a mais folgada — as outras vão esperar por ela no join.`;
+    } else {
+      msg = `Esparsa: cada thread pega um a cada ${t}, então cada uma recebe números pequenos e grandes. ` +
+            `Diferença de carga: ${spread}%. E sem resto para tratar — repare que nenhuma célula ficou órfã.`;
+    }
+    nar.textContent = msg;
+    nar.classList.toggle("bad", orphans > 0);
+
+    $("[data-m5fix]").setAttribute("aria-pressed", String(fix));
+    $("[data-m5fix]").disabled = mode === "sparse";
+    $$("[data-m5mode]").forEach(o =>
+      o.setAttribute("aria-pressed", String(o.dataset.m5mode === mode)));
+  }
+  $$("[data-m5mode]").forEach(b => b.addEventListener("click", () => {
+    M5.mode = b.dataset.m5mode; m5Render();
+  }));
+  $("[data-m5fix]").addEventListener("click", () => { M5.fix = !M5.fix; m5Render(); });
+  $("#m5-n").addEventListener("input", e => { M5.n = +e.target.value; m5Render(); });
+  $("#m5-t").addEventListener("input", e => { M5.t = +e.target.value; m5Render(); });
+
+  /* ---------------------------------------------------------------- */
+  m1Render(m1Msgs.init);
+  m5Render();
+  let rt;
+  addEventListener("resize", () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => { m1Render($("#m1-narr").textContent); m3Render(steppers.m3.i); }, 120);
+  });
+})();
+</script>
