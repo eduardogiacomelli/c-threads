@@ -1,26 +1,166 @@
 @import "tailwindcss";
 
+/* class-based dark mode, driven by the boot script in layout.tsx */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Theming is done with plain CSS variables rather than Tailwind's `dark:`
+ * variant. Every colour in the app is `var(--something)`, so a theme swap is
+ * one block of redefinitions and no component has to know a theme exists.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f4f6f9;
+  --panel: #ffffff;
+  --sunken: #eaedf3;
+  --line: #d5dae3;
+  --line-soft: #e5e9ef;
+  --text: #141821;
+  --muted: #5a6373;
+  --faint: #8a93a4;
+
+  --accent: #2f53d8;
+  --accent-soft: #e6ebfd;
+  --danger: #c81e3a;
+  --danger-soft: #fbe8eb;
+  --warn: #a45c00;
+  --warn-soft: #fdf0dd;
+  --ok: #0f7a4d;
+  --ok-soft: #e3f5ec;
+
+  --t0: #2f53d8;
+  --t1: #c2185b;
+  --t2: #0f8b76;
+  --t3: #b45309;
+  --t4: #6d28d9;
+  --t5: #0369a1;
+
+  --syn-keyword: #a13bc4;
+  --syn-type: #0f7a8d;
+  --syn-ident: #1c2330;
+  --syn-number: #b45309;
+  --syn-string: #0f7a4d;
+  --syn-comment: #7c8595;
+  --syn-preproc: #7a5cbf;
+  --syn-punct: #6b7484;
+  --syn-op: #38414f;
+  --syn-fn: #2f53d8;
+
+  --grid: rgba(20, 24, 33, 0.05);
+}
+
+.dark {
+  --bg: #0e1117;
+  --panel: #161b24;
+  --sunken: #10141b;
+  --line: #262d3a;
+  --line-soft: #1e242f;
+  --text: #e6eaf1;
+  --muted: #98a1b3;
+  --faint: #6b7488;
+
+  --accent: #7d9bff;
+  --accent-soft: #1a2340;
+  --danger: #ff7386;
+  --danger-soft: #33191f;
+  --warn: #f0a04b;
+  --warn-soft: #33260f;
+  --ok: #4ec48c;
+  --ok-soft: #10281e;
+
+  --t0: #7d9bff;
+  --t1: #ff7fa8;
+  --t2: #3fc9ac;
+  --t3: #f0a04b;
+  --t4: #b393ff;
+  --t5: #4fb6e8;
+
+  --syn-keyword: #d79bf0;
+  --syn-type: #5fd4d0;
+  --syn-ident: #dfe5ef;
+  --syn-number: #f0b36b;
+  --syn-string: #7fd7a4;
+  --syn-comment: #64708a;
+  --syn-preproc: #b393ff;
+  --syn-punct: #7c869a;
+  --syn-op: #b3bdcd;
+  --syn-fn: #7d9bff;
+
+  --grid: rgba(230, 234, 241, 0.045);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-sunken: var(--sunken);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--line);
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* the faint engineering grid inside memory panels */
+.gridpaper {
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: -1px -1px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--panel);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* thin scrollbars so panes do not look like scroll containers */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+@keyframes pulse-write {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+}
+
+.pulse-write {
+  animation: pulse-write 0.55s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }
