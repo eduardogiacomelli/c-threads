@@ -1,0 +1,3 @@
+# compiled steps: `make 01` builds these next to the source
+passo-*
+!passo-*.c
