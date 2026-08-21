@@ -2,9 +2,8 @@
 
 Step through C programs and watch the stack, the heap and the threads move.
 
-Built for INE5645 prep: the programs mirror the `passo-NN` files in
-`~/c-playground/c-do-zero/` and
-`~/vaultin/Vaulters/01_Courses/PPD/01_PPD_Go/07_Pthreads_Do_Zero/`.
+Built for INE5645 prep. The programs mirror the `passo-NN` tutorial in
+[`c/`](c/), which is the same material as runnable C.
 
 ```bash
 pnpm dev      # http://localhost:3000
@@ -104,6 +103,24 @@ export const myThing: Program = {
 
 Register it in `src/lib/programs/index.ts`. Use `at("some code")` rather than
 a line number so editing the C source cannot silently desync the trace.
+
+## The C tutorial
+
+[`c/`](c/) holds 19 numbered steps, one idea each, compiled with ASan and
+UBSan so a bad pointer reports a file and a line rather than a bare segfault.
+
+```bash
+cd c && make 05      # build and run one step
+make limpar          # remove the binaries
+```
+
+Roughly half are wrong on purpose and the following step fixes them, so
+`make 09`, `make 12` and `make 14` are *supposed* to abort under the
+sanitizer. Start at [`c/00 - COMECE AQUI.md`](c/00%20-%20COMECE%20AQUI.md);
+[`c/memoria.md`](c/memoria.md) is the stack/heap diagram the pointer steps
+refer back to, and `c/inspetor.html` opens straight from the filesystem.
+
+Written in Portuguese, unlike the app.
 
 ## Stack
 
