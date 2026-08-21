@@ -30,6 +30,18 @@ Every panel is live: hover any identifier in the source to read its current
 value, address and size; click a line to jump the timeline there; arrow keys
 step, space plays.
 
+**Byte view** (the `bytes` button) drops every box down to its raw bytes,
+lowest address first. It is where little-endian stops being a word — 25 is
+`19 00 00 00` — and where struct padding becomes visible: `Args { int; int *; }`
+is 16 bytes, not 12, because the pointer has to start on an 8-byte boundary.
+The layout engine applies real ABI alignment rules, so the sizes it prints are
+the ones `sizeof` gives you.
+
+**Blocking joins** are modelled, not narrated. `pthread_join` sets main to
+`blocked` and its next op is gated on the joined thread actually finishing, so
+the scheduler cannot pick main until then. You watch the CPU go to the workers
+while main waits.
+
 Programs 5, 6 and 7 are **simulated, not scripted**. Each thread is a lane of
 ops, and a seeded scheduler interleaves the lanes while keeping each lane in
 order — the same constraint a real scheduler obeys. `shuffle schedule` picks a

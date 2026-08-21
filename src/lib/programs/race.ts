@@ -69,6 +69,34 @@ export const race: Program = {
       },
     }));
 
+    const firstJoin = at("pthread_join");
+    const joinLine = [firstJoin, at("pthread_join", firstJoin)];
+
+    for (let k = 0; k < 2; k++) {
+      mainOps.push({
+        run: () => {
+          m.setThread(0, {
+            state: "blocked",
+            detail: `waiting for thread ${names[k]}`,
+          });
+          m.snap(
+            joinLine[k],
+            `main blocks in pthread_join on thread ${names[k]}. Nothing in main runs until that thread is done.`,
+            { tone: "warn" },
+          );
+        },
+      });
+      mainOps.push({
+        ready: () => finished[k],
+        run: () => {
+          m.setThread(0, { state: "running", detail: undefined });
+          m.snap(joinLine[k], `Thread ${names[k]} is finished; join returns.`, {
+            tone: "ok",
+          });
+        },
+      });
+    }
+
     mainOps.push({
       ready: () => finished.every(Boolean),
       run: () => {

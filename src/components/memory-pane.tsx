@@ -44,10 +44,12 @@ function FrameCard({
   frame,
   step,
   showAddresses,
+  showBytes,
 }: {
   frame: Frame;
   step: Step;
   showAddresses: boolean;
+  showBytes: boolean;
 }) {
   const accent = threadColor(frame.thread);
   return (
@@ -87,6 +89,7 @@ function FrameCard({
             read={step.reads.includes(slot.id)}
             written={step.writes.includes(slot.id)}
             showAddress={showAddresses}
+            showBytes={showBytes}
           />
         ))
       )}
@@ -97,9 +100,11 @@ function FrameCard({
 export function MemoryPane({
   step,
   showAddresses,
+  showBytes,
 }: {
   step: Step;
   showAddresses: boolean;
+  showBytes: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -114,6 +119,22 @@ export function MemoryPane({
     >
       <Arrows containerRef={ref} step={step} />
 
+      {showBytes && (
+        /* without this line the reversed bytes read as a rendering bug */
+        <div className="relative mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded border border-[var(--line)] bg-[var(--panel)] px-2.5 py-1.5 font-mono text-[10px] text-[var(--muted)]">
+          <span className="font-sans font-semibold uppercase tracking-[0.12em] text-[var(--faint)]">
+            byte view
+          </span>
+          <span>lowest address first — x86-64 is little-endian, so 25 is 19 00 00 00</span>
+          <span className="flex items-center gap-1">
+            <span className="rounded-[2px] border border-dashed border-[var(--line)] px-1 text-[var(--faint)]">
+              ··
+            </span>
+            alignment padding: real bytes, holding nothing
+          </span>
+        </div>
+      )}
+
       <div className="relative flex min-w-max items-start gap-5">
         {/* statics ------------------------------------------------- */}
         {step.globals.length > 0 && (
@@ -127,6 +148,7 @@ export function MemoryPane({
                   read={step.reads.includes(slot.id)}
                   written={step.writes.includes(slot.id)}
                   showAddress={showAddresses}
+                  showBytes={showBytes}
                 />
               ))}
             </div>
@@ -141,6 +163,11 @@ export function MemoryPane({
             <section key={thread.id} className="grid min-w-[14rem] gap-1.5">
               <PanelTitle icon={Layers} color={threadColor(thread.id)}>
                 stack · {thread.name}
+                {thread.state === "blocked" && (
+                  <span className="ml-1 font-mono text-[9px] normal-case tracking-normal text-[var(--warn)]">
+                    blocked{thread.detail ? ` · ${thread.detail}` : ""}
+                  </span>
+                )}
               </PanelTitle>
               <div className="grid gap-1.5">
                 {/* no AnimatePresence: a popped frame is either kept as an
@@ -152,6 +179,7 @@ export function MemoryPane({
                     frame={frame}
                     step={step}
                     showAddresses={showAddresses}
+                    showBytes={showBytes}
                   />
                 ))}
                 {frames.length === 0 && (
@@ -194,6 +222,7 @@ export function MemoryPane({
                       read={step.reads.includes(slot.id)}
                       written={step.writes.includes(slot.id)}
                       showAddress={showAddresses}
+                      showBytes={showBytes}
                     />
                   ))}
                 </div>

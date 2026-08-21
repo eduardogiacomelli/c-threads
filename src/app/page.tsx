@@ -11,7 +11,7 @@ import { byId } from "@/lib/programs";
 import { useMachine } from "@/store/machine-store";
 
 export default function Page() {
-  const { programId, mode, seed, steps, index, source, showAddresses, go } =
+  const { programId, mode, seed, steps, index, source, showAddresses, showBytes, go } =
     useMachine();
   const program = byId(programId);
   const step = steps[Math.min(index, steps.length - 1)];
@@ -67,6 +67,7 @@ export default function Page() {
                 key={`${programId}-${mode}-${seed}`}
                 step={step}
                 showAddresses={showAddresses}
+                showBytes={showBytes}
               />
               <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_minmax(0,16rem)]">
                 <div className="grid gap-2">

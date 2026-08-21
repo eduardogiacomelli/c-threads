@@ -12,6 +12,7 @@ interface MachineStore {
   playing: boolean;
   speed: number;
   showAddresses: boolean;
+  showBytes: boolean;
 
   steps: Step[];
   source: string;
@@ -26,6 +27,7 @@ interface MachineStore {
   togglePlay: () => void;
   setSpeed: (s: number) => void;
   toggleAddresses: () => void;
+  toggleBytes: () => void;
 }
 
 function rebuild(programId: string, mode: string, seed: number) {
@@ -47,6 +49,7 @@ export const useMachine = create<MachineStore>((set, get) => ({
   playing: false,
   speed: 900,
   showAddresses: true,
+  showBytes: false,
   ...rebuild(FIRST.id, initialMode, 7),
 
   select: (id) => {
@@ -87,4 +90,5 @@ export const useMachine = create<MachineStore>((set, get) => ({
     })),
   setSpeed: (speed) => set({ speed }),
   toggleAddresses: () => set((s) => ({ showAddresses: !s.showAddresses })),
+  toggleBytes: () => set((s) => ({ showBytes: !s.showBytes })),
 }));

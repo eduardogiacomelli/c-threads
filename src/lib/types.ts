@@ -26,8 +26,11 @@ export interface Slot {
   points?: string | null;
   /** Storage is gone (popped frame, freed block) but still drawn. */
   dead?: boolean;
-  /** Short label under the box, e.g. "lixo" or "fora do vetor". */
+  /** Short label under the box. */
   tag?: string;
+  /** Alignment padding that follows this slot, in bytes. Only the byte view
+   *  shows it, but it is what makes sizeof(struct) bigger than its fields. */
+  padAfter?: number;
   tone?: Tone;
 }
 

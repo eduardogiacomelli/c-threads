@@ -62,15 +62,31 @@ export function ThreadRail({ step }: { step: Step }) {
               active
                 ? "border-[var(--line)] bg-[var(--panel)]"
                 : "border-[var(--line-soft)] bg-transparent opacity-70",
+              t.state === "blocked" &&
+                "border-[var(--warn)] bg-[var(--warn-soft)] opacity-100",
             )}
             style={active ? { borderLeftColor: color, borderLeftWidth: 3 } : undefined}
           >
+            {/* a blocked thread pulses: it is the one state where nothing
+                changes on screen for several steps, so it needs to look like
+                waiting rather than like a bug */}
             <span
-              className={cn("h-1.5 w-1.5 rounded-full", t.state === "done" && "opacity-30")}
+              className={cn(
+                "h-1.5 w-1.5 rounded-full",
+                t.state === "done" && "opacity-30",
+                t.state === "blocked" && "animate-ping-slow",
+              )}
               style={{ background: color }}
             />
             <span className="font-mono text-[11px] text-[var(--text)]">{t.name}</span>
-            <span className="font-mono text-[10px] text-[var(--faint)]">
+            <span
+              className={cn(
+                "font-mono text-[10px]",
+                t.state === "blocked"
+                  ? "text-[var(--warn)]"
+                  : "text-[var(--faint)]",
+              )}
+            >
               {STATE_LABEL[t.state]}
               {t.line != null && t.state !== "done" ? ` · line ${t.line}` : ""}
               {t.detail ? ` · ${t.detail}` : ""}

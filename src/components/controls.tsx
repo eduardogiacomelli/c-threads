@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Dices,
+  Binary,
   Hash,
   Moon,
   Pause,
@@ -165,6 +166,15 @@ export function Controls() {
         active={s.showAddresses}
       >
         <Hash size={13} />
+      </Btn>
+
+      <Btn
+        onClick={s.toggleBytes}
+        title="Show the raw bytes of every box (little-endian)"
+        active={s.showBytes}
+      >
+        <Binary size={13} />
+        bytes
       </Btn>
 
       {/* icon swap is pure CSS so there is no theme state to hydrate */}

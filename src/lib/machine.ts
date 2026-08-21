@@ -1,3 +1,4 @@
+import { alignOf, roundUp } from "./bytes";
 import type {
   Frame,
   HeapBlock,
@@ -112,7 +113,7 @@ export class Machine {
       f.dead = true;
       f.slots.forEach((s) => {
         s.dead = true;
-        s.tag = "quadro liberado";
+        s.tag = "frame released";
       });
     } else {
       this.frames = this.frames.filter((x) => x.id !== f.id);
@@ -130,7 +131,13 @@ export class Machine {
 
   declare(spec: SlotSpec, thread = 0): Slot {
     const f = this.frameOf(thread);
-    const used = f.slots.reduce((n, s) => n + s.size, 0);
+    const size = spec.size ?? 4;
+    const packed = f.slots.reduce((n, x) => n + x.size + (x.padAfter ?? 0), 0);
+    const used = roundUp(packed, alignOf(size));
+    if (used > packed && f.slots.length > 0) {
+      const prev = f.slots[f.slots.length - 1];
+      prev.padAfter = (prev.padAfter ?? 0) + (used - packed);
+    }
     const s: Slot = {
       id: nextId("slot"),
       kind: spec.kind ?? "scalar",
@@ -149,7 +156,10 @@ export class Machine {
   }
 
   global(spec: SlotSpec): Slot {
-    const used = this.globals.reduce((n, s) => n + s.size, 0);
+    const used = roundUp(
+      this.globals.reduce((n, s) => n + s.size, 0),
+      alignOf(spec.size ?? 4),
+    );
     const s: Slot = {
       id: nextId("glob"),
       kind: spec.kind ?? "scalar",
@@ -176,7 +186,12 @@ export class Machine {
     const elem = opts.elemSize ?? 4;
     const thread = opts.thread ?? 0;
     const f = this.frameOf(thread);
-    const base = frameAddr(thread, f.depth) + f.slots.reduce((n, s) => n + s.size, 0);
+    const base =
+      frameAddr(thread, f.depth) +
+      roundUp(
+        f.slots.reduce((n, s) => n + s.size + (s.padAfter ?? 0), 0),
+        alignOf(elem),
+      );
     return values.map((v, i) => {
       const s: Slot = {
         id: nextId("slot"),
@@ -193,31 +208,53 @@ export class Machine {
     });
   }
 
+  /**
+   * Lays the struct out the way the ABI does: every field starts at a
+   * multiple of its own alignment, and the total is rounded up to the widest
+   * member. That is why sizeof(struct) is usually more than the sum of the
+   * fields, and the byte view is where you can actually see it.
+   */
   malloc(label: string, specs: SlotSpec[]): HeapBlock {
-    const size = specs.reduce((n, s) => n + (s.size ?? 4), 0);
     const block: HeapBlock = {
       id: nextId("heap"),
       label,
       addr: this.heapCursor,
-      size,
+      size: 0,
       slots: [],
     };
+
     let off = 0;
+    let widest = 1;
     for (const spec of specs) {
+      const size = spec.size ?? 4;
+      const align = alignOf(size);
+      widest = Math.max(widest, align);
+      const at = roundUp(off, align);
+      if (at > off && block.slots.length > 0) {
+        const prev = block.slots[block.slots.length - 1];
+        prev.padAfter = (prev.padAfter ?? 0) + (at - off);
+      }
       block.slots.push({
         id: nextId("slot"),
         kind: spec.kind ?? "field",
-        size: spec.size ?? 4,
-        addr: block.addr + off,
+        size,
+        addr: block.addr + at,
         points: spec.points ?? null,
         name: spec.name,
         type: spec.type,
         value: spec.value,
         tag: spec.tag,
       });
-      off += spec.size ?? 4;
+      off = at + size;
     }
-    this.heapCursor += Math.ceil((size + 16) / 16) * 16;
+
+    block.size = roundUp(off, widest);
+    if (block.size > off && block.slots.length > 0) {
+      const last = block.slots[block.slots.length - 1];
+      last.padAfter = (last.padAfter ?? 0) + (block.size - off);
+    }
+
+    this.heapCursor += roundUp(block.size + 16, 16);
     this.heap.push(block);
     this.pendingWrites.push(...block.slots.map((s) => s.id));
     return block;

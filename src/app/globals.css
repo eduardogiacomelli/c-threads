@@ -156,6 +156,15 @@ body {
   animation: pulse-write 0.55s ease-out;
 }
 
+@keyframes ping-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.25; transform: scale(1.6); }
+}
+
+.animate-ping-slow {
+  animation: ping-slow 1.1s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

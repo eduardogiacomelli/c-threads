@@ -119,11 +119,36 @@ export const threadArg: Program = {
       },
     });
 
-    mainOps.push({
-      run: () => {
-        m.snap(at("pthread_join"), "main reaches the joins and blocks until every thread has finished.");
-      },
-    });
+    /* One join per thread, in two ops: main blocks, and only becomes
+       runnable again once that thread has finished. While it is blocked the
+       scheduler physically cannot pick it, which is what makes the wait
+       visible instead of merely implied. */
+    for (let k = 0; k < N; k++) {
+      mainOps.push({
+        run: () => {
+          m.setThread(0, { state: "blocked", detail: `waiting for thread ${k}` });
+          m.snap(
+            at("pthread_join"),
+            finished[k]
+              ? `main calls pthread_join(t[${k}]). That thread already finished, so this returns straight away — join waits for a thread, it does not make one run.`
+              : `main calls pthread_join(t[${k}]) and blocks. It cannot execute another line until thread ${k} is done; watch the scheduler hand the CPU to the workers.`,
+            { tone: "warn" },
+          );
+        },
+      });
+      mainOps.push({
+        ready: () => finished[k],
+        run: () => {
+          m.setThread(0, { state: "running", detail: undefined });
+          m.snap(
+            at("pthread_join"),
+            `Thread ${k} finished, so join returned and main is runnable again.`,
+            { tone: "ok" },
+          );
+        },
+      });
+    }
+
     mainOps.push({
       ready: () => finished.every(Boolean),
       run: () => {

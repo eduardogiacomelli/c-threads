@@ -119,8 +119,19 @@ export const workSplit: Program = {
 
     for (let k = 0; k < N; k++) {
       mainOps.push({
+        run: () => {
+          m.setThread(0, { state: "blocked", detail: `waiting for thread ${k}` });
+          m.snap(
+            at("pthread_join"),
+            `main blocks on thread ${k}. The join is also what makes that thread's write visible here: everything it did happens-before this call returns, which is why no lock is needed to read the result.`,
+            { tone: "warn" },
+          );
+        },
+      });
+      mainOps.push({
         ready: () => finished[k],
         run: () => {
+          m.setThread(0, { state: "running", detail: undefined });
           const sumSlot = blocks[k].slots[3];
           const before = Number(total!.value);
           const add = Number(m.read(sumSlot));

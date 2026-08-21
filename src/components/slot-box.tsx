@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { ByteGrid } from "./byte-grid";
 import { hex } from "@/lib/machine";
 import type { Slot } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -16,12 +17,14 @@ export function SlotBox({
   read,
   written,
   showAddress,
+  showBytes,
   accent,
 }: {
   slot: Slot;
   read?: boolean;
   written?: boolean;
   showAddress: boolean;
+  showBytes?: boolean;
   /** Thread colour, when the slot belongs to a thread's frame. */
   accent?: string;
 }) {
@@ -61,6 +64,11 @@ export function SlotBox({
         <span className="flex items-baseline gap-1.5">
           <span className="text-[var(--muted)]">{slot.name}</span>
           <span className="text-[10px] text-[var(--faint)]">{slot.type}</span>
+          {showBytes && (slot.padAfter ?? 0) > 0 && (
+            <span className="text-[10px] text-[var(--faint)]">
+              +{slot.padAfter} pad
+            </span>
+          )}
         </span>
         <span
           className={cn(
@@ -71,6 +79,8 @@ export function SlotBox({
           {slot.value}
         </span>
       </motion.div>
+
+      {showBytes && <ByteGrid slot={slot} dim={slot.dead} />}
 
       {slot.tag && (
         <span
