@@ -14,7 +14,7 @@ pnpm lint
 
 ## What it does
 
-Six programs, each replayed one machine step at a time:
+Seven programs, each replayed one machine step at a time:
 
 | # | Program | Shows |
 |---|---------|-------|
@@ -24,17 +24,23 @@ Six programs, each replayed one machine step at a time:
 | 4 | A struct on the heap | `malloc`, `->`, use-after-free |
 | 5 | One box for all threads, or one each | the `&i` bug, one slot per thread |
 | 6 | `counter++` is three operations | load / add / store, lost update |
+| 7 | Split the work, combine after the join | private output slots, why this needs no mutex |
 
 Every panel is live: hover any identifier in the source to read its current
 value, address and size; click a line to jump the timeline there; arrow keys
 step, space plays.
 
-Programs 5 and 6 are **simulated, not scripted**. Each thread is a lane of
+Programs 5, 6 and 7 are **simulated, not scripted**. Each thread is a lane of
 ops, and a seeded scheduler interleaves the lanes while keeping each lane in
 order — the same constraint a real scheduler obeys. `shuffle schedule` picks a
 new seed, so the race genuinely prints 11 on some runs and 12 on others, and
 the `&i` program genuinely reads a different id depending on when a thread
 gets the CPU.
+
+Program 7 is the control case: shuffle it as much as you like and it prints
+210 every time, because no two threads write the same box. Race and no-race
+run through the same scheduler, which is the only way the contrast means
+anything.
 
 ## How it is put together
 

@@ -108,18 +108,31 @@ export const threadArg: Program = {
 
     mainOps.push({
       run: () => {
+        m.write(i, String(N));
+        m.snap(
+          at("for (int i"),
+          shared
+            ? `The loop increments i one last time to ${N}, then the test fails and it exits. Any thread that has not dereferenced yet will now read ${N} — an id that does not exist.`
+            : "The loop ends. Nothing it wrote is going to change again.",
+          { tone: shared ? "error" : "info" },
+        );
+      },
+    });
+
+    mainOps.push({
+      run: () => {
         m.snap(at("pthread_join"), "main reaches the joins and blocks until every thread has finished.");
       },
     });
     mainOps.push({
       ready: () => finished.every(Boolean),
       run: () => {
-        m.popFrame(0, false);
+        m.setThread(0, { state: "done", line: null });
         m.snap(
           at("return 0"),
           shared
-            ? "Every thread read the same box. Run the shuffle button a few times: the numbers change, and sometimes a thread reads 3 — an id that does not exist."
-            : "Every thread found its own id, whatever order they ran in. The result no longer depends on timing.",
+            ? `Three arrows, one box. Every thread dereferenced the same address and got whatever \`i\` happened to hold at that instant. Shuffle the schedule: the ids change, and a thread that runs late reads ${N}.`
+            : "Three arrows, three boxes, no overlap. Every thread found its own id whatever order they ran in — the result stopped depending on timing.",
           { tone: shared ? "error" : "ok" },
         );
       },
@@ -137,6 +150,14 @@ export const threadArg: Program = {
               m.setThread(tid, { state: "running" });
               m.pushFrame("worker", tid);
               const arg = argSlot[k];
+              /* `void *arg` is a parameter, which means it is a real box on
+                 this thread's own stack holding a copy of the address. It is
+                 what the arrows point from. */
+              const argBox = m.declare(
+                { name: "arg", type: "void *", value: "", size: 8, kind: "pointer" },
+                tid,
+              );
+              m.aim(argBox, arg);
               const read = m.read(arg);
               const idSlot = m.declare(
                 { name: "id", type: "int", value: read },
@@ -161,7 +182,7 @@ export const threadArg: Program = {
               const idSlot = frame?.slots.find((s) => s.name === "id");
               const val = idSlot ? m.read(idSlot) : "?";
               m.print(`thread ${val}`);
-              m.popFrame(tid, false);
+              m.popFrame(tid, true);
               m.setThread(tid, { state: "done", line: null });
               finished[k] = true;
               m.snap(at("printf("), `Thread ${k} prints and exits.`, { thread: tid });

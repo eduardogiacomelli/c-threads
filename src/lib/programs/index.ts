@@ -5,6 +5,7 @@ import { arrays } from "./arrays";
 import { heap } from "./heap";
 import { threadArg } from "./thread-arg";
 import { race } from "./race";
+import { workSplit } from "./work-split";
 
 /** Order matters: this is the teaching sequence. */
 export const PROGRAMS: Program[] = [
@@ -14,6 +15,7 @@ export const PROGRAMS: Program[] = [
   heap,
   threadArg,
   race,
+  workSplit,
 ];
 
 export const byId = (id: string) =>

@@ -75,6 +75,7 @@ export const race: Program = {
         const value = Number(counter.value);
         m.read(counter);
         m.print(`counter = ${value}`);
+        m.setThread(0, { state: "done" });
         m.snap(
           at("printf("),
           value === 12
