@@ -34,6 +34,8 @@ export const heap: Program = {
   blurb: "malloc, -> versus ., and what free actually invalidates.",
   origin: "c-do-zero / passo-15 e 16",
   concepts: ["malloc", "free", "struct", "->", "use-after-free"],
+  takeaway:
+    "One `free` per `malloc`, `NULL` the pointer straight after, and write down who frees it. Test `malloc` against NULL even though it \"never\" fails.",
   source: () => SRC,
   build() {
     const at = lineFinder(SRC);

@@ -35,6 +35,8 @@ export const dangling: Program = {
   blurb: "Why a pointer to a local survives as a number and stops being valid as a box.",
   origin: "c-do-zero / passo-14",
   concepts: ["stack frame", "lifetime", "dangling pointer", "stack-use-after-return"],
+  takeaway:
+    "Never let an address outlive its box. If a result must survive the return it belongs on the heap or in storage the caller owns — and say which in a comment, because the compiler will not.",
   source: () => SRC,
   build() {
     const at = lineFinder(SRC);

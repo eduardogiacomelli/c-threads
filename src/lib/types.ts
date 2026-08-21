@@ -100,6 +100,8 @@ export interface Program {
   /** Which passo file this mirrors. */
   origin: string;
   concepts: string[];
+  /** The rule of thumb to carry away, in one sentence. */
+  takeaway: string;
   /** A mode can change the code itself, so the source depends on it. */
   source: (mode: string) => string;
   modes?: ProgramMode[];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Cpu } from "lucide-react";
+import { Cpu, Lightbulb } from "lucide-react";
 import { CodePane } from "@/components/code-pane";
 import { Controls } from "@/components/controls";
 import { MemoryPane } from "@/components/memory-pane";
@@ -42,13 +42,18 @@ export default function Page() {
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)]">
         <aside className="hidden min-h-0 flex-col gap-3 overflow-auto lg:flex">
           <ProgramPicker />
-          <div className="mt-auto rounded-lg border border-[var(--line)] bg-[var(--sunken)] p-2.5 text-[11px] leading-relaxed text-[var(--muted)]">
-            <p className="mb-1 font-semibold text-[var(--text)]">Try this</p>
-            <p>
-              Hover any identifier in the code to read its current value,
-              address and size. Click a line to jump the timeline there.
-              Arrow keys step, space plays.
-            </p>
+          <div className="mt-auto grid gap-2.5">
+            <div className="rounded-lg border-l-2 border-y border-r border-y-[var(--line)] border-r-[var(--line)] border-l-[var(--ok)] bg-[var(--ok-soft)] p-2.5 text-[11px] leading-relaxed">
+              <p className="mb-1 flex items-center gap-1.5 font-semibold text-[var(--text)]">
+                <Lightbulb size={12} className="text-[var(--ok)]" />
+                Rule of thumb
+              </p>
+              <p className="text-[var(--text)]">{program.takeaway}</p>
+            </div>
+            <div className="rounded-lg border border-[var(--line)] bg-[var(--sunken)] p-2.5 text-[11px] leading-relaxed text-[var(--muted)]">
+              Hover any identifier to read its value, address and size. Click a
+              line to jump there. Arrow keys step, space plays.
+            </div>
           </div>
         </aside>
 

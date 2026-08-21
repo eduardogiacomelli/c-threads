@@ -42,6 +42,8 @@ export const threadArg: Program = {
     { id: "shared", label: "&i", danger: true, hint: "one box, shared by all" },
     { id: "perthread", label: "&ids[i]", hint: "one box per thread" },
   ],
+  takeaway:
+    "One argument slot per thread, filled before the thread starts and untouched afterwards. Passing the address of a loop variable is the same bug as returning the address of a local.",
   source: src,
   build(mode, seed) {
     const SRC = src(mode);

@@ -25,6 +25,8 @@ export const arrays: Program = {
   blurb: "An array is a run of boxes and nothing guards the far end of it.",
   origin: "c-do-zero / passo-08 e 09",
   concepts: ["array layout", "off-by-one", "stack-buffer-overflow"],
+  takeaway:
+    "An array never carries its own length, so a function taking one takes a size too. Derive the bound with `sizeof(v)/sizeof(v[0])` in the scope that declared it — never a literal in two places.",
   modes: [
     { id: "overflow", label: "i <= N", danger: true, hint: "the off-by-one" },
     { id: "fixed", label: "i < N", hint: "the fix" },

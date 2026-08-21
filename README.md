@@ -14,17 +14,18 @@ pnpm lint
 
 ## What it does
 
-Seven programs, each replayed one machine step at a time:
+Eight programs, each replayed one machine step at a time:
 
 | # | Program | Shows |
 |---|---------|-------|
 | 1 | Address and value | `&`, `*`, writing through a pointer vs re-aiming it, NULL |
-| 2 | The frame dies, the address stays | stack frame reuse, dangling pointer |
-| 3 | One step past the end | array layout, off-by-one, who gets clobbered |
-| 4 | A struct on the heap | `malloc`, `->`, use-after-free |
-| 5 | One box for all threads, or one each | the `&i` bug, one slot per thread |
-| 6 | `counter++` is three operations | load / add / store, lost update |
-| 7 | Split the work, combine after the join | private output slots, why this needs no mutex |
+| 2 | One step past the end | array layout, off-by-one, who gets clobbered |
+| 3 | A string is a char array with one rule | the `'\0'`, strlen walking, strcpy vs snprintf |
+| 4 | The frame dies, the address stays | stack frame reuse, dangling pointer |
+| 5 | A struct on the heap | `malloc`, `->`, use-after-free |
+| 6 | One box for all threads, or one each | the `&i` bug, one slot per thread |
+| 7 | `counter++` is three operations | load / add / store, lost update |
+| 8 | Split the work, combine after the join | private output slots, why this needs no mutex |
 
 Every panel is live: hover any identifier in the source to read its current
 value, address and size; click a line to jump the timeline there; arrow keys
@@ -37,19 +38,22 @@ is 16 bytes, not 12, because the pointer has to start on an 8-byte boundary.
 The layout engine applies real ABI alignment rules, so the sizes it prints are
 the ones `sizeof` gives you.
 
+Every program carries a one-sentence **rule of thumb** in the sidebar — the
+practice to take away, not the mechanism.
+
 **Blocking joins** are modelled, not narrated. `pthread_join` sets main to
 `blocked` and its next op is gated on the joined thread actually finishing, so
 the scheduler cannot pick main until then. You watch the CPU go to the workers
 while main waits.
 
-Programs 5, 6 and 7 are **simulated, not scripted**. Each thread is a lane of
+Programs 6, 7 and 8 are **simulated, not scripted**. Each thread is a lane of
 ops, and a seeded scheduler interleaves the lanes while keeping each lane in
 order — the same constraint a real scheduler obeys. `shuffle schedule` picks a
 new seed, so the race genuinely prints 11 on some runs and 12 on others, and
 the `&i` program genuinely reads a different id depending on when a thread
 gets the CPU.
 
-Program 7 is the control case: shuffle it as much as you like and it prints
+Program 8 is the control case: shuffle it as much as you like and it prints
 210 every time, because no two threads write the same box. Race and no-race
 run through the same scheduler, which is the only way the contrast means
 anything.

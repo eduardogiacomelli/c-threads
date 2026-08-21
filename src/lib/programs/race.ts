@@ -37,6 +37,8 @@ export const race: Program = {
   origin: "pthreads / passo-12",
   concepts: ["data race", "load-add-store", "shared vs private", "non-atomic"],
   schedulable: true,
+  takeaway:
+    "If two threads can touch the same box and either one writes, that is a race — however short the window looks in testing. `x++` is three operations, not one.",
   source: () => SRC,
   build(_mode, seed) {
     const at = lineFinder(SRC);

@@ -62,6 +62,8 @@ export const workSplit: Program = {
   origin: "pthreads / Ex. 5, 6, 7 e os desafios",
   concepts: ["one struct per thread", "private output", "join then combine", "no lock needed"],
   schedulable: true,
+  takeaway:
+    "Give every thread a private output slot and merge after the join. Read-only sharing is free; the cheapest lock is the one you designed away.",
   source: () => SRC,
   build(_mode, seed) {
     const at = lineFinder(SRC);

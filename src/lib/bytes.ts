@@ -25,7 +25,7 @@ export function slotBytes(slot: Slot): ByteCell[] {
   if (raw === "NULL") n = 0n;
   else if (/^0x[0-9a-fA-F]+$/.test(raw)) n = BigInt(raw);
   else if (/^-?\d+$/.test(raw)) n = BigInt(raw);
-  else if (/^'.'$/.test(raw)) n = BigInt(raw.charCodeAt(1));
+  else n = charLiteral(raw);
 
   for (let i = 0; i < slot.size; i++) {
     if (n === null) {
@@ -47,6 +47,31 @@ export function slotBytes(slot: Slot): ByteCell[] {
   }
 
   return out;
+}
+
+const ESCAPES: Record<string, number> = {
+  "0": 0,
+  n: 10,
+  t: 9,
+  r: 13,
+  "\\": 92,
+  "'": 39,
+};
+
+/**
+ * `'A'` -> 65, `'\0'` -> 0. A char really is just a small integer, and the
+ * terminator really is just the number zero — which is the entire reason a C
+ * string can be walked off the end of.
+ */
+export function charLiteral(raw: string): bigint | null {
+  const m = /^'(\\.|[^'\\])'$/.exec(raw);
+  if (!m) return null;
+  const body = m[1];
+  if (body.startsWith("\\")) {
+    const v = ESCAPES[body[1]];
+    return v === undefined ? null : BigInt(v);
+  }
+  return BigInt(body.charCodeAt(0));
 }
 
 /** Alignment of a scalar: its own size, capped at 8 on x86-64. */

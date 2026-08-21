@@ -31,6 +31,8 @@ export const pointers: Program = {
   blurb: "& and *, and the difference between writing through a pointer and re-aiming it.",
   origin: "c-do-zero / passo-05",
   concepts: ["&", "*", "NULL", "dereference"],
+  takeaway:
+    "`*p` reaches through the arrow; `p =` moves the arrow. Initialise every pointer, and check for NULL before dereferencing one you did not just set.",
   source: () => SRC,
   build() {
     const at = lineFinder(SRC);
