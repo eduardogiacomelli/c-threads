@@ -1,9 +1,9 @@
-# C do zero — antes das threads
+# C do zero - antes das threads
 
 Você lê C. Nunca escreveu. Isto aqui é a ponte, e ela é curta de propósito.
 
 Cada `passo-NN-*.c` é um **programa completo, pequeno, com uma ideia só**.
-Metade deles está **errado de propósito** — você roda, vê quebrar, e o passo
+Metade deles está **errado de propósito** - você roda, vê quebrar, e o passo
 seguinte conserta. Aprender qual mensagem de erro corresponde a qual bug vale
 mais que ler a explicação certa três vezes.
 
@@ -17,7 +17,7 @@ Ou pelo terminal:
 cd ~/c-playground/c-do-zero && make 01
 ```
 
-`make 01` até `make 27`. `make limpar` apaga os binários.
+`make 01` até `make 34`. `make limpar` apaga os binários.
 
 Os passos 17 e 18 recebem argumentos, então precisam do terminal:
 
@@ -26,7 +26,7 @@ make 17 ARGS="1e9 4"
 ```
 
 O passo 19 tem três arquivos (`contas.h`, `contas.c` e o `passo-19`), então o
-`Ctrl+Shift+B` **falha nele de propósito** — o erro que aparece é a aula.
+`Ctrl+Shift+B` **falha nele de propósito** - o erro que aparece é a aula.
 Use `make 19`.
 
 ## Como usar de verdade
@@ -42,12 +42,12 @@ Não pule os arquivos "errados". Eles são o conteúdo, não o aquecimento.
 
 ## Ver acontecendo
 
-`inspetor.html` nesta pasta — abra direto no navegador, sem servidor nenhum.
+`inspetor.html` nesta pasta - abra direto no navegador, sem servidor nenhum.
 
 Cinco painéis interativos para as coisas que o texto explica pior que um
 desenho: a seta do ponteiro (`passo-05`), o quadro da pilha sendo reciclado
 (`passo-14`), o `&i` do laço contra `&ids[i]`, o `contador++` passo a passo, e
-chunk vs esparsa com o resto que fica órfão. Não substitui rodar o código —
+chunk vs esparsa com o resto que fica órfão. Não substitui rodar o código -
 serve para olhar antes e depois.
 
 ## A ordem
@@ -58,9 +58,9 @@ serve para olhar antes e depois.
 | `02` | todo tipo tem um tamanho fixo em bytes | |
 | `03` | divisão inteira e molde errado no printf | ⚠ errado |
 | `04` | cast e o especificador certo | ✅ conserta 03 |
-| `05` | **`&` e `*`** — endereço e conteúdo, com diagrama | 🔑 |
+| `05` | **`&` e `*`** - endereço e conteúdo, com diagrama | 🔑 |
 | `06` | a função que troca dois valores e não troca | ⚠ errado |
-| `07` | passar o endereço — por que `scanf` pede `&` | ✅ conserta 06 |
+| `07` | passar o endereço - por que `scanf` pede `&` | ✅ conserta 06 |
 | `08` | vetor não é lista: sem tamanho, sem checagem | |
 | `09` | escrever fora do vetor | ⚠ errado |
 | `10` | vetor vira ponteiro ao ser passado; `v[i]` é `*(v+i)` | 🔑 |
@@ -74,26 +74,42 @@ serve para olhar antes e depois.
 | `18` | `strtol`/`strtod`: validar a entrada de verdade | ✅ conserta 17 |
 | `19` | header `.h` + `.c`, compilar e **linkar** | |
 
-## Bloco 2 — o C que o PPD pede
+## Bloco 2 - o C que o PPD pede
 
 Daqui em diante os comentários estão **em inglês** (os passos 01–19 estão em
 português; peça se quiser que eu traduza para o conjunto ficar uniforme).
 
 | Passo | Ideia | |
 |---|---|---|
-| `20` | **ponteiro para função** — é o que `pthread_create` recebe | 🔑 |
-| `21` | swap "genérico" que só sabe `int` — corrompe `double` em silêncio | ⚠ errado |
+| `20` | **ponteiro para função** - é o que `pthread_create` recebe | 🔑 |
+| `21` | swap "genérico" que só sabe `int` - corrompe `double` em silêncio | ⚠ errado |
 | `22` | o genérico de verdade: `void *` + `size_t`, o modelo do `qsort` | ✅ conserta 21 |
-| `23` | `signed` vs `unsigned` — o bug que **nenhum sanitizer pega** | 🔑 |
+| `23` | `signed` vs `unsigned` - o bug que **nenhum sanitizer pega** | 🔑 |
 | `24` | bits: flags, máscaras, `<<`, e a precedência de `&` | |
-| `25` | `union` e type punning — os mesmos bytes, duas leituras | |
-| `26` | `int m[3][4]` **não** é `int *rows[3]` — layout e `argv` | 🔑 |
+| `25` | `union` e type punning - os mesmos bytes, duas leituras | |
+| `26` | `int m[3][4]` **não** é `int *rows[3]` - layout e `argv` | 🔑 |
 | `27` | recursão: os quadros empilhando, medidos, até estourar | |
+
+## Bloco 3 - build, linker e o sistema operacional
+
+| Passo | Ideia | |
+|---|---|---|
+| `28` | as **quatro etapas** do build, rodadas uma por uma | 🔑 |
+| `29` | macros são texto: `SQUARE(1+2)` dá 5 | ⚠ errado |
+| `30` | o pré-processador no que só ele faz: `__LINE__`, `#`, `##`, `do{}while(0)` | ✅ conserta 29 |
+| `31` | tabela de símbolos: o que `nm` mostra e o que o linker procura | 🔑 |
+| `32` | bibliotecas `.a` e `.so`, `-L`, `-l`, `ldd`, ordem no link | |
+| `33` | `/proc/self/maps`: o diagrama do [[memoria]] conferido no kernel | 🔑 |
+| `34` | `printf` x `write(2)`: buffer, `strace`, e por que a saída some no crash | 🔑 |
+
+Complemento: [[tools]] - todo o ferramental (warnings, sanitizers, `nm`,
+`gdb`, `strace`, `perf`), com o que está instalado nesta máquina e o que não
+está.
 
 Os 🔑 são os que o resto depende. Se um deles não entrou, volte nele
 antes de seguir.
 
-Complemento: [[memoria]] — pilha, heap e área estática num diagrama só.
+Complemento: [[memoria]] - pilha, heap e área estática num diagrama só.
 
 ## Depois daqui
 
@@ -120,7 +136,7 @@ man -k string     # procurar por assunto
 ```
 
 E leia a mensagem do compilador inteira, de cima pra baixo. Em C, warning é
-quase sempre um bug real — foi o gcc que achou os passos 03, 10, 12, 13 e 14
+quase sempre um bug real - foi o gcc que achou os passos 03, 10, 12, 13 e 14
 antes da gente rodar.
 
 ## Coisas que confundem no começo
@@ -131,6 +147,6 @@ antes da gente rodar.
 | seus `printf` somem quando o programa quebra | o buffer não foi esvaziado no crash; a linha rodou sim |
 | `undefined reference to 'sqrt'` | faltou `-lm` |
 | `implicit declaration of function` | faltou o `#include`; `man 3 <função>` diz qual |
-| o número impresso é sempre o mesmo lixo | bug determinístico, não aleatório — passo-03 |
+| o número impresso é sempre o mesmo lixo | bug determinístico, não aleatório - passo-03 |
 
 → [[memoria]] · [[void-pointer]]
