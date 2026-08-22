@@ -13,22 +13,32 @@ pnpm lint
 
 ## What it does
 
-Eight programs, each replayed one machine step at a time:
+Twelve programs, each replayed one machine step at a time:
 
 | # | Program | Shows |
 |---|---------|-------|
 | 1 | Address and value | `&`, `*`, writing through a pointer vs re-aiming it, NULL |
 | 2 | One step past the end | array layout, off-by-one, who gets clobbered |
 | 3 | A string is a char array with one rule | the `'\0'`, strlen walking, strcpy vs snprintf |
-| 4 | The frame dies, the address stays | stack frame reuse, dangling pointer |
-| 5 | A struct on the heap | `malloc`, `->`, use-after-free |
-| 6 | One box for all threads, or one each | the `&i` bug, one slot per thread |
-| 7 | `counter++` is three operations | load / add / store, lost update |
-| 8 | Split the work, combine after the join | private output slots, why this needs no mutex |
+| 4 | A generic swap that guesses the size | `void *`, and half a double swapped |
+| 5 | One set of bytes, four readings | union, signed vs unsigned, endianness |
+| 6 | The frame dies, the address stays | stack frame reuse, dangling pointer |
+| 7 | Recursion is frames, all the way down | one set of locals per call, all alive at once |
+| 8 | A struct on the heap | `malloc`, `->`, use-after-free |
+| 9 | One box for all threads, or one each | the `&i` bug, one slot per thread |
+| 10 | `counter++` is three operations | load / add / store, lost update |
+| 11 | `_Atomic` closes the window | one indivisible step instead of three |
+| 12 | Split the work, combine after the join | private output slots, why this needs no mutex |
 
 Every panel is live: hover any identifier in the source to read its current
 value, address and size; click a line to jump the timeline there; arrow keys
 step, space plays.
+
+Programs 4, 5 and 11 are where the byte view and the scheduler pay off most:
+program 4 corrupts two real doubles and shows the exact IEEE 754 bytes that
+survived, program 11 gives the same increment as three steps and as one, and
+shuffling its schedule prints 2 or 3 in `volatile` mode and 4 every single
+time in `_Atomic` mode.
 
 **Byte view** (the `bytes` button) drops every box down to its raw bytes,
 lowest address first. It is where little-endian stops being a word — 25 is
@@ -45,14 +55,14 @@ practice to take away, not the mechanism.
 the scheduler cannot pick main until then. You watch the CPU go to the workers
 while main waits.
 
-Programs 6, 7 and 8 are **simulated, not scripted**. Each thread is a lane of
+Programs 9, 10, 11 and 12 are **simulated, not scripted**. Each thread is a lane of
 ops, and a seeded scheduler interleaves the lanes while keeping each lane in
 order — the same constraint a real scheduler obeys. `shuffle schedule` picks a
 new seed, so the race genuinely prints 11 on some runs and 12 on others, and
 the `&i` program genuinely reads a different id depending on when a thread
 gets the CPU.
 
-Program 8 is the control case: shuffle it as much as you like and it prints
+Program 12 is the control case: shuffle it as much as you like and it prints
 210 every time, because no two threads write the same box. Race and no-race
 run through the same scheduler, which is the only way the contrast means
 anything.
