@@ -17,7 +17,11 @@ Ou pelo terminal:
 cd ~/c-playground/c-do-zero && make 01
 ```
 
-`make 01` até `make 34`. `make limpar` apaga os binários.
+`make 01` até `make 37`. `make limpar` apaga os binários.
+
+Os passos `09`, `12`, `14` e `36` **terminam com erro de propósito**: o
+sanitizer mata o programa e o `make` reporta falha. É o comportamento
+esperado, não um build quebrado.
 
 Os passos 17 e 18 recebem argumentos, então precisam do terminal:
 
@@ -101,6 +105,10 @@ português; peça se quiser que eu traduza para o conjunto ficar uniforme).
 | `32` | bibliotecas `.a` e `.so`, `-L`, `-l`, `ldd`, ordem no link | |
 | `33` | `/proc/self/maps`: o diagrama do [[memoria]] conferido no kernel | 🔑 |
 | `34` | `printf` x `write(2)`: buffer, `strace`, e por que a saída some no crash | 🔑 |
+
+| `35` | `errno`: as três convenções, e por que pthreads não usa nenhuma delas | 🔑 |
+| `36` | `gdb` num programa que quebra de propósito, sessão real capturada | 🔑 |
+| `37` | `volatile`, e tudo o que ele **não** faz (spoiler: não serve pra thread) | 🔑 |
 
 Complemento: [[tools]] - todo o ferramental (warnings, sanitizers, `nm`,
 `gdb`, `strace`, `perf`), com o que está instalado nesta máquina e o que não
