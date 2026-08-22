@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 4 — a correção do passo-03: cast e o molde certo.
+ * PASSO 4 - a correção do passo-03: cast e o molde certo.
  *
  *     Ctrl+Shift+B      (ou: make 04)
  *
@@ -13,7 +13,7 @@ int main(void)
     int total = 7;
     int gente = 2;
 
-    /* CORREÇÃO 1 — (double) é um CAST: "trate este valor como double
+    /* CORREÇÃO 1 - (double) é um CAST: "trate este valor como double
      * agora, nesta expressão". Ele não muda a variável `total`, que segue
      * int; produz um valor double temporário só para esta conta.
      *
@@ -26,7 +26,7 @@ int main(void)
      * arredondamento só na EXIBIÇÃO; o valor guardado continua inteiro de
      * precisão. */
 
-    /* CORREÇÃO 2 — o molde tem que combinar com o que você passa.
+    /* CORREÇÃO 2 - o molde tem que combinar com o que você passa.
      * Decore estes cinco, que são 95% do uso:
      *
      *     %d   int
@@ -42,11 +42,11 @@ int main(void)
     printf("preço: %.2f   quantidade: %d\n", preco, quantidade);
 
     /* Precisa mesmo imprimir um double como inteiro? Diga isso explicitamente,
-     * com um cast. Aí não é lixo, é truncamento — e está escrito no código
+     * com um cast. Aí não é lixo, é truncamento - e está escrito no código
      * que foi de propósito. 19.9 vira 19 (corta, não arredonda). */
     printf("preço truncado: %d\n", (int) preco);
 
-    /* CORREÇÃO 3 — escreva a constante como double e a expressão inteira
+    /* CORREÇÃO 3 - escreva a constante como double e a expressão inteira
      * vira double. 9.0/5 é 1.8. Nenhum cast necessário: o `.0` já resolve. */
     int celsius = 100;
     double fahrenheit = celsius * (9.0 / 5.0) + 32;
@@ -60,7 +60,7 @@ int main(void)
  * A REGRA, EM UMA FRASE
  *
  *   Se você quer resultado com vírgula, PELO MENOS UM operando precisa ter
- *   vírgula — por cast `(double)x` ou por literal `9.0`.
+ *   vírgula - por cast `(double)x` ou por literal `9.0`.
  *
  * E a segunda:
  *
@@ -74,7 +74,7 @@ int main(void)
  *     importa mais que a presença dele.
  *
  *  2. Imprima `(int) -19.9`. Dá -19, não -20. Cast pra int corta em direção
- *     ao zero. Pra arredondar de verdade existe round(), em <math.h> — e aí
+ *     ao zero. Pra arredondar de verdade existe round(), em <math.h> - e aí
  *     você precisa compilar com -lm.
  *
  *  3. Divida por zero com inteiros: `total / 0` com uma variável zerada

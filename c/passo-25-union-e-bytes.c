@@ -1,5 +1,5 @@
 /* ============================================================================
- * STEP 25 — a union: one piece of memory, several ways to read it.
+ * STEP 25 - a union: one piece of memory, several ways to read it.
  *
  * A struct puts its members side by side. A union puts them ON TOP of each
  * other: every member starts at the same address, and the union is as big as
@@ -14,7 +14,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>     /* uint32_t, uint8_t — exact-width types */
+#include <stdint.h>     /* uint32_t, uint8_t - exact-width types */
 
 /* Four bytes, looked at three ways. */
 union Word {
@@ -59,7 +59,7 @@ int main(void)
      *
      * Reading a union member you did not write is well defined in C (unlike
      * C++), but the portable, always-correct, never-argued-about way is
-     * memcpy. The compiler recognises it and emits the same instructions —
+     * memcpy. The compiler recognises it and emits the same instructions -
      * you pay nothing for the clarity. */
     float  f = 3.14159f;
     uint32_t bits;
@@ -84,7 +84,7 @@ int main(void)
     /* WHERE UNIONS EARN THEIR KEEP: a tagged value.
      *
      * The union saves space; the tag says which member is live. Keeping the
-     * two together in a struct is the whole pattern — a union on its own
+     * two together in a struct is the whole pattern - a union on its own
      * cannot tell you what it is currently holding. */
     struct Value {
         enum { IS_INT, IS_DOUBLE, IS_TEXT } kind;
@@ -127,7 +127,7 @@ int main(void)
  *
  *   allowed in C (this is called type punning, and it is why the endianness
  *   check above is legal), but you get whatever the bytes happen to mean.
- *   The union does not remember which member was last written — that is what
+ *   The union does not remember which member was last written - that is what
  *   the tag is for.
  *
  * THE THREE WAYS, RANKED
@@ -139,7 +139,7 @@ int main(void)
  * EXPERIMENTE:
  *
  *  1. Add a `double as_double` to union Word and print sizeof again. It
- *     jumps to 8, and now as_bytes[4] only covers half of it — a union is
+ *     jumps to 8, and now as_bytes[4] only covers half of it - a union is
  *     only as useful as your discipline about which member is live.
  *
  *  2. Set w.as_bytes[] to { 0x00, 0x00, 0x80, 0x3f } by hand and print

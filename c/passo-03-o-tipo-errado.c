@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 3 — ERRADO DE PROPÓSITO. Contas com tipos misturados.
+ * PASSO 3 - ERRADO DE PROPÓSITO. Contas com tipos misturados.
  *
  * Rode ANTES de ler a explicação. Olhe a saída errada com os próprios olhos,
  * e repare que o gcc te avisou (leia o painel de problemas do VS Code).
@@ -16,28 +16,28 @@ int main(void)
     int total = 7;
     int gente = 2;
 
-    /* BUG 1 — divisão entre dois int é divisão INTEIRA.
+    /* BUG 1 - divisão entre dois int é divisão INTEIRA.
      * Não existe 3.5 aqui: o resultado é 3, e o 0.5 é jogado fora ANTES de
-     * chegar no double. Declarar o destino como double não salva nada — a
+     * chegar no double. Declarar o destino como double não salva nada - a
      * conta já aconteceu. */
     double media = total / gente;
     printf("média de %d entre %d pessoas: %f\n", total, gente, media);
 
-    /* BUG 2 — printf não sabe os tipos do que você passou. Ele CONFIA no
+    /* BUG 2 - printf não sabe os tipos do que você passou. Ele CONFIA no
      * molde: %d significa "vá buscar um int no lugar onde ints são
      * entregues". Você entregou um double, que viaja por outro caminho.
      * printf pega o que estiver naquele lugar, e imprime. */
     double preco = 19.9;
     printf("preço com %%d: %d      <- lixo\n", preco);
 
-    /* BUG 3 — o contrário: %f vai buscar um double, e você entregou um int.
+    /* BUG 3 - o contrário: %f vai buscar um double, e você entregou um int.
      * Olhe bem o número que sai. Ele não é aleatório: é o `preco` da linha
      * de cima, que ficou parado no lugar de onde %f lê. A explicação está
      * no rodapé, e é mais interessante que "deu lixo". */
     int quantidade = 3;
     printf("quantidade com %%f: %f  <- lixo\n", quantidade);
 
-    /* BUG 4 — o mesmo BUG 1 escondido dentro de uma expressão maior.
+    /* BUG 4 - o mesmo BUG 1 escondido dentro de uma expressão maior.
      * (9/5) vira 1, não 1.8. A fórmula está certa; a aritmética, não. */
     int celsius = 100;
     double fahrenheit = celsius * (9 / 5) + 32;
@@ -63,13 +63,13 @@ int main(void)
  *    Os argumentos chegam sem etiqueta nenhuma. O molde é a única instrução
  *    de onde buscá-los e como lê-los. E aqui entra um detalhe da máquina que
  *    explica a saída esquisita: no x86-64, inteiros e ponto flutuante viajam
- *    por CAMINHOS DIFERENTES — registradores separados.
+ *    por CAMINHOS DIFERENTES - registradores separados.
  *
  *        entregas de inteiro:        [ ? ][ ? ]        <- %d lê daqui
  *        entregas de ponto flutuante:[ 19.9 ]          <- %f lê daqui
  *
  *    No BUG 2 você entregou 19.9 pelo caminho do ponto flutuante e mandou o
- *    %d ler pelo caminho dos inteiros: ele leu o que estava sobrando ali —
+ *    %d ler pelo caminho dos inteiros: ele leu o que estava sobrando ali -
  *    aquele número grande sem sentido.
  *
  *    No BUG 3 você entregou um int e mandou o %f ler pelo caminho do ponto
@@ -77,7 +77,7 @@ int main(void)
  *    Por isso a quantidade "3" saiu como 19.900000.
  *
  *    Não é aleatório e não é um número corrompido. É o valor errado, lido do
- *    lugar errado, de um jeito perfeitamente determinístico — e é por isso
+ *    lugar errado, de um jeito perfeitamente determinístico - e é por isso
  *    que esse bug engana: ele parece estável.
  *
  * O gcc AVISOU nos dois casos de printf (-Wformat, ligado pelo -Wall).

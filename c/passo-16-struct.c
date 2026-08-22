@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 16 — struct: várias caixas com um nome só.
+ * PASSO 16 - struct: várias caixas com um nome só.
  *
  * Este é o último passo antes das threads, e não é coincidência: a única
  * maneira de passar mais de um dado pra uma thread é enfiar tudo numa struct
@@ -23,7 +23,7 @@ typedef struct {
     double nota;
 } Aluno;
 
-/* POR VALOR: recebe uma CÓPIA da struct inteira — todos os 36 bytes.
+/* POR VALOR: recebe uma CÓPIA da struct inteira - todos os 36 bytes.
  * Funciona, e é seguro (não altera o original), mas copia tudo a cada
  * chamada. Para ler, com struct pequena, tudo bem. */
 void mostrar(Aluno a)
@@ -82,7 +82,7 @@ int main(void)
     for (size_t i = 0; i < sizeof(turma) / sizeof(turma[0]); i++)
         mostrar(turma[i]);
 
-    /* STRUCT NO HEAP — o padrão que as threads vão exigir.
+    /* STRUCT NO HEAP - o padrão que as threads vão exigir.
      * Junte o passo-15 com este: um bloco por unidade de trabalho, cada um
      * com os seus próprios dados, todos independentes. */
     Aluno *novo = malloc(sizeof(Aluno));   /* sizeof do TIPO, não do ponteiro */
@@ -117,7 +117,7 @@ int main(void)
  *
  *   O compilador pode inserir bytes vazios entre campos pra alinhar cada
  *   tipo num endereço múltiplo do tamanho dele (padding). Por isso
- *   sizeof(struct) nem sempre é a soma dos campos — confira na saída.
+ *   sizeof(struct) nem sempre é a soma dos campos - confira na saída.
  *
  * PONTO OU SETA?
  *
@@ -148,7 +148,7 @@ int main(void)
  *     bytes copiados contra 8.
  *
  *  2. Dentro de mostrar (versão por valor), escreva `a.nota = 0;`. Imprima
- *     de novo em main. Nada mudou — é o passo-06 outra vez, agora com
+ *     de novo em main. Nada mudou - é o passo-06 outra vez, agora com
  *     struct. Marque o parâmetro como `const Aluno *a` na versão por
  *     ponteiro e tente alterar: o compilador impede. Use const sempre que a
  *     função só lê.

@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 15 — a correção do passo-14: memória que você controla.
+ * PASSO 15 - a correção do passo-14: memória que você controla.
  *
  * malloc pede um pedaço de memória ao sistema. Esse pedaço não pertence a
  * nenhuma função: ele existe até você devolvê-lo com free. É a única
@@ -16,7 +16,7 @@
 int *fabricar_numero(void)
 {
     /* malloc recebe um número de BYTES e devolve o endereço do início do
-     * bloco — ou NULL se não conseguiu.
+     * bloco - ou NULL se não conseguiu.
      *
      * Escreva sizeof(int), não 4. O sizeof documenta a intenção e continua
      * certo se o tipo mudar. */
@@ -63,7 +63,7 @@ int main(void)
     printf("\nliberado. p agora é NULL, então um uso acidental estoura na\n"
            "hora em vez de ler lixo.\n");
 
-    /* Um vetor de tamanho decidido em tempo de EXECUÇÃO — coisa que
+    /* Um vetor de tamanho decidido em tempo de EXECUÇÃO - coisa que
      * `int v[n]` de tamanho fixo não dá. Aqui está a outra metade do valor
      * do malloc. */
     int quantos = 5;
@@ -125,7 +125,7 @@ int main(void)
  * PARA ONDE ISSO VAI, EM PPD
  *
  *   Uma thread só pode receber UM argumento, e ele precisa continuar
- *   existindo enquanto a thread roda — depois que a função que criou a
+ *   existindo enquanto a thread roda - depois que a função que criou a
  *   thread já retornou, possivelmente. É o passo-14 de novo.
  *
  *   A resposta é esta: um malloc por thread, cada uma com o SEU bloco, e o

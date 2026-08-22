@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 12 — ERRADO DE PROPÓSITO. strcpy num destino pequeno demais.
+ * PASSO 12 - ERRADO DE PROPÓSITO. strcpy num destino pequeno demais.
  *
  * Este é, literalmente, o bug que gerou a maior parte das falhas de
  * segurança da história do software. E ele é só o passo-09 com char.
@@ -21,7 +21,7 @@ int main(void)
     printf("nome[] tem %zu bytes -> cabem 7 letras + o terminador\n\n",
            sizeof(nome));
 
-    /* BUG 1 — strcpy não pergunta o tamanho do destino. NÃO TEM COMO: ela
+    /* BUG 1 - strcpy não pergunta o tamanho do destino. NÃO TEM COMO: ela
      * recebe só dois endereços. Ela copia da origem até achar o '\0', e
      * escreve tudo isso no destino, doa a quem doer.
      *
@@ -32,7 +32,7 @@ int main(void)
     printf("nome      = %s\n", nome);
     printf("sobrenome = %s   <- olhe bem\n", sobrenome);
 
-    /* BUG 2 — o mesmo erro por outro caminho: concatenar sem conferir se
+    /* BUG 2 - o mesmo erro por outro caminho: concatenar sem conferir se
      * cabe. strcat vai até o '\0' do destino e escreve a partir dali. */
     char pequeno[10] = "12345";
     strcat(pequeno, "67890abcdef");
@@ -57,7 +57,7 @@ int main(void)
  *                                       \-- e ainda passou disso
  *
  * O `sobrenome` foi sobrescrito por uma variável que não tem relação nenhuma
- * com ele. Nenhuma linha do programa menciona `sobrenome` — e ele mudou.
+ * com ele. Nenhuma linha do programa menciona `sobrenome` - e ele mudou.
  *
  * Agora imagine que, em vez de `sobrenome`, ali estivesse o endereço de
  * retorno da função. Quem controla o texto de entrada passa a controlar para
@@ -78,7 +78,7 @@ int main(void)
  *
  * "WRITE of size 19" num objeto de 8 bytes: a conta está toda ali. E repare
  * que o ASan lista as três variáveis da pilha com os limites exatos de cada
- * uma — é assim que você descobre em QUEM você pisou.
+ * uma - é assim que você descobre em QUEM você pisou.
  *
  * (O strcpy virou memcpy no relatório: o gcc troca por uma versão otimizada
  * quando conhece o tamanho. É a mesma linha 30 do seu código.)
@@ -86,7 +86,7 @@ int main(void)
  * A REGRA
  *
  *   Nunca use strcpy, strcat ou sprintf com dado de tamanho que você não
- *   controla. Existem versões que recebem o tamanho do destino — passo-13.
+ *   controla. Existem versões que recebem o tamanho do destino - passo-13.
  *
  * EXPERIMENTE:
  *
@@ -102,7 +102,7 @@ int main(void)
  *         gcc -std=gnu17 -Wall -g passo-12-estourando-a-string.c -o /tmp/s12
  *         /tmp/s12
  *
- *     Pode imprimir tudo "normalmente", com sobrenome corrompido — ou
+ *     Pode imprimir tudo "normalmente", com sobrenome corrompido - ou
  *     quebrar. Depende do humor do compilador naquele dia.
  *
  *  4. Copie exatamente 7 letras ("Eduardo") pro nome[8]. Cabe, com o

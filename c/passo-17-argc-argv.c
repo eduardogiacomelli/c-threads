@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 17 — argumentos da linha de comando, e o atoi que mente.
+ * PASSO 17 - argumentos da linha de comando, e o atoi que mente.
  *
  * O Exercício 7 e os dois Desafios da lista de pthreads exigem isto:
  * "o programa recebe parâmetros pela linha de comando (usar argc e argv)".
@@ -24,7 +24,7 @@
  *   argc  ("argument count")  quantas palavras, CONTANDO o nome do programa
  *   argv  ("argument vector") um vetor de strings com essas palavras
  *
- * `char *argv[]` é um vetor de ponteiros pra char — ou seja, um vetor de
+ * `char *argv[]` é um vetor de ponteiros pra char - ou seja, um vetor de
  * strings (passo-10 + passo-11). Também se escreve `char **argv`: é a mesma
  * coisa, pelo mesmo motivo do passo-10. */
 int main(int argc, char *argv[])
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     }
 
     /* ARGUMENTO É SEMPRE STRING. Sempre. Mesmo quando é "10".
-     * argv[1] são os bytes '1','0','\0' — não o número dez. Converter é
+     * argv[1] são os bytes '1','0','\0' - não o número dez. Converter é
      * trabalho seu. */
     printf("\nargv[1] como string: \"%s\"\n", argv[1]);
     printf("argv[1][0] é o caractere '%c' (código %d), não o número %c\n",
@@ -127,14 +127,14 @@ int main(int argc, char *argv[])
  *     Quantos argumentos o shell entregou? As aspas contam como um só. Quem
  *     separa as palavras é o shell, não o seu programa.
  *
- *  2. Imprima `argv[argc]`. É NULL — dá pra percorrer o argv com
+ *  2. Imprima `argv[argc]`. É NULL - dá pra percorrer o argv com
  *     `while (*argv != NULL)` em vez de usar argc. Não faça, mas saiba.
  *
  *  3. Rode `./passo-17-argc-argv 99999999999 4` (11 noves). atoi estoura o
  *     int silenciosamente. Compare com o que o passo-18 faz nesse mesmo caso.
  *
  *  4. Troque atoi por atof e imprima com %f. `atof("1e9")` dá
- *     1000000000.000000 — resolve a notação científica, mas continua sem
+ *     1000000000.000000 - resolve a notação científica, mas continua sem
  *     saber dizer se a entrada era lixo. Meio caminho.
  *
  * -> passo-18, a validação que serve pra entregar

@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 6 — ERRADO DE PROPÓSITO. A função que troca dois valores... e não troca.
+ * PASSO 6 - ERRADO DE PROPÓSITO. A função que troca dois valores... e não troca.
  *
  * Rode primeiro. O programa não quebra, não avisa nada, o compilador fica
  * calado. Ele só não faz o que diz que faz.
@@ -18,7 +18,7 @@ void trocar(int a, int b)
     a = b;
     b = temporario;
 
-    printf("   [dentro] agora a=%d b=%d — trocou aqui dentro!\n", a, b);
+    printf("   [dentro] agora a=%d b=%d - trocou aqui dentro!\n", a, b);
 }
 
 int main(void)
@@ -54,7 +54,7 @@ int main(void)
  * e quando a função termina, as caixas `a` e `b` deixam de existir. O
  * trabalho todo é jogado fora. `x` e `y` nunca souberam de nada.
  *
- * "Mas em Python uma função consegue mudar minha lista!" — consegue, e é a
+ * "Mas em Python uma função consegue mudar minha lista!" - consegue, e é a
  * mesma regra: Python também copia o ARGUMENTO, que no caso de uma lista é
  * uma referência. A cópia da referência aponta pro mesmo objeto. C não tem
  * referência automática: se você quer que a função alcance sua caixa, você

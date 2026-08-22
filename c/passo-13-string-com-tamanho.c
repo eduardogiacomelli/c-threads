@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 13 — a correção: toda função de escrita recebe o tamanho do destino.
+ * PASSO 13 - a correção: toda função de escrita recebe o tamanho do destino.
  *
  *     Ctrl+Shift+B      (ou: make 13)
  *
@@ -16,7 +16,7 @@ int main(void)
 
     /* snprintf é a ferramenta padrão. Ela:
      *   - recebe o tamanho do destino (sizeof(nome), calculado pelo
-     *     compilador — nunca escreva o 8 na mão, senão os dois números
+     *     compilador - nunca escreva o 8 na mão, senão os dois números
      *     saem de sincronia no dia em que você mudar o vetor);
      *   - corta o que não couber;
      *   - SEMPRE termina com '\0';
@@ -25,7 +25,7 @@ int main(void)
      * Esse retorno é o detector de truncamento: se ele for >= o tamanho do
      * destino, o texto não coube inteiro.
      *
-     * O gcc avisa aqui ("output truncated") — ele consegue, porque a string
+     * O gcc avisa aqui ("output truncated") - ele consegue, porque a string
      * é uma constante que ele lê na hora de compilar. Com um nome digitado
      * pelo usuário ele não teria como saber, e o aviso não viria. Por isso o
      * teste abaixo, em tempo de execução, é que é a proteção de verdade. */
@@ -42,7 +42,7 @@ int main(void)
      * dado errado. Em código de verdade você trata o caso: erro, ou aloca
      * maior (passo-15). O importante é que agora você SABE que aconteceu. */
 
-    /* snprintf também é o jeito de montar texto com números juntos —
+    /* snprintf também é o jeito de montar texto com números juntos -
      * é o printf, escrevendo num vetor em vez da tela. */
     char linha[64];
     int  idade = 25;
@@ -88,7 +88,7 @@ int main(void)
  *
  *  1. Imprima `nome` byte a byte como no passo-11 e confirme que o '\0' está
  *     no lugar certo, na última posição. snprintf garante isso; strncpy, a
- *     função que parece a escolha óbvia, NÃO garante — é por isso que este
+ *     função que parece a escolha óbvia, NÃO garante - é por isso que este
  *     passo recomenda snprintf e não strncpy.
  *
  *  2. Troque sizeof(nome) por 8 escrito na mão. Funciona. Agora mude a

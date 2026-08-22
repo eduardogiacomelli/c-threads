@@ -1,9 +1,9 @@
 /* ============================================================================
- * PASSO 11 — string em C é um vetor de char terminado por '\0'.
+ * PASSO 11 - string em C é um vetor de char terminado por '\0'.
  *
  * Não existe tipo string. Não existe .length. O que existe é uma convenção:
  * a string acaba quando aparece um byte zero. Toda função de string do C
- * confia nessa convenção — e é ela que vai quebrar no passo-12.
+ * confia nessa convenção - e é ela que vai quebrar no passo-12.
  *
  *     Ctrl+Shift+B      (ou: make 11)
  * ========================================================================= */
@@ -28,7 +28,7 @@ int main(void)
         printf("  nome[%zu] = %3d  '%c'\n", i, nome[i],
                nome[i] ? nome[i] : ' ');
 
-    /* strlen CONTA os bytes até achar o zero. É um laço, custa O(n) — não é
+    /* strlen CONTA os bytes até achar o zero. É um laço, custa O(n) - não é
      * um campo guardado como o len() do Python. Chamar strlen dentro da
      * condição de um laço percorre a string a cada volta. */
     printf("\nstrlen(nome)  = %zu  <- caracteres, o \\0 não conta\n",
@@ -61,7 +61,7 @@ int main(void)
 
     /* Escrevi com ponteiros porque `a == b` direto entre dois vetores faz o
      * gcc avisar ("comparison between two arrays"). Com `char *` ele deixa
-     * passar caladinho — e é assim que o bug chega no código de verdade. */
+     * passar caladinho - e é assim que o bug chega no código de verdade. */
     char *pa = a;
     char *pb = b;
     printf("\npa == pb       ? %s  <- compara endereços: caixas diferentes\n",
@@ -107,7 +107,7 @@ int main(void)
  *     resto do vetor e o que vier depois. Com sorte, o ASan te pega lendo
  *     fora. Sem sorte, aparece lixo na tela.
  *
- *  2. Declare `char apertado[3] = "Ana";` — 3 letras em 3 bytes, sem espaço
+ *  2. Declare `char apertado[3] = "Ana";` - 3 letras em 3 bytes, sem espaço
  *     pro terminador. O gcc até deixa (com aviso). Imprima com %s e veja o
  *     que acontece.
  *

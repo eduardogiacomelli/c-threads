@@ -1,7 +1,7 @@
 /* ============================================================================
- * STEP 22 — the fix: a generic function is told the size.
+ * STEP 22 - the fix: a generic function is told the size.
  *
- * One swap that works for int, double, char, a struct, anything — because it
+ * One swap that works for int, double, char, a struct, anything - because it
  * never pretends to know what the bytes mean. It only moves them.
  *
  *     Ctrl+Shift+B      (or: make 22)
@@ -18,7 +18,7 @@ typedef struct {
 /* THE FIX is the third parameter.
  *
  *   void *a, void *b   two addresses, type deliberately forgotten
- *   size_t size        how many bytes live there — the piece `void *` lost
+ *   size_t size        how many bytes live there - the piece `void *` lost
  *
  * Note `size_t`, not `int`: it is the unsigned type the language uses for
  * sizes, it is what `sizeof` gives you, and it cannot be negative. Using int
@@ -44,7 +44,7 @@ void swap(void *a, void *b, size_t size)
 
 /* Same job with memcpy, which is what you would actually write: the library
  * version is vectorised and will beat your loop. The scratch buffer is why
- * the loop above is still worth understanding — this one needs somewhere to
+ * the loop above is still worth understanding - this one needs somewhere to
  * put the bytes, and picking a fixed size is a limit you must document. */
 void swap_fast(void *a, void *b, size_t size)
 {
@@ -132,7 +132,7 @@ int main(void)
  *                int (*compar)(const void *, const void *));
  *
  * You can now read that whole declaration, including the comparator. Try
- * `man 3 qsort` — it should look ordinary rather than cryptic.
+ * `man 3 qsort` - it should look ordinary rather than cryptic.
  *
  * WHY `const void *` IN THE CALLBACKS
  *
@@ -145,7 +145,7 @@ int main(void)
  *
  * `pthread_create` hands your thread a single `void *`. Same erasure, same
  * cure: you know what you passed, so you cast it back. The difference is
- * that with a struct you rarely need the size — you cast to `Task *` and the
+ * that with a struct you rarely need the size - you cast to `Task *` and the
  * type tells the compiler everything. The size only becomes your problem
  * when the data is genuinely of unknown type, as here.
  *
@@ -153,7 +153,7 @@ int main(void)
  *
  *  1. Call `swap(&a, &b, sizeof(double))` on two ints. You lied about the
  *     size; the sanitizer catches you reading and writing past both. The
- *     size argument is trust, not proof — the compiler cannot check it.
+ *     size argument is trust, not proof - the compiler cannot check it.
  *
  *  2. Delete `sizeof` and pass 4 by hand everywhere. It still works. Now
  *     change Player to hold a `long score` and run again: the struct swap
@@ -162,7 +162,7 @@ int main(void)
  *
  *  3. Call swap_fast with a 100-byte struct. It refuses and says why,
  *     instead of smashing the stack. Compare that with what strcpy does in
- *     passo-12 — a function that cannot refuse is a function that will
+ *     passo-12 - a function that cannot refuse is a function that will
  *     corrupt.
  *
  *  4. Write `show_hex` that prints any object as raw bytes, and pass it to

@@ -1,4 +1,4 @@
-# Memória em C — o mapa inteiro numa página
+# Memória em C - o mapa inteiro numa página
 
 Leia depois do `passo-05`, e de novo depois do `passo-15`. É o mesmo desenho
 das duas vezes; na segunda ele faz mais sentido.
@@ -37,7 +37,7 @@ int *p = &idade;
 `*p` = "vá até esse endereço e leia" → `25`.
 Escrever `*p = 30` altera a **caixa original**. Não existe cópia envolvida.
 
-O tipo (`int *` vs `char *`) não muda o tamanho do ponteiro — todo endereço
+O tipo (`int *` vs `char *`) não muda o tamanho do ponteiro - todo endereço
 tem 8 bytes numa máquina 64 bits. O tipo diz **quantos bytes ler** e **como
 interpretá-los** quando você faz `*p`. É instrução pro compilador, não algo
 guardado na memória.
@@ -109,7 +109,7 @@ Errar isso é o `passo-14`:
   4) leu pelo ponteiro:    777
 ```
 
-O ponteiro não ficou "inválido" — ele é só um número, e continua sendo o
+O ponteiro não ficou "inválido" - ele é só um número, e continua sendo o
 mesmo número. Quem tem que saber que a caixa foi embora é você.
 
 ---
@@ -134,12 +134,12 @@ Uma thread é mais uma linha de execução no **mesmo processo**. Ou seja:
 
 Isso explica de uma vez as duas metades do trabalho de PPD:
 
-**Por que passar `&i` do laço pra uma thread é bug** — `i` está na pilha de
+**Por que passar `&i` do laço pra uma thread é bug** - `i` está na pilha de
 `main`. A thread vai ler aquele endereço mais tarde, quando `main` já mudou o
 valor (ou já saiu do bloco onde ele existia). É o `passo-14`, com a
 "função que retornou" trocada por "a thread ainda não rodou".
 
-**Por que precisa de mutex** — se duas threads têm um ponteiro pra mesma
+**Por que precisa de mutex** - se duas threads têm um ponteiro pra mesma
 caixa no heap, elas escrevem na mesma caixa. É o experimento 3 do `passo-05`
 com duas linhas de execução em vez de uma.
 

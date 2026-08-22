@@ -1,5 +1,5 @@
 /* ============================================================================
- * contas.c — a IMPLEMENTAÇÃO. Aqui mora o código de verdade.
+ * contas.c - a IMPLEMENTAÇÃO. Aqui mora o código de verdade.
  * ========================================================================= */
 
 /* Um módulo inclui o próprio header. Parece redundante, mas serve pra que o
@@ -42,4 +42,4 @@ int quantas_chamadas(void)
 
 /* `static` também funciona em função: esta existe só aqui dentro, não está
  * no header, e nenhum outro arquivo consegue chamá-la. É o "privado" do C.
- * Se ninguém usar, o gcc avisa que ela está sobrando — o que é útil. */
+ * Se ninguém usar, o gcc avisa que ela está sobrando - o que é útil. */

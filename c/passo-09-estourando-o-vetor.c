@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 9 — ERRADO DE PROPÓSITO. Escrever fora do vetor.
+ * PASSO 9 - ERRADO DE PROPÓSITO. Escrever fora do vetor.
  *
  * Este é o bug que o C é famoso por deixar passar. O programa compila limpo,
  * roda, e o estrago pode aparecer numa variável que você nem tocou.
@@ -7,7 +7,7 @@
  *     Ctrl+Shift+B      (ou: make 09)
  *
  * O AddressSanitizer vai MATAR o programa na primeira linha errada. Leia a
- * mensagem inteira dele — ela é longa e ela é o conteúdo desta aula.
+ * mensagem inteira dele - ela é longa e ela é o conteúdo desta aula.
  * ========================================================================= */
 
 #include <stdio.h>
@@ -24,7 +24,7 @@ int main(void)
     /* O BUG ESTÁ NO <=.
      *
      * Com i <= 5, o laço roda seis vezes: 0,1,2,3,4 e o 5. Mas v[5] não
-     * existe — o vetor acaba no 4. A escrita cai nos 4 bytes seguintes ao
+     * existe - o vetor acaba no 4. A escrita cai nos 4 bytes seguintes ao
      * vetor, que pertencem a outra coisa.
      *
      * C não confere índice. Nunca. Não existe IndexError. O endereço é
@@ -82,17 +82,17 @@ int main(void)
  *                                    this variable
  *
  * Traduzindo a última linha: o vetor `v` ocupa da posição 32 até a 52 da
- * pilha (20 bytes, os 5 ints), e você escreveu exatamente na 52 — o
+ * pilha (20 bytes, os 5 ints), e você escreveu exatamente na 52 - o
  * primeiro byte depois do fim. Um passo além, e o ASan viu.
  *
  * Repare também no que NÃO apareceu: os printf antes do erro. O ASan aborta
  * o processo sem esvaziar o buffer do stdout. Se um dia seus printf de
- * depuração "sumirem" num crash, é isso — não é que a linha não rodou.
+ * depuração "sumirem" num crash, é isso - não é que a linha não rodou.
  *
  * EXPERIMENTE:
  *
  *  1. Conserte: troque `i <= 5` por `i < 5`. Melhor ainda, use o
- *     sizeof do passo-08 pra não repetir o número 5 em dois lugares —
+ *     sizeof do passo-08 pra não repetir o número 5 em dois lugares -
  *     números repetidos no código é como off-by-one nasce.
  *
  *  2. Veja a versão SEM rede. No terminal:

@@ -575,7 +575,7 @@ footer code { font-family: var(--mono); }
     <h1>Inspetor de <em>Memória</em></h1>
     <p class="lede">
       Cinco coisas que os passos explicam em texto e que ficam bem mais fáceis de entender
-      vendo mexer. Cada painel é o mesmo programa que está na pasta — só que passo a passo,
+      vendo mexer. Cada painel é o mesmo programa que está na pasta - só que passo a passo,
       com os endereços à mostra.
     </p>
   </header>
@@ -588,7 +588,7 @@ footer code { font-family: var(--mono); }
       <p>
         <code class="inline">*p = 30</code> muda o que está <em>dentro</em> da caixa apontada.
         <code class="inline">p = &amp;outra</code> muda <em>para onde a seta aponta</em>.
-        Os dois usam o mesmo símbolo e fazem coisas opostas — aperte os dois e veja.
+        Os dois usam o mesmo símbolo e fazem coisas opostas - aperte os dois e veja.
       </p>
     </div>
     <div class="bench">
@@ -625,7 +625,7 @@ footer code { font-family: var(--mono); }
     </div>
     <p class="note">
       <strong>Por que isso importa para threads:</strong> a função de uma thread recebe um
-      <code class="inline">void *</code> — um endereço, exatamente como <code class="inline">p</code>.
+      <code class="inline">void *</code> - um endereço, exatamente como <code class="inline">p</code>.
       Tudo o que ela pode fazer com o seu dado, ela faz por essa seta.
     </p>
   </section>
@@ -637,7 +637,7 @@ footer code { font-family: var(--mono); }
       <h2>O quadro da pilha morre, o endereço fica</h2>
       <p>
         Guardar o endereço de uma variável local é anotar o número de uma caixa que está
-        sendo desmontada. O ponteiro continua válido como <em>número</em> — e é isso que
+        sendo desmontada. O ponteiro continua válido como <em>número</em> - e é isso que
         engana.
       </p>
     </div>
@@ -647,7 +647,7 @@ footer code { font-family: var(--mono); }
           <div class="stack" id="m2-stack"></div>
           <div class="cell ptr" id="m2-ptr" style="min-width:11rem">
             <div class="addr">global</div>
-            <div class="box">—</div>
+            <div class="box">-</div>
             <div class="name">int *guardado</div>
           </div>
         </div>
@@ -663,7 +663,7 @@ footer code { font-family: var(--mono); }
     </div>
     <p class="note">
       <strong>O mesmo bug com threads:</strong> troque “a função retornou” por “a thread
-      ainda não rodou”. É o <code class="inline">&amp;i</code> do laço — o painel seguinte.
+      ainda não rodou”. É o <code class="inline">&amp;i</code> do laço - o painel seguinte.
     </p>
   </section>
 
@@ -704,7 +704,7 @@ footer code { font-family: var(--mono); }
     </div>
     <p class="note">
       <strong>É isto que a struct resolve:</strong> precisa mandar id <em>e</em> vetor para
-      a thread? Um <code class="inline">Args a[N]</code> — um pacote por thread, no mesmo
+      a thread? Um <code class="inline">Args a[N]</code> - um pacote por thread, no mesmo
       espírito do <code class="inline">ids[N]</code> aqui. Uma struct só, reaproveitada no
       laço, é a coluna da esquerda de novo.
     </p>
@@ -717,14 +717,14 @@ footer code { font-family: var(--mono); }
       <h2><code class="inline" style="font-size:.85em">contador++</code> são três operações, não uma</h2>
       <p>
         Ler, somar, gravar. O sistema pode trocar de thread entre quaisquer duas delas.
-        Escolha uma ordem e avance passo a passo — ou sorteie e veja quantas somas somem.
+        Escolha uma ordem e avance passo a passo - ou sorteie e veja quantas somas somem.
       </p>
     </div>
     <div class="bench">
       <div class="stage">
         <div class="bigread" style="margin-bottom:1.25rem">
-          <div><span class="bl">registrador A</span><span class="bv" id="m4-ra" style="color:var(--t0)">—</span></div>
-          <div><span class="bl">registrador B</span><span class="bv" id="m4-rb" style="color:var(--t1)">—</span></div>
+          <div><span class="bl">registrador A</span><span class="bv" id="m4-ra" style="color:var(--t0)">-</span></div>
+          <div><span class="bl">registrador B</span><span class="bv" id="m4-rb" style="color:var(--t1)">-</span></div>
           <div><span class="bl">contador (memória)</span><span class="bv" id="m4-mem">10</span></div>
           <div><span class="bl">esperado</span><span class="bv" id="m4-exp">12</span></div>
         </div>
@@ -744,7 +744,7 @@ footer code { font-family: var(--mono); }
     </div>
     <p class="note">
       <strong>No programa de verdade</strong> são dois milhões de voltas, e o sorteio
-      acontece a cada uma. Por isso o resultado muda toda execução — e por isso “rodei e
+      acontece a cada uma. Por isso o resultado muda toda execução - e por isso “rodei e
       deu certo” não prova nada em programação concorrente.
     </p>
   </section>
@@ -756,7 +756,7 @@ footer code { font-family: var(--mono); }
       <h2>Chunk, esparsa, e o resto que ninguém processa</h2>
       <p>
         Mexa nos dois controles até a divisão não ser exata. As células riscadas em vermelho
-        são as que a divisão ingênua deixa órfãs — é o aviso em letras miúdas do enunciado.
+        são as que a divisão ingênua deixa órfãs - é o aviso em letras miúdas do enunciado.
         As barras mostram o <em>custo</em>, não a quantidade.
       </p>
     </div>
@@ -795,7 +795,7 @@ footer code { font-family: var(--mono); }
   <footer>
     Os programas ficam em <code>~/c-playground/c-do-zero/</code> (fundamentos de C) e
     <code>~/vaultin/…/07_Pthreads_Do_Zero/</code> (threads). Rode <code>make 11</code> e
-    <code>make 12</code> lá — os números que aparecem na sua máquina são a resposta real;
+    <code>make 12</code> lá - os números que aparecem na sua máquina são a resposta real;
     esta página é só o desenho do que está acontecendo.
   </footer>
 
@@ -899,7 +899,7 @@ footer code { font-family: var(--mono); }
       : (M1.boxAddr === M1_ADDR.idade ? idadeEl : outraEl);
     if (target) target.classList.add("hot");
 
-    const val = M1.pnull ? "—"
+    const val = M1.pnull ? "-"
       : (M1.boxAddr === M1_ADDR.idade ? M1.idade : M1.outra);
     $("#m1-readout").innerHTML = `
       <dt>&amp;idade</dt><dd>${M1_ADDR.idade}</dd>
@@ -931,10 +931,10 @@ footer code { font-family: var(--mono); }
     }
   }
   const m1Msgs = {
-    init: "Estado inicial. `p` guarda o endereço de `idade` — a seta é literalmente o conteúdo da caixa `p`.",
+    init: "Estado inicial. `p` guarda o endereço de `idade` - a seta é literalmente o conteúdo da caixa `p`.",
     deref: "*p = 30 → foi até o endereço guardado em p e escreveu lá. A seta não se mexeu; o conteúdo da caixa apontada, sim.",
     repoint: "p = &outra → agora p guarda OUTRO endereço. Nada foi escrito em `idade` nem em `outra`: só a seta mudou.",
-    direct: "idade = 7 → escrita direta, sem ponteiro. Se p aponta para `idade`, *p também mudou — mesma caixa, dois nomes.",
+    direct: "idade = 7 → escrita direta, sem ponteiro. Se p aponta para `idade`, *p também mudou - mesma caixa, dois nomes.",
     null: "p = NULL → a seta não aponta para nada. Ler *p agora mata o programa: 'load of null pointer'."
   };
   $$("[data-m1]").forEach(b => b.addEventListener("click", () => {
@@ -957,16 +957,16 @@ footer code { font-family: var(--mono); }
 
   /* ============================================================ 2 */
   const M2_STEPS = [
-    { frames: [["main", []]], ptr: "—", narr: "main começa. `guardado` ainda não aponta para nada.", bad: false },
+    { frames: [["main", []]], ptr: "-", narr: "main começa. `guardado` ainda não aponta para nada.", bad: false },
     { frames: [["main", []], ["fabricar_numero", [["numero", 42, "hot"]]]],
       ptr: "0x7ffd1bf4",
       narr: "A função criou `numero = 42` na pilha, no endereço 0x7ffd1bf4, e anotou esse endereço em `guardado`.", bad: false },
     { frames: [["main", []], ["(livre)", [["…", 42, "dead"]]]],
       ptr: "0x7ffd1bf4",
-      narr: "A função retornou. O quadro foi abandonado — mas o 42 ainda está lá e `guardado` ainda tem o número do endereço. Ler agora dá 42, e é aqui que o bug se disfarça de código correto.", bad: false },
+      narr: "A função retornou. O quadro foi abandonado - mas o 42 ainda está lá e `guardado` ainda tem o número do endereço. Ler agora dá 42, e é aqui que o bug se disfarça de código correto.", bad: false },
     { frames: [["main", []], ["outra_funcao", [["outro", 777, "hot"]]]],
       ptr: "0x7ffd1bf4",
-      narr: "Outra função foi chamada e recebeu exatamente o mesmo pedaço de pilha. `outro` nasceu em 0x7ffd1bf4 — o endereço que `guardado` guarda.", bad: false },
+      narr: "Outra função foi chamada e recebeu exatamente o mesmo pedaço de pilha. `outro` nasceu em 0x7ffd1bf4 - o endereço que `guardado` guarda.", bad: false },
     { frames: [["main", []], ["outra_funcao", [["outro", 777, "bad"]]]],
       ptr: "0x7ffd1bf4",
       narr: "*guardado agora lê 777. Sem sanitizer o programa não reclama de nada: só devolve o valor errado. Com ASan: stack-use-after-return.", bad: true }
@@ -1033,7 +1033,7 @@ footer code { font-family: var(--mono); }
         <div class="tcard ${isCreated ? "" : "pending"} ${hasRun ? (ok ? "right" : "wrong") : ""}"
              id="m3-t${k}" style="--tc:${tcolor(k)}">
           <div class="tname">thread ${k}</div>
-          <div class="tval">${hasRun ? `leu ${read}` : (isCreated ? "criada…" : "—")}</div>
+          <div class="tval">${hasRun ? `leu ${read}` : (isCreated ? "criada…" : "-")}</div>
           <div class="tsub">${isCreated ? (wrong ? "&amp;i" : `&amp;ids[${k}]`) : ""}</div>
         </div>`;
     }).join("");
@@ -1044,11 +1044,11 @@ footer code { font-family: var(--mono); }
     if (step === 0) {
       msg = wrong
         ? "Antes do laço. Existe UMA caixa `i` em main, e é o endereço dela que vai ser passado quatro vezes."
-        : "Antes do laço. Existe um vetor `ids[4]` — quatro caixas em endereços diferentes.";
+        : "Antes do laço. Existe um vetor `ids[4]` - quatro caixas em endereços diferentes.";
     } else if (step <= M3_N) {
       msg = wrong
         ? `Thread ${step - 1} criada com &i = 0x7ffd1000. Repare: o mesmo endereço da anterior. i vale ${iVal} agora, mas a thread ainda não leu nada.`
-        : `Thread ${step - 1} criada com &ids[${step - 1}] — um endereço só dela, que ninguém mais vai escrever.`;
+        : `Thread ${step - 1} criada com &ids[${step - 1}] - um endereço só dela, que ninguém mais vai escrever.`;
     } else if (step === 5) {
       msg = wrong
         ? "O laço terminou e deixou i = 4. As quatro threads seguram esse mesmo endereço, e nenhuma leu ainda."
@@ -1114,8 +1114,8 @@ footer code { font-family: var(--mono); }
 
   function m4Render(step) {
     const st = m4State(step);
-    $("#m4-ra").textContent = st.ra === null ? "—" : st.ra;
-    $("#m4-rb").textContent = st.rb === null ? "—" : st.rb;
+    $("#m4-ra").textContent = st.ra === null ? "-" : st.ra;
+    $("#m4-rb").textContent = st.rb === null ? "-" : st.rb;
     $("#m4-mem").textContent = st.mem;
     $("#m4-exp").textContent = 12;
     const done = step >= m4seq.length;
@@ -1143,7 +1143,7 @@ footer code { font-family: var(--mono); }
       const r = st.rows[step - 1];
       const txt = {
         ler: `Thread ${r.t} copiou o valor da memória para o registrador dela. A memória não mudou.`,
-        somar: `Thread ${r.t} somou 1 no registrador. A memória continua igual — ninguém gravou ainda.`,
+        somar: `Thread ${r.t} somou 1 no registrador. A memória continua igual - ninguém gravou ainda.`,
         gravar: `Thread ${r.t} gravou o registrador na memória, por cima do que estivesse lá.`
       }[r.op];
       n.textContent = txt;
@@ -1151,7 +1151,7 @@ footer code { font-family: var(--mono); }
     } else {
       const lost = 12 - st.mem;
       n.textContent = lost === 0
-        ? "Deu 12. Nesta ordem nenhuma das duas leu antes da outra gravar — não houve conflito. Note que o código é exatamente o mesmo da ordem que perde."
+        ? "Deu 12. Nesta ordem nenhuma das duas leu antes da outra gravar - não houve conflito. Note que o código é exatamente o mesmo da ordem que perde."
         : `Deu ${st.mem}: ${lost} soma${lost > 1 ? "s" : ""} desapareceu. As duas leram 10 antes de qualquer gravação, então a segunda gravação escreveu por cima da primeira.`;
       n.classList.toggle("bad", lost !== 0);
     }
@@ -1184,7 +1184,7 @@ footer code { font-family: var(--mono); }
 
   /* ============================================================ 5 */
   const M5 = { mode: "chunk", fix: false, n: 16, t: 4 };
-  const cost = i => 1 + i * 0.6;   /* custo cresce com o número — divisores */
+  const cost = i => 1 + i * 0.6;   /* custo cresce com o número - divisores */
 
   function m5Assign() {
     const { n, t, mode, fix } = M5;
@@ -1239,10 +1239,10 @@ footer code { font-family: var(--mono); }
             `A conta final vai fechar errado, e o programa não vai reclamar de nada. Aperte “tratar o resto”.`;
     } else if (mode === "chunk") {
       msg = `Chunk: faixas contínuas, divisão certa. Mas a thread ${loads.indexOf(max)} pegou os números maiores ` +
-            `e carrega ${spread}% mais trabalho que a mais folgada — as outras vão esperar por ela no join.`;
+            `e carrega ${spread}% mais trabalho que a mais folgada - as outras vão esperar por ela no join.`;
     } else {
       msg = `Esparsa: cada thread pega um a cada ${t}, então cada uma recebe números pequenos e grandes. ` +
-            `Diferença de carga: ${spread}%. E sem resto para tratar — repare que nenhuma célula ficou órfã.`;
+            `Diferença de carga: ${spread}%. E sem resto para tratar - repare que nenhuma célula ficou órfã.`;
     }
     nar.textContent = msg;
     nar.classList.toggle("bad", orphans > 0);

@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 1 — o menor programa que existe, linha por linha.
+ * PASSO 1 - o menor programa que existe, linha por linha.
  *
  * Você já sabe programar. O que muda aqui é o modelo de execução: não existe
  * interpretador. Este arquivo de texto vira um binário, e o sistema executa
@@ -12,7 +12,7 @@
  *
  * É um comando pro PRÉ-PROCESSADOR, que roda antes do compilador: ele apaga
  * esta linha e cola no lugar dela o conteúdo inteiro do arquivo stdio.h
- * (que fica em /usr/include/stdio.h — pode abrir).
+ * (que fica em /usr/include/stdio.h - pode abrir).
  *
  * O que vem colado ali são DECLARAÇÕES: "existe uma função chamada printf,
  * ela recebe uma string e mais o que vier, e devolve int". Só a assinatura.
@@ -74,7 +74,7 @@ int main(void)
  *
  *  2. Apague a linha #include <stdio.h>. Rode.
  *     O gcc reclama: "implicit declaration of function 'printf'". Ele ainda
- *     assim gera o binário (herança dos anos 70) — mas isso é um aviso de que
+ *     assim gera o binário (herança dos anos 70) - mas isso é um aviso de que
  *     ele está adivinhando os tipos. Nunca ignore.
  *
  *  3. Troque `return 0;` por `return 3;`. Rode pelo terminal e pergunte o

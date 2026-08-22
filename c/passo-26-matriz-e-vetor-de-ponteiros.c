@@ -1,7 +1,7 @@
 /* ============================================================================
- * STEP 26 — int m[3][4] and int *rows[3] are NOT the same thing.
+ * STEP 26 - int m[3][4] and int *rows[3] are NOT the same thing.
  *
- * They index identically — m[i][j] either way — and they have completely
+ * They index identically - m[i][j] either way - and they have completely
  * different memory layouts. Confusing them is the reason "why can't I pass my
  * 2D array to this function" is one of the most asked C questions.
  *
@@ -18,7 +18,7 @@
  *
  *     void f(int m[][COLS], size_t rows)
  *
- * The compiler needs COLS to compute m[i][j] — that is the whole address
+ * The compiler needs COLS to compute m[i][j] - that is the whole address
  * calculation. The outer dimension it does not need, and would ignore if you
  * wrote it, because the array decays to a pointer to its first ROW.
  *
@@ -34,7 +34,7 @@ static long sum_matrix(int m[][COLS], size_t rows)
 }
 
 /* Taking an array of pointers: no inner dimension, because there is no inner
- * array — just addresses. You need the length of each row separately. */
+ * array - just addresses. You need the length of each row separately. */
 static long sum_rows(int *rows[], size_t nrows, size_t ncols)
 {
     long total = 0;
@@ -53,7 +53,7 @@ int main(void)
         { 9, 10, 11, 12 },
     };
 
-    printf("int m[3][4] — ONE contiguous block of %zu bytes\n", sizeof(m));
+    printf("int m[3][4] - ONE contiguous block of %zu bytes\n", sizeof(m));
     printf("row addresses, 16 bytes apart (4 ints each):\n");
     for (size_t i = 0; i < ROWS; i++)
         printf("  m[%zu] at %p\n", i, (void *) m[i]);
@@ -67,7 +67,7 @@ int main(void)
     printf("\nflat walk: ");
     for (size_t k = 0; k < ROWS * COLS; k++)
         printf("%d ", flat[k]);
-    printf("\nm[1][2] = %d, and flat[1*4+2] = %d — same box\n",
+    printf("\nm[1][2] = %d, and flat[1*4+2] = %d - same box\n",
            m[1][2], flat[1 * COLS + 2]);
 
     printf("\nsum via m[][COLS] = %ld\n", sum_matrix(m, ROWS));
@@ -83,7 +83,7 @@ int main(void)
             rows[i][j] = (int) (100 + i * COLS + j);
     }
 
-    printf("\nint *rows[3] — %zu bytes of POINTERS, plus 3 separate blocks\n",
+    printf("\nint *rows[3] - %zu bytes of POINTERS, plus 3 separate blocks\n",
            sizeof(rows));
     for (size_t i = 0; i < ROWS; i++)
         printf("  rows[%zu] holds %p\n", i, (void *) rows[i]);
@@ -92,7 +92,7 @@ int main(void)
     printf("\nsum via *rows[] = %ld\n", sum_rows(rows, ROWS, COLS));
 
     /* The one that catches everyone: you cannot pass `m` where `int **` is
-     * expected. `m` decays to `int (*)[4]`, a pointer to an array — not a
+     * expected. `m` decays to `int (*)[4]`, a pointer to an array - not a
      * pointer to a pointer. There is no array of row pointers anywhere in
      * `m` for it to decay into. Experiment 1 makes the compiler say it. */
 
@@ -128,7 +128,7 @@ int main(void)
  *
  *     int main(int argc, char *argv[])
  *
- * `char *argv[]` is an array of pointers to char — exactly this layout, with
+ * `char *argv[]` is an array of pointers to char - exactly this layout, with
  * strings of different lengths at the far end of each arrow. That is why the
  * strings can have different lengths, and why there is no inner dimension.
  *
@@ -137,18 +137,18 @@ int main(void)
  * A row-major matrix splits cleanly by rows: thread k gets rows
  * [k*rows/n, (k+1)*rows/n), and each thread touches a contiguous stretch of
  * memory that no other thread touches. That is the passo-09 slice in two
- * dimensions, and the contiguity is what makes it fast — threads working on
+ * dimensions, and the contiguity is what makes it fast - threads working on
  * interleaved rows would keep invalidating each other's cache lines.
  *
  * EXPERIMENTE:
  *
- *  1. Try to call `sum_rows(m, ROWS, COLS)` — passing the 2D array where an
+ *  1. Try to call `sum_rows(m, ROWS, COLS)` - passing the 2D array where an
  *     array of pointers is expected. Read the error: "expected 'int **' but
  *     argument is of type 'int (*)[4]'". Now that you can read both types,
  *     the message says exactly what is wrong.
  *
  *  2. Print `sizeof(m)`, `sizeof(m[0])` and `sizeof(m[0][0])`: 48, 16, 4.
- *     Dividing them gives you the dimensions — and only works in the scope
+ *     Dividing them gives you the dimensions - and only works in the scope
  *     that declared the array (passo-10).
  *
  *  3. Make the rows ragged: allocate row 1 with only 2 ints, then call
@@ -157,7 +157,7 @@ int main(void)
  *
  *  4. Walk `m` flat and time it against walking it column by column
  *     (`for j { for i { m[i][j] } }`) with a much bigger matrix. Same
- *     arithmetic, very different speed — that is the cache, and it is the
+ *     arithmetic, very different speed - that is the cache, and it is the
  *     first performance idea that matters in PPD.
  *
  * -> passo-27

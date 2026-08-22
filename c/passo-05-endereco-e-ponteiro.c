@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 5 — & e *, com o diagrama do lado.
+ * PASSO 5 - & e *, com o diagrama do lado.
  *
  * Nada aqui é difícil. É só notação nova para uma ideia que você já usa em
  * Python sem ver: toda variável mora em algum lugar, e esse lugar tem número.
@@ -56,7 +56,7 @@ int main(void)
     printf("\ndepois de *p = 30, idade agora é %d\n", idade);
 
     /* Aquilo que o passo-02 antecipou: o tamanho do ponteiro não depende do
-     * que ele aponta. Endereço é endereço — 8 bytes numa máquina 64 bits. */
+     * que ele aponta. Endereço é endereço - 8 bytes numa máquina 64 bits. */
     double d = 3.14;
     char   c = 'x';
     printf("\nsizeof(int *)    = %zu\n", sizeof(int *));
@@ -73,7 +73,7 @@ int main(void)
     printf("*pd = %.2f   *pc = %c\n", *pd, *pc);
 
     /* Um ponteiro que não aponta pra nada tem um valor combinado: NULL.
-     * Nunca deixe um ponteiro sem inicializar — um ponteiro com lixo aponta
+     * Nunca deixe um ponteiro sem inicializar - um ponteiro com lixo aponta
      * pra um endereço qualquer, e escrever nele destrói o que estiver lá. */
     int *vazio = NULL;
     printf("\nvazio = %p (isto é o NULL)\n", (void *) vazio);
@@ -114,7 +114,7 @@ int main(void)
  *
  *  3. Aponte dois ponteiros pra mesma caixa (`int *q = &idade;`) e mude por
  *     um (`*q = 99;`). Leia pelo outro (`*p`). Mesma caixa, dois nomes. É
- *     exatamente isso que acontece entre threads — e é por isso que threads
+ *     exatamente isso que acontece entre threads - e é por isso que threads
  *     precisam de mutex.
  *
  *  4. Tente `int *errado = idade;` (sem o &). O gcc reclama de conversão

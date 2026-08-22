@@ -1,5 +1,5 @@
 /* ============================================================================
- * STEP 24 — bits: packing several yes/no answers into one integer.
+ * STEP 24 - bits: packing several yes/no answers into one integer.
  *
  * You have already used this API without seeing it:
  *
@@ -29,7 +29,7 @@
 #define EXECUTE (1u << 2)
 #define HIDDEN  (1u << 3)
 
-/* Print the low 8 bits, most significant first — the order humans write
+/* Print the low 8 bits, most significant first - the order humans write
  * numbers in, which is the opposite of the byte view's address order. */
 static void show_bits(const char *label, unsigned value)
 {
@@ -51,14 +51,14 @@ int main(void)
     flags |= WRITE;
     show_bits("flags |= WRITE", flags);
 
-    /* Several at once — this is the `O_WRONLY | O_CREAT` you have seen. */
+    /* Several at once - this is the `O_WRONLY | O_CREAT` you have seen. */
     flags |= EXECUTE | HIDDEN;
     show_bits("|= EXECUTE | HIDDEN", flags);
 
     /* TEST a flag: AND, then ask whether anything survived.
      *
      * The result is not 1, it is the mask itself (or 0). Compare against 0,
-     * or use it directly as a truth value — never compare it against 1. */
+     * or use it directly as a truth value - never compare it against 1. */
     printf("\nflags & WRITE = %u -> %s\n",
            flags & WRITE, (flags & WRITE) ? "on" : "off");
 
@@ -87,7 +87,7 @@ int main(void)
      *
      * parses as `flags & (HIDDEN == 0)`, which is `flags & 0`, which is 0,
      * which is always false. The compiler warns, and the fix is parentheses.
-     * When in doubt, parenthesise bitwise operators — always. */
+     * When in doubt, parenthesise bitwise operators - always. */
     printf("\nwith parentheses:  (flags & HIDDEN) == 0 -> %s\n",
            ((flags & HIDDEN) == 0) ? "true" : "false");
 
@@ -122,7 +122,7 @@ int main(void)
  * WHY IT SHOWS UP IN CONCURRENCY
  *
  * A flags word is the smallest thing several threads can want to change at
- * once. `flags |= READY` is read-modify-write — exactly the three operations
+ * once. `flags |= READY` is read-modify-write - exactly the three operations
  * of passo-12, so two threads setting different bits can lose one of them.
  * Bit flags shared between threads need atomics, not just care. That is next
  * semester's material, but this is where the need comes from.
@@ -132,13 +132,13 @@ int main(void)
  *  1. Write `flags & HIDDEN == 0` without the parentheses and read the
  *     warning gcc gives you. Then print both versions side by side.
  *
- *  2. Set the same flag twice. Nothing changes — `|=` is idempotent. Now
+ *  2. Set the same flag twice. Nothing changes - `|=` is idempotent. Now
  *     toggle it twice and watch it come back. Idempotent versus involutive,
  *     and the difference matters when you are not sure how many times your
  *     code runs.
  *
  *  3. Print `~0u` and `~0u >> 1`. Then try `~0 >> 1` with a signed 0 and see
- *     the difference — right-shifting a negative signed value keeps the sign
+ *     the difference - right-shifting a negative signed value keeps the sign
  *     bit, which is why masks are always unsigned.
  *
  *  4. Pack two 4-bit values into one byte: `packed = (hi << 4) | lo`, then

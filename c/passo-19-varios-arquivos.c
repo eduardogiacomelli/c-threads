@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 19 — quando um arquivo só não basta: header + implementação.
+ * PASSO 19 - quando um arquivo só não basta: header + implementação.
  *
  * Este passo tem TRÊS arquivos: contas.h, contas.c e este aqui.
  *
@@ -18,7 +18,7 @@ int main(void)
      * no header: recebe int, devolve long. É o suficiente pra compilar.
      *
      * Essa é a ideia toda: separar "o que dá pra usar" de "como está feito".
-     * Você faz isso desde sempre com printf — nunca leu o código dele. */
+     * Você faz isso desde sempre com printf - nunca leu o código dele. */
     printf("soma_ate(10)   = %ld\n", soma_ate(10));
     printf("soma_ate(100)  = %ld\n", soma_ate(100));
     printf("eh_par(7)      = %d\n",  eh_par(7));
@@ -83,7 +83,7 @@ int main(void)
  *
  * A flag `-pthread` (sem o "l") faz as duas coisas: liga a biblioteca no
  * linker e ajusta o compilador. Esquecer dela dá exatamente
- * "undefined reference to 'pthread_create'" — que agora você sabe ler: a
+ * "undefined reference to 'pthread_create'" - que agora você sabe ler: a
  * declaração veio do #include <pthread.h>, o código não veio de lugar nenhum.
  *
  * QUANDO SEPARAR EM ARQUIVOS
@@ -91,7 +91,7 @@ int main(void)
  * Nos exercícios da lista de pthreads, quase nunca: um programa de 120 linhas
  * cabe num arquivo só, e o professor pediu um programa, não uma biblioteca.
  * Vale a pena quando você tem uma função que quer reaproveitar em vários
- * exercícios — a de medir tempo, por exemplo, que aparece no 7 e nos dois
+ * exercícios - a de medir tempo, por exemplo, que aparece no 7 e nos dois
  * desafios.
  *
  * O que você precisa daqui, mesmo, é saber LER os erros de linkagem. Eles vão

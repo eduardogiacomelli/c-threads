@@ -1,5 +1,5 @@
 /* ============================================================================
- * contas.h — o CONTRATO do módulo. Leia junto com passo-19.
+ * contas.h - o CONTRATO do módulo. Leia junto com passo-19.
  *
  * Um header não contém código que roda. Ele contém DECLARAÇÕES: as
  * assinaturas das funções que outro arquivo pode chamar. É a lista do que

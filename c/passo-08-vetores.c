@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 8 — vetor não é lista.
+ * PASSO 8 - vetor não é lista.
  *
  * Um vetor em C é um bloco contíguo de caixas do mesmo tipo, com tamanho
  * decidido na hora de compilar. Não cresce, não sabe o próprio tamanho, não
@@ -27,7 +27,7 @@ int main(void)
      *     sizeof(notas[0])  = 4 bytes  (uma caixa)
      *     20 / 4            = 5
      *
-     * Guarde a ressalva "só aqui" — o passo-10 mostra onde isso quebra. */
+     * Guarde a ressalva "só aqui" - o passo-10 mostra onde isso quebra. */
     size_t tamanho = sizeof(notas) / sizeof(notas[0]);
     printf("\nsizeof(notas) = %zu bytes, cada int = %zu -> %zu elementos\n",
            sizeof(notas), sizeof(notas[0]), tamanho);
@@ -44,7 +44,7 @@ int main(void)
         soma += notas[i];
 
     printf("\nsoma = %d, média = %.2f\n", soma, (double) soma / tamanho);
-    /* aquele (double) do passo-04 de novo — sem ele a média seria inteira */
+    /* aquele (double) do passo-04 de novo - sem ele a média seria inteira */
 
     /* Os endereços mostram que o bloco é contíguo: cada int avança 4 bytes. */
     printf("\nonde cada caixa mora:\n");
@@ -56,7 +56,7 @@ int main(void)
     int zerado[5] = {0};
     printf("\nzerado[3] = %d (o {0} preencheu tudo com zero)\n", zerado[3]);
 
-    /* CUIDADO: sem NENHUM inicializador, um vetor local contém LIXO — o que
+    /* CUIDADO: sem NENHUM inicializador, um vetor local contém LIXO - o que
      * quer que estivesse naquele pedaço de memória antes. Não é zero.
      *     int lixo[5];          <- os 5 valores são imprevisíveis
      */
@@ -80,7 +80,7 @@ int main(void)
  * notas[i] é simplesmente:  início + i * sizeof(int).
  *
  * É uma multiplicação, não uma busca. Por isso acessar notas[9999] é tão
- * rápido quanto notas[0] — e por isso ninguém percebe que é inválido.
+ * rápido quanto notas[0] - e por isso ninguém percebe que é inválido.
  *
  * EXPERIMENTE:
  *
@@ -91,7 +91,7 @@ int main(void)
  *     Em Python isso é impossível; aqui é rotina.
  *
  *  3. Mude para `int notas[5] = {7, 8};`. Imprima todos. Os três últimos são
- *     zero — mas só porque houve um inicializador. Sem `= {...}`, lixo.
+ *     zero - mas só porque houve um inicializador. Sem `= {...}`, lixo.
  *
  *  4. Tente `notas = zerado;`. Erro de compilação. O nome de um vetor não é
  *     uma variável que você possa reatribuir. Copiar vetor em C é laço ou

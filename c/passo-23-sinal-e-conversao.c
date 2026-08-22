@@ -1,9 +1,9 @@
 /* ============================================================================
- * STEP 23 — signed vs unsigned, the bug no sanitizer will catch.
+ * STEP 23 - signed vs unsigned, the bug no sanitizer will catch.
  *
  * Everything so far had a tool watching it: ASan for memory, UBSan for
  * overflow. This one has nothing. Unsigned wraparound is not undefined
- * behaviour — it is DEFINED to wrap, so no tool considers it an error. The
+ * behaviour - it is DEFINED to wrap, so no tool considers it an error. The
  * compiler will warn if you let it, and that warning is the only help you get.
  *
  *     Ctrl+Shift+B      (or: make 23)
@@ -51,7 +51,7 @@ int main(void)
      *     if (index < count)  ...  with index int and count size_t
      *
      * A negative index is not caught. It becomes enormous, fails the test,
-     * and you conclude the check works — until the day the other branch
+     * and you conclude the check works - until the day the other branch
      * matters. */
 
     /* ---------------------------------------------------------------- 2 */
@@ -82,7 +82,7 @@ int main(void)
      *
      * `k-- > 0` tests the value BEFORE decrementing, so the body sees
      * n-1 .. 0 and the test fails cleanly at 0 without ever wrapping. The
-     * empty third clause is not a typo — the decrement already happened. */
+     * empty third clause is not a typo - the decrement already happened. */
     printf("the idiom that works:\n");
     for (size_t k = n; k-- > 0; )
         printf("  k=%zu -> v[k]=%d\n", k, v[k]);
@@ -156,13 +156,13 @@ int main(void)
  * EXPERIMENTE:
  *
  *  1. Find both warnings in the panel and match each to its line. Then fix
- *     section 1 properly — should the count become signed, or the index
+ *     section 1 properly - should the count become signed, or the index
  *     unsigned? The answer depends on whether a negative index is meaningful
  *     here at all.
  *
  *  2. Remove the `guard` from the backwards loop. It runs, prints nonsense,
  *     and dies. Note that the sanitizer only complains once it reads far
- *     enough out of bounds to hit a red zone — the wrap itself is invisible
+ *     enough out of bounds to hit a red zone - the wrap itself is invisible
  *     to it.
  *
  *  3. Change `size_t n` to `int n` and put the naive backwards loop back.

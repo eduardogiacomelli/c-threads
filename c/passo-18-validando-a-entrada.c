@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 18 — a correção do passo-17: strtol e strtod, que sabem falhar.
+ * PASSO 18 - a correção do passo-17: strtol e strtod, que sabem falhar.
  *
  * O Desafio 2 pede explicitamente "teste de consistência da entrada
  * fornecida". Isto aqui é esse teste.
@@ -29,7 +29,7 @@
  * de um `char *`, e ela escreve lá dentro.
  *
  * Esta função devolve 1 se deu certo e 0 se não deu, escrevendo o resultado
- * em *destino — mesmo padrão. */
+ * em *destino - mesmo padrão. */
 int ler_inteiro_positivo(const char *texto, long *destino)
 {
     char *fim;
@@ -47,7 +47,7 @@ int ler_inteiro_positivo(const char *texto, long *destino)
     return 1;
 }
 
-/* Mesma ideia, mas com strtod, que entende notação científica — o "1e9" que
+/* Mesma ideia, mas com strtod, que entende notação científica - o "1e9" que
  * o Desafio 1 exige. strtod devolve double; converta pra long depois. */
 int ler_iteracoes(const char *texto, long *destino)
 {
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
 
     /* Valide CADA argumento separadamente, com uma mensagem que diz qual
      * deles está errado e o que veio. "entrada inválida" sozinho é inútil
-     * pra quem está usando o programa — inclusive pra você, testando. */
+     * pra quem está usando o programa - inclusive pra você, testando. */
     if (!ler_iteracoes(argv[1], &iteracoes)) {
         fprintf(stderr, "erro: iteracoes inválido: \"%s\"\n", argv[1]);
         return 1;
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
  *
  *  1. Rode os quatro casos do cabeçalho e leia cada mensagem. Depois rode
  *     `./passo-18-validando-a-entrada 10 3` e olhe o resto da divisão: 1
- *     elemento sem dono. Quem processa esse? Guarde a pergunta — ela volta
+ *     elemento sem dono. Quem processa esse? Guarde a pergunta - ela volta
  *     no Exercício 6, no 7 e no Desafio 2.
  *
  *  2. Tire o `errno = 0;` e rode com um número gigante duas vezes seguidas.
@@ -151,8 +151,8 @@ int main(int argc, char *argv[])
  *  3. Troque a base de strtol pra 16 e passe "ff". Dá 255. A base é
  *     parâmetro; base 0 faz ela adivinhar pelo prefixo (0x, 0).
  *
- *  4. Escreva a validação como o enunciado do Desafio 2 pede — threads e
- *     worksizetotal — e teste com entrada vazia, negativa, zero, texto e
+ *  4. Escreva a validação como o enunciado do Desafio 2 pede - threads e
+ *     worksizetotal - e teste com entrada vazia, negativa, zero, texto e
  *     um número absurdo. São cinco testes de 10 segundos que salvam a nota.
  *
  * -> passo-19: quando um arquivo só não basta

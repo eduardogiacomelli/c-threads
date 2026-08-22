@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 10 — o vetor "decai" pra ponteiro quando você o passa adiante.
+ * PASSO 10 - o vetor "decai" pra ponteiro quando você o passa adiante.
  *
  * Isto explica de uma vez: por que uma função que recebe vetor precisa
  * receber o tamanho junto, por que sizeof mente lá dentro, e por que
@@ -15,7 +15,7 @@
  * vetor. O compilador reescreve silenciosamente para `int *v`.
  *
  * O vetor inteiro NÃO é copiado na chamada (seria caro). Só o endereço do
- * primeiro elemento é copiado — regra do passo-06, sem exceção.
+ * primeiro elemento é copiado - regra do passo-06, sem exceção.
  *
  * Consequência: `n` não é frescura. Sem ele, a função não tem como saber
  * onde o vetor acaba. */
@@ -106,7 +106,7 @@ int main(void)
  *
  * E o corolário que responde ao experimento 4 do passo-08: você não pode
  * escrever `a = b` entre vetores porque o nome do vetor não é uma caixa
- * reatribuível — é o endereço do bloco. Copiar é laço ou memcpy.
+ * reatribuível - é o endereço do bloco. Copiar é laço ou memcpy.
  *
  * EXPERIMENTE:
  *
@@ -120,11 +120,11 @@ int main(void)
  *     ("sizeof on array function parameter"). Este é um clássico de prova.
  *
  *  3. Chame `somar(notas + 3, 5)`. Você pediu 5 elementos começando no
- *     quarto — só existem 2. ASan pega. Ponteiro deslocado + tamanho errado
+ *     quarto - só existem 2. ASan pega. Ponteiro deslocado + tamanho errado
  *     é a fonte nº 1 de bugs em divisão de trabalho entre threads.
  *
  *  4. Escreva `void dobrar(int *v, size_t n)` que multiplica cada elemento
- *     por 2, chame em main e imprima o vetor depois. Funciona — a função
+ *     por 2, chame em main e imprima o vetor depois. Funciona - a função
  *     alcança as caixas de main, pelo mesmo motivo do passo-07.
  *
  * -> passo-11: strings, que são só vetores de char com uma regra a mais

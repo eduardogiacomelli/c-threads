@@ -1,8 +1,8 @@
 /* ============================================================================
- * STEP 27 — watching the stack grow, one frame at a time.
+ * STEP 27 - watching the stack grow, one frame at a time.
  *
  * passo-14 showed that a frame dies at the return. This one shows the frames
- * piling up while the calls are still open, with real addresses — and then
+ * piling up while the calls are still open, with real addresses - and then
  * what happens when you pile up too many.
  *
  *     Ctrl+Shift+B      (or: make 27)
@@ -16,7 +16,7 @@
 #include <string.h>
 
 /* Each call gets its own `depth`, its own `marker`, its own everything.
- * The recursion is not the point — the FRAMES are. */
+ * The recursion is not the point - the FRAMES are. */
 static void descend(int depth, int limit, const void *previous)
 {
     /* A local. There is one of these per live call, all at once. */
@@ -35,13 +35,13 @@ static void descend(int depth, int limit, const void *previous)
     if (depth < limit)
         descend(depth + 1, limit, &marker);
 
-    /* On the way back out, every frame is still intact — the value printed
+    /* On the way back out, every frame is still intact - the value printed
      * here is the same one printed on the way in. Each call kept its own. */
     printf("  depth %d returning, marker still %d\n", depth, marker);
 }
 
 /* A frame with a big local. The array has to live somewhere, and that
- * somewhere is this frame — which is how you make a frame expensive. */
+ * somewhere is this frame - which is how you make a frame expensive. */
 static void heavy(int depth, int limit)
 {
     char buffer[16 * 1024];          /* 16 KiB of stack, per call */
@@ -85,11 +85,11 @@ int main(int argc, char *argv[])
      *   man 3 pthread_attr_setstacksize
      *
      * Each thread gets its OWN stack, and the default for a pthread is also
-     * around 8 MiB. Ten threads means ten stacks — which is why "just make
+     * around 8 MiB. Ten threads means ten stacks - which is why "just make
      * the buffer a local" scales badly, and why big buffers belong on the
      * heap (passo-15). */
     printf("\nmain's stack is around 8 MiB (check with: ulimit -s)\n");
-    printf("EVERY thread gets its own — 8 threads is 8 stacks.\n");
+    printf("EVERY thread gets its own - 8 threads is 8 stacks.\n");
 
     /* Run with an argument to blow it deliberately:  ./passo-27 boom  */
     if (argc > 1 && strcmp(argv[1], "boom") == 0) {
@@ -110,14 +110,14 @@ int main(int argc, char *argv[])
  *   depth 2: &marker = 0x7ffcf776afac      64 bytes LOWER
  *   depth 3: &marker = 0x7ffcf776af6c      64 bytes LOWER
  *
- * Constant spacing, downwards — the real stack. Each call pushes a frame of
+ * Constant spacing, downwards - the real stack. Each call pushes a frame of
  * the same size because it is the same function with the same locals. Change
  * the locals and the spacing changes; try experiment 2.
  *
  * Under Ctrl+Shift+B the same program prints +64 instead. That is not a bug
  * in either the program or the tool: ASan gives each frame a slot on a
  * separately managed region so it can keep a returned frame poisoned and
- * catch use-after-return. The lesson is worth more than the diagram — an
+ * catch use-after-return. The lesson is worth more than the diagram - an
  * instrumented build is not the program you ship, and for anything about
  * layout you check both.
  *
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
  * "Segmentation fault".
  *
  * The depth you can reach is stack size divided by frame size, so it is not a
- * number — it depends on how fat your frames are. 8 MiB of 48-byte frames is
+ * number - it depends on how fat your frames are. 8 MiB of 48-byte frames is
  * about 175,000 calls. 8 MiB of 16 KiB frames is 512.
  *
  * EXPERIMENTE:
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
  *         /tmp/plain            # gaps are negative: the real stack
  *         make 27               # gaps are positive: ASan's fake stack
  *
- *  3. Rewrite `descend` as a loop. The stack stops growing entirely — one
+ *  3. Rewrite `descend` as a loop. The stack stops growing entirely - one
  *     frame, reused. Any recursion whose recursive call is the last thing it
  *     does can be rewritten this way, and gcc at -O2 often does it for you
  *     (tail-call optimisation). Check with `gcc -O2 -S`, or the assembly

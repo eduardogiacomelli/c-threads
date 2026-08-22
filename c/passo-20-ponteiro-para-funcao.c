@@ -1,5 +1,5 @@
 /* ============================================================================
- * STEP 20 — a function has an address too.
+ * STEP 20 - a function has an address too.
  *
  * You have been passing a function pointer since passo-01 of the pthreads
  * tutorial without knowing it:
@@ -19,7 +19,7 @@
 #include <stdio.h>
 
 /* Three ordinary functions with the SAME shape: two ints in, one int out.
- * "Same shape" is the whole game — a pointer can only hold the address of a
+ * "Same shape" is the whole game - a pointer can only hold the address of a
  * function whose signature matches its type exactly. */
 int add(int a, int b)      { return a + b; }
 int subtract(int a, int b) { return a - b; }
@@ -44,7 +44,7 @@ int multiply(int a, int b) { return a * b; }
  * the library knowing anything about your program. */
 int apply(int x, int y, int (*op)(int, int))
 {
-    /* Call it like any function. You may also write (*op)(x, y) — identical.
+    /* Call it like any function. You may also write (*op)(x, y) - identical.
      * The bare form works because a function name in an expression decays to
      * its address, exactly like an array name (passo-10). */
     return op(x, y);
@@ -60,7 +60,7 @@ int main(void)
     printf("op(3, 4)  = %d\n", op(3, 4));
 
     /* Re-aim the pointer. Same variable, different behaviour. This is the
-     * passo-05 idea — a pointer is a box holding an address — applied to code
+     * passo-05 idea - a pointer is a box holding an address - applied to code
      * instead of data. */
     op = multiply;
     printf("after op = multiply, op(3, 4) = %d\n\n", op(3, 4));
@@ -69,7 +69,7 @@ int main(void)
     printf("apply(10, 3, add)      = %d\n", apply(10, 3, add));
     printf("apply(10, 3, subtract) = %d\n", apply(10, 3, subtract));
 
-    /* AN ARRAY OF FUNCTION POINTERS — a dispatch table.
+    /* AN ARRAY OF FUNCTION POINTERS - a dispatch table.
      * This replaces a switch, and it is how interpreters, state machines and
      * command handlers are usually built. The type is exactly the same as the
      * variable above, with [] added. */
@@ -106,7 +106,7 @@ int main(void)
  *     ^^^^^^                               ...returning void *
  *
  * That is why the thread function must be written EXACTLY as
- * `void *name(void *arg)` — the signature has to match the pointer type. Get
+ * `void *name(void *arg)` - the signature has to match the pointer type. Get
  * one word wrong and the compiler rejects the call, and the message is
  * confusing until you can read the declaration.
  *
@@ -117,7 +117,7 @@ int main(void)
  *
  *  1. Drop the parentheses: change the declaration to
  *     `int *op(int, int) = add;`. The compiler now thinks you are declaring a
- *     function and refuses to initialise it. Read the error — it is the same
+ *     function and refuses to initialise it. Read the error - it is the same
  *     error you will get the day you mistype a pthread signature.
  *
  *  2. Write a function `int power(int, int)` and add it to the table. Note
@@ -129,7 +129,7 @@ int main(void)
  *     the only safety net you get, so let it work for you.
  *
  *  4. Print `(void *) add` and `(void *) main`. Both are addresses, and both
- *     live in a completely different region from your variables — compare
+ *     live in a completely different region from your variables - compare
  *     them with the address of a local. That region is the code segment, and
  *     it is read-only (see memoria.md).
  *

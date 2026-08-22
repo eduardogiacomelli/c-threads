@@ -1,5 +1,5 @@
 /* ============================================================================
- * PASSO 14 — ERRADO DE PROPÓSITO. Guardar o endereço de uma variável local.
+ * PASSO 14 - ERRADO DE PROPÓSITO. Guardar o endereço de uma variável local.
  *
  * Até aqui você viu ONDE as caixas ficam. Este passo é sobre POR QUANTO
  * TEMPO elas existem. É a ideia que faltava, e é a que mais dá trabalho em
@@ -8,7 +8,7 @@
  *     Ctrl+Shift+B      (ou: make 14)
  *
  * O ASan mata o programa logo na primeira leitura. O experimento 1 mostra o
- * que teria acontecido sem ele — e é aí que o bug fica assustador.
+ * que teria acontecido sem ele - e é aí que o bug fica assustador.
  * ========================================================================= */
 
 #include <stdio.h>
@@ -39,7 +39,7 @@ void fabricar_numero(void)
                               *    Ele viu antes de você rodar. */
 }
 
-/* Esta função não tem nada a ver com a de cima. Ela só é chamada depois —
+/* Esta função não tem nada a ver com a de cima. Ela só é chamada depois -
  * e por isso ganha o mesmo pedaço de pilha, com uma variável dela. */
 void outra_funcao(void)
 {
@@ -75,7 +75,7 @@ int main(void)
  *        [ main ........................ ]
  *        [ fabricar_numero: numero = 42  ]  <- 0x7fff...bf4
  *
- *   2) fabricar_numero retorna. Aquele quadro é abandonado — mas o número
+ *   2) fabricar_numero retorna. Aquele quadro é abandonado - mas o número
  *      0x7fff...bf4 que anotamos continua sendo um endereço:
  *
  *        [ main ........................ ]
@@ -89,7 +89,7 @@ int main(void)
  *   4) *guardado lê 0x7fff...bf4 e encontra o que a outra função deixou.
  *
  * O ponteiro nunca "soube" que ficou inválido. Um ponteiro é só um número.
- * Ele não tem como saber que a caixa dele foi embora — quem tem que saber é
+ * Ele não tem como saber que a caixa dele foi embora - quem tem que saber é
  * você. O nome disto é DANGLING POINTER (ponteiro pendurado).
  *
  * O QUE O ASan DISSE
@@ -122,7 +122,7 @@ int main(void)
  *     for (int i = 0; i < 4; i++)
  *         pthread_create(&t[i], NULL, funcao, &i);   // &i: a caixa de main
  *
- * A thread vai ler aquele endereço depois, quando main já mudou o `i` — ou
+ * A thread vai ler aquele endereço depois, quando main já mudou o `i` - ou
  * já saiu do laço onde ele existia. Este é o erro nº 1 do trabalho de PPD, e
  * você acabou de ver a mecânica dele sem thread nenhuma envolvida.
  *
@@ -147,7 +147,7 @@ int main(void)
  *     O compilador conhece esse erro tão bem que sabota a sua versão dele.
  *
  *  3. Troque `int numero = 42;` por `static int numero = 42;` e rode.
- *     Funciona, e continua funcionando depois de outra_funcao — a variável
+ *     Funciona, e continua funcionando depois de outra_funcao - a variável
  *     saiu da pilha e foi pra área estática. Agora pense: e se duas threads
  *     chamarem essa função ao mesmo tempo? Elas compartilham a MESMA caixa.
  *     Trocamos um bug por outro. É por isso que a resposta certa é o
