@@ -13,7 +13,7 @@ export interface Lane {
 /**
  * Round-robin-free scheduler: at every tick it picks uniformly among the
  * ops that are runnable right now. Each lane still executes its own ops in
- * order — that constraint is what makes the output a *plausible* run rather
+ * order - that constraint is what makes the output a *plausible* run rather
  * than noise, and it is the same rule a real scheduler obeys.
  *
  * The seed makes a run reproducible, so "shuffle" is a new schedule and not

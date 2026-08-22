@@ -59,7 +59,7 @@ export const heap: Program = {
     a.points = block.slots[0].id;
     m.snap(
       at("Args *a = malloc"),
-      "malloc carved 12 bytes out of the heap and handed back the address. `a` is on the stack; what it points at is not. That block belongs to nobody's frame — which is exactly why it can outlive one.",
+      "malloc carved 12 bytes out of the heap and handed back the address. `a` is on the stack; what it points at is not. That block belongs to nobody's frame - which is exactly why it can outlive one.",
     );
 
     m.snap(
@@ -79,7 +79,7 @@ export const heap: Program = {
     block.slots[1].tag = undefined;
     m.snap(
       at("a->data = data"),
-      "A struct field can itself be a pointer. `data` decayed to the address of its first element — the struct now reaches back into main's stack.",
+      "A struct field can itself be a pointer. `data` decayed to the address of its first element - the struct now reaches back into main's stack.",
       { tone: "warn" },
     );
 
@@ -96,7 +96,7 @@ export const heap: Program = {
     m.free(block);
     m.snap(
       at("free(a)"),
-      "free returns the block. `a` still holds the same number — the pointer was not changed, and C will not change it for you. This is why the habit is `free(a); a = NULL;`.",
+      "free returns the block. `a` still holds the same number - the pointer was not changed, and C will not change it for you. This is why the habit is `free(a); a = NULL;`.",
       { tone: "warn" },
     );
 
@@ -104,7 +104,7 @@ export const heap: Program = {
     m.read(block.slots[0]);
     m.snap(
       at("use after free"),
-      "Reading through `a` after free. AddressSanitizer: heap-use-after-free, and it prints three stacks — where it was allocated, where it was freed, and here.",
+      "Reading through `a` after free. AddressSanitizer: heap-use-after-free, and it prints three stacks - where it was allocated, where it was freed, and here.",
       { tone: "error" },
     );
 

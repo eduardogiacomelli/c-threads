@@ -21,7 +21,7 @@ function allSlots(step: Step): Slot[] {
  * Draws the pointer arrows over the memory pane.
  *
  * Positions come from the DOM after layout instead of from a model of the
- * layout — boxes move when frames are pushed and popped, and keeping a
+ * layout - boxes move when frames are pushed and popped, and keeping a
  * parallel geometry model in sync with flexbox is a losing game.
  */
 export function Arrows({
@@ -46,7 +46,7 @@ export function Arrows({
       slots.forEach((slot) => {
         if (!slot.points) return;
         /* the wire is stale when what it points AT is gone, which is the
-           whole story of a dangling pointer — the pointer itself is fine */
+           whole story of a dangling pointer - the pointer itself is fine */
         const stale = slot.dead || byId.get(slot.points)?.dead;
         const from = container.querySelector<HTMLElement>(
           `[data-slot-id="${slot.id}"]`,

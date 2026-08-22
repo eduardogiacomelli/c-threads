@@ -6,7 +6,7 @@
  * the `p` in the source to the live slot named `p` and show its value on
  * hover. A generic highlighter hands back opaque markup.
  *
- * Block comments are tracked across lines with a real state flag — the
+ * Block comments are tracked across lines with a real state flag - the
  * "does this line start with a star" heuristic misreads `*p = 30;`.
  */
 

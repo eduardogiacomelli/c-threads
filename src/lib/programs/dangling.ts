@@ -36,7 +36,7 @@ export const dangling: Program = {
   origin: "c-do-zero / passo-14",
   concepts: ["stack frame", "lifetime", "dangling pointer", "stack-use-after-return"],
   takeaway:
-    "Never let an address outlive its box. If a result must survive the return it belongs on the heap or in storage the caller owns — and say which in a comment, because the compiler will not.",
+    "Never let an address outlive its box. If a result must survive the return it belongs on the heap or in storage the caller owns - and say which in a comment, because the compiler will not.",
   source: () => SRC,
   build() {
     const at = lineFinder(SRC);
@@ -64,14 +64,14 @@ export const dangling: Program = {
     m.aim(saved, number);
     m.snap(
       at("saved = &number"),
-      "The address is copied into the global. Perfectly legal right now — and gcc already warns: storing the address of local variable 'number' in 'saved'.",
+      "The address is copied into the global. Perfectly legal right now - and gcc already warns: storing the address of local variable 'number' in 'saved'.",
       { tone: "warn" },
     );
 
     m.popFrame(0, true);
     m.snap(
       at("}", at("saved = &number")),
-      `make_number returned. The frame is abandoned — but nothing was erased: ${hex(number.addr)} still contains 42, and \`saved\` still holds that number.`,
+      `make_number returned. The frame is abandoned - but nothing was erased: ${hex(number.addr)} still contains 42, and \`saved\` still holds that number.`,
       { tone: "warn" },
     );
 

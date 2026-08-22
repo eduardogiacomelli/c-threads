@@ -52,7 +52,7 @@ export const threadArg: Program = {
     const m = new Machine();
 
     m.pushFrame("main");
-    m.snap(at("int main"), "main starts. Threads have not been created yet — there is one line of execution.");
+    m.snap(at("int main"), "main starts. Threads have not been created yet - there is one line of execution.");
 
     let ids: Slot[] = [];
     if (!shared) {
@@ -72,7 +72,7 @@ export const threadArg: Program = {
     const finished = [false, false, false];
     const argSlot: Slot[] = [];
 
-    /* main's lane: set i, (set ids[i]), create — then the joins */
+    /* main's lane: set i, (set ids[i]), create - then the joins */
     const mainOps: Lane["ops"] = [];
     for (let k = 0; k < N; k++) {
       mainOps.push({
@@ -100,7 +100,7 @@ export const threadArg: Program = {
           m.snap(
             at("pthread_create"),
             shared
-              ? `Thread ${k} created, holding the address of \`i\`. Same address as thread ${k - 1 < 0 ? "…" : k - 1}. It has NOT read anything yet — that happens whenever the scheduler lets it run.`
+              ? `Thread ${k} created, holding the address of \`i\`. Same address as thread ${k - 1 < 0 ? "…" : k - 1}. It has NOT read anything yet - that happens whenever the scheduler lets it run.`
               : `Thread ${k} created, holding the address of ids[${k}]. Nobody else will ever write there.`,
             { tone: shared ? "warn" : "ok" },
           );
@@ -114,7 +114,7 @@ export const threadArg: Program = {
         m.snap(
           at("for (int i"),
           shared
-            ? `The loop increments i one last time to ${N}, then the test fails and it exits. Any thread that has not dereferenced yet will now read ${N} — an id that does not exist.`
+            ? `The loop increments i one last time to ${N}, then the test fails and it exits. Any thread that has not dereferenced yet will now read ${N} - an id that does not exist.`
             : "The loop ends. Nothing it wrote is going to change again.",
           { tone: shared ? "error" : "info" },
         );
@@ -132,7 +132,7 @@ export const threadArg: Program = {
           m.snap(
             at("pthread_join"),
             finished[k]
-              ? `main calls pthread_join(t[${k}]). That thread already finished, so this returns straight away — join waits for a thread, it does not make one run.`
+              ? `main calls pthread_join(t[${k}]). That thread already finished, so this returns straight away - join waits for a thread, it does not make one run.`
               : `main calls pthread_join(t[${k}]) and blocks. It cannot execute another line until thread ${k} is done; watch the scheduler hand the CPU to the workers.`,
             { tone: "warn" },
           );
@@ -159,7 +159,7 @@ export const threadArg: Program = {
           at("return 0"),
           shared
             ? `Three arrows, one box. Every thread dereferenced the same address and got whatever \`i\` happened to hold at that instant. Shuffle the schedule: the ids change, and a thread that runs late reads ${N}.`
-            : "Three arrows, three boxes, no overlap. Every thread found its own id whatever order they ran in — the result stopped depending on timing.",
+            : "Three arrows, three boxes, no overlap. Every thread found its own id whatever order they ran in - the result stopped depending on timing.",
           { tone: shared ? "error" : "ok" },
         );
       },
@@ -195,7 +195,7 @@ export const threadArg: Program = {
               m.snap(
                 at("int id = *(int *)"),
                 shared
-                  ? `Thread ${k} dereferences the shared box and gets ${read}.${wrong ? ` It was created when i was ${k} — but i has moved on.` : " It happened to run before main changed i."}`
+                  ? `Thread ${k} dereferences the shared box and gets ${read}.${wrong ? ` It was created when i was ${k} - but i has moved on.` : " It happened to run before main changed i."}`
                   : `Thread ${k} dereferences its own box and gets ${read}.`,
                 { thread: tid, tone: wrong ? "error" : "ok" },
               );

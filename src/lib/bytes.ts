@@ -60,7 +60,7 @@ const ESCAPES: Record<string, number> = {
 
 /**
  * `'A'` -> 65, `'\0'` -> 0. A char really is just a small integer, and the
- * terminator really is just the number zero — which is the entire reason a C
+ * terminator really is just the number zero - which is the entire reason a C
  * string can be walked off the end of.
  */
 export function charLiteral(raw: string): bigint | null {

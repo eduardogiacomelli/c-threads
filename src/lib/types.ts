@@ -12,7 +12,7 @@ export type SlotKind = "scalar" | "pointer" | "cell" | "field";
 
 /** One named box in memory. The unit everything else is made of. */
 export interface Slot {
-  /** Stable across steps — arrows and highlights are keyed on this. */
+  /** Stable across steps - arrows and highlights are keyed on this. */
   id: string;
   name: string;
   /** C type as written in the source, e.g. `int *`, `char[6]`. */

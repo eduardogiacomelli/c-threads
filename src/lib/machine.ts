@@ -17,7 +17,7 @@ const HEAP_BASE = 0x55a1_c2f0;
 /**
  * Frame addresses come from (thread, depth), never from a running counter.
  * That is what makes frame reuse show up as the *same* address after a
- * return — the whole point of the dangling-pointer program.
+ * return - the whole point of the dangling-pointer program.
  */
 function frameAddr(thread: number, depth: number) {
   return STACK_TOP - thread * THREAD_STRIDE - depth * FRAME_STRIDE;

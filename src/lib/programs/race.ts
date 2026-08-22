@@ -38,7 +38,7 @@ export const race: Program = {
   concepts: ["data race", "load-add-store", "shared vs private", "non-atomic"],
   schedulable: true,
   takeaway:
-    "If two threads can touch the same box and either one writes, that is a race — however short the window looks in testing. `x++` is three operations, not one.",
+    "If two threads can touch the same box and either one writes, that is a race - however short the window looks in testing. `x++` is three operations, not one.",
   source: () => SRC,
   build(_mode, seed) {
     const at = lineFinder(SRC);
@@ -48,7 +48,7 @@ export const race: Program = {
     m.pushFrame("main");
     m.snap(
       at("int main"),
-      "`counter` is global — one box, shared by every thread. Expected result after two increments: 12.",
+      "`counter` is global - one box, shared by every thread. Expected result after two increments: 12.",
     );
 
     const spawned = [false, false];
@@ -66,7 +66,7 @@ export const race: Program = {
         spawned[k] = true;
         m.snap(
           createLine[k],
-          `Thread ${names[k]} created. It will run its three steps at some point — the scheduler decides when.`,
+          `Thread ${names[k]} created. It will run its three steps at some point - the scheduler decides when.`,
         );
       },
     }));
@@ -109,7 +109,7 @@ export const race: Program = {
         m.snap(
           at("printf("),
           value === 12
-            ? "12 this time. Nothing was fixed — the two threads simply never overlapped. The exact same binary can print 11 on the next run."
+            ? "12 this time. Nothing was fixed - the two threads simply never overlapped. The exact same binary can print 11 on the next run."
             : `${value}: one increment vanished. Both threads loaded 10 before either stored, so the second store overwrote the first. No crash, no warning, just a wrong number.`,
           { tone: value === 12 ? "warn" : "error" },
         );
@@ -131,7 +131,7 @@ export const race: Program = {
               m.setThread(tid, { detail: `reg = ${v}` });
               m.snap(
                 at("int reg = counter"),
-                `LOAD — thread ${names[k]} copied ${v} out of the shared box into its own \`reg\`. \`reg\` is a local: each thread has its own, at its own address. Memory is untouched.`,
+                `LOAD - thread ${names[k]} copied ${v} out of the shared box into its own \`reg\`. \`reg\` is a local: each thread has its own, at its own address. Memory is untouched.`,
                 { thread: tid },
               );
             },
@@ -145,7 +145,7 @@ export const race: Program = {
               m.setThread(tid, { detail: `reg = ${v}` });
               m.snap(
                 at("reg = reg + 1"),
-                `ADD — thread ${names[k]} now holds ${v} in its register. Still nothing written back: the shared box is unchanged.`,
+                `ADD - thread ${names[k]} now holds ${v} in its register. Still nothing written back: the shared box is unchanged.`,
                 { thread: tid },
               );
             },
@@ -164,8 +164,8 @@ export const race: Program = {
               m.snap(
                 at("counter = reg"),
                 clobbered
-                  ? `STORE — thread ${names[k]} wrote ${reg.value} over a box that already held ${before}. The other thread's work just disappeared.`
-                  : `STORE — thread ${names[k]} wrote ${reg.value} back to memory.`,
+                  ? `STORE - thread ${names[k]} wrote ${reg.value} over a box that already held ${before}. The other thread's work just disappeared.`
+                  : `STORE - thread ${names[k]} wrote ${reg.value} back to memory.`,
                 { thread: tid, tone: clobbered ? "error" : "info" },
               );
             },

@@ -11,7 +11,7 @@ import { threadColor } from "./memory-pane";
  * Resolves an identifier in the source to a live box.
  *
  * Innermost frame of the executing thread first, then that thread's other
- * frames, then statics — which is roughly C's own lookup order, and means
+ * frames, then statics - which is roughly C's own lookup order, and means
  * hovering `reg` while thread b is running shows thread b's register.
  */
 function resolve(step: Step, name: string): Slot | undefined {

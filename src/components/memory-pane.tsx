@@ -125,7 +125,7 @@ export function MemoryPane({
           <span className="font-sans font-semibold uppercase tracking-[0.12em] text-[var(--faint)]">
             byte view
           </span>
-          <span>lowest address first — x86-64 is little-endian, so 25 is 19 00 00 00</span>
+          <span>lowest address first - x86-64 is little-endian, so 25 is 19 00 00 00</span>
           <span className="flex items-center gap-1">
             <span className="rounded-[2px] border border-dashed border-[var(--line)] px-1 text-[var(--faint)]">
               ··

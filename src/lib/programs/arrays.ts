@@ -26,7 +26,7 @@ export const arrays: Program = {
   origin: "c-do-zero / passo-08 e 09",
   concepts: ["array layout", "off-by-one", "stack-buffer-overflow"],
   takeaway:
-    "An array never carries its own length, so a function taking one takes a size too. Derive the bound with `sizeof(v)/sizeof(v[0])` in the scope that declared it — never a literal in two places.",
+    "An array never carries its own length, so a function taking one takes a size too. Derive the bound with `sizeof(v)/sizeof(v[0])` in the scope that declared it - never a literal in two places.",
   modes: [
     { id: "overflow", label: "i <= N", danger: true, hint: "the off-by-one" },
     { id: "fixed", label: "i < N", hint: "the fix" },
@@ -45,7 +45,7 @@ export const arrays: Program = {
     const cells = m.declareArray("v", "int", ["0", "0", "0", "0", "0"]);
     m.snap(
       at("int v[N]"),
-      "Five boxes, contiguous, 4 bytes apart. `v` does not store its own length — the 5 lives only in your source.",
+      "Five boxes, contiguous, 4 bytes apart. `v` does not store its own length - the 5 lives only in your source.",
     );
 
     const after = m.declare({ name: "after", type: "int", value: "999" });

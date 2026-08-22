@@ -41,13 +41,13 @@ shuffling its schedule prints 2 or 3 in `volatile` mode and 4 every single
 time in `_Atomic` mode.
 
 **Byte view** (the `bytes` button) drops every box down to its raw bytes,
-lowest address first. It is where little-endian stops being a word — 25 is
-`19 00 00 00` — and where struct padding becomes visible: `Args { int; int *; }`
+lowest address first. It is where little-endian stops being a word - 25 is
+`19 00 00 00` - and where struct padding becomes visible: `Args { int; int *; }`
 is 16 bytes, not 12, because the pointer has to start on an 8-byte boundary.
 The layout engine applies real ABI alignment rules, so the sizes it prints are
 the ones `sizeof` gives you.
 
-Every program carries a one-sentence **rule of thumb** in the sidebar — the
+Every program carries a one-sentence **rule of thumb** in the sidebar - the
 practice to take away, not the mechanism.
 
 **Blocking joins** are modelled, not narrated. `pthread_join` sets main to
@@ -57,7 +57,7 @@ while main waits.
 
 Programs 9, 10, 11 and 12 are **simulated, not scripted**. Each thread is a lane of
 ops, and a seeded scheduler interleaves the lanes while keeping each lane in
-order — the same constraint a real scheduler obeys. `shuffle schedule` picks a
+order - the same constraint a real scheduler obeys. `shuffle schedule` picks a
 new seed, so the race genuinely prints 11 on some runs and 12 on others, and
 the `&i` program genuinely reads a different id depending on when a thread
 gets the CPU.
@@ -86,7 +86,7 @@ memory. Adding a program means writing one builder, not extending a VM.
 Two decisions worth knowing about:
 
 - **Frame addresses come from `(thread, depth)`, never a counter.** That is
-  what makes a returned frame and the next call land on the *same* address —
+  what makes a returned frame and the next call land on the *same* address -
   the entire point of program 2.
 - **The tokenizer is hand-written.** Not for colour: identifiers have to stay
   addressable so the code pane can bind the `p` in the source to the live slot

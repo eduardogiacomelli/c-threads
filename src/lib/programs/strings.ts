@@ -9,7 +9,7 @@ const src = (mode: string) => `#include <stdio.h>
 int main(void)
 {
     char name[8] = "Ana";       /* 8 bytes reserved, 4 of them used */
-    char tail[8] = "Silva";     /* the neighbour — keep an eye on it */
+    char tail[8] = "Silva";     /* the neighbour - keep an eye on it */
 
     size_t len = strlen(name);  /* walks to the '\\0'; not a stored field */
     printf("\\"%s\\": %zu chars in %zu bytes\\n", name, len, sizeof(name));
@@ -62,9 +62,9 @@ export const strings: Program = {
     const unsafe = mode === "unsafe";
 
     m.pushFrame("main");
-    m.snap(at("int main"), "Turn the byte view on for this one — it is the whole point of the program.");
+    m.snap(at("int main"), "Turn the byte view on for this one - it is the whole point of the program.");
 
-    /* char name[8] = "Ana"; — the rest of the array is zero-filled */
+    /* char name[8] = "Ana"; - the rest of the array is zero-filled */
     const name = m.declareArray(
       "name",
       "char",
@@ -92,7 +92,7 @@ export const strings: Program = {
     /* strlen: an actual loop, one step per byte examined */
     m.snap(
       at("size_t len"),
-      "strlen(name) is a function call that loops. There is no stored length anywhere — watch it look for the zero.",
+      "strlen(name) is a function call that loops. There is no stored length anywhere - watch it look for the zero.",
     );
 
     let count = 0;
@@ -103,7 +103,7 @@ export const strings: Program = {
       m.snap(
         at("size_t len"),
         isNul
-          ? `name[${i}] is '\\0'. Stop. Return ${count}. Four bytes were examined to answer a question about three characters — that is why calling strlen inside a loop condition is a classic performance bug.`
+          ? `name[${i}] is '\\0'. Stop. Return ${count}. Four bytes were examined to answer a question about three characters - that is why calling strlen inside a loop condition is a classic performance bug.`
           : `name[${i}] is ${name[i].value}, not zero. Keep walking. Count so far: ${count}.`,
         { tone: isNul ? "ok" : "info" },
       );
@@ -126,7 +126,7 @@ export const strings: Program = {
     if (unsafe) {
       m.snap(
         at("strcpy(name"),
-        `strcpy receives two addresses and nothing else. It cannot know \`name\` is 8 bytes — there is no length to pass and no way to ask. It will write all ${bytes.length} bytes of "${TEXT}" plus the terminator, starting here.`,
+        `strcpy receives two addresses and nothing else. It cannot know \`name\` is 8 bytes - there is no length to pass and no way to ask. It will write all ${bytes.length} bytes of "${TEXT}" plus the terminator, starting here.`,
         { tone: "warn" },
       );
 
@@ -144,14 +144,14 @@ export const strings: Program = {
           at("strcpy(name"),
           inside
             ? `Byte ${i + 1} of ${bytes.length}: ${lit(bytes[i])} into name[${i}]. Still inside the array.`
-            : `Byte ${i + 1}: ${lit(bytes[i])} written ${i - capacity} bytes past the end of name — into tail[${i - capacity}]. Nothing stopped it. AddressSanitizer would abort here with stack-buffer-overflow.`,
+            : `Byte ${i + 1}: ${lit(bytes[i])} written ${i - capacity} bytes past the end of name - into tail[${i - capacity}]. Nothing stopped it. AddressSanitizer would abort here with stack-buffer-overflow.`,
           { tone: inside ? "info" : "error" },
         );
       }
     } else {
       m.snap(
         at("snprintf(name"),
-        "snprintf is told the size of the destination, so it can stop. It writes at most 7 characters plus a terminator, and it ALWAYS terminates — which strncpy, the function that looks like the obvious choice, does not guarantee.",
+        "snprintf is told the size of the destination, so it can stop. It writes at most 7 characters plus a terminator, and it ALWAYS terminates - which strncpy, the function that looks like the obvious choice, does not guarantee.",
         { tone: "ok" },
       );
 
@@ -163,7 +163,7 @@ export const strings: Program = {
         m.snap(
           at("snprintf(name"),
           last
-            ? `Byte 8 is the '\\0'. snprintf spent the last byte of the buffer on the terminator instead of on a character — that is the trade, and it is the right one.`
+            ? `Byte 8 is the '\\0'. snprintf spent the last byte of the buffer on the terminator instead of on a character - that is the trade, and it is the right one.`
             : `Byte ${i + 1} of 8: ${lit(ch)} into name[${i}].`,
           { tone: last ? "ok" : "info" },
         );
@@ -177,7 +177,7 @@ export const strings: Program = {
       m.read(wanted);
       m.snap(
         at("wanted >="),
-        `${TEXT.length} >= 8, so the text did not fit. Truncated data is still wrong data — but you know about it, which is the entire difference from the strcpy version.`,
+        `${TEXT.length} >= 8, so the text did not fit. Truncated data is still wrong data - but you know about it, which is the entire difference from the strcpy version.`,
         { tone: "warn" },
       );
       m.print("warning: name truncated");
@@ -190,7 +190,7 @@ export const strings: Program = {
     m.snap(
       at('printf("name'),
       unsafe
-        ? `printf("%s", name) walks from name[0] until it meets a zero — and the zero is now at tail[${shown.at - capacity}], in the neighbour's memory. So it prints the whole of "${shown.text}" and the buffer looks like it worked. It did not: 7 bytes of that string are not in \`name\`.`
+        ? `printf("%s", name) walks from name[0] until it meets a zero - and the zero is now at tail[${shown.at - capacity}], in the neighbour's memory. So it prints the whole of "${shown.text}" and the buffer looks like it worked. It did not: 7 bytes of that string are not in \`name\`.`
         : `printf prints "${shown.text}". Seven characters and the terminator, exactly what fits.`,
       { tone: unsafe ? "error" : "ok" },
     );
@@ -200,7 +200,7 @@ export const strings: Program = {
       at('printf("tail'),
       unsafe
         ? `And \`tail\` is "${tailShown.text}". It used to be "Silva". No line in this program mentions \`tail\` after it was initialised.`
-        : `\`tail\` is still "Silva" — untouched, because snprintf knew where to stop.`,
+        : `\`tail\` is still "Silva" - untouched, because snprintf knew where to stop.`,
       { tone: unsafe ? "error" : "ok" },
     );
 

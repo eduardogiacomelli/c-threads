@@ -60,7 +60,7 @@ export const pointers: Program = {
     m.aim(p, age);
     m.snap(
       at("int *p"),
-      "`p` is a box like any other — 8 bytes, because every address is 8 bytes on x86-64. What it happens to hold is the address of `age`.",
+      "`p` is a box like any other - 8 bytes, because every address is 8 bytes on x86-64. What it happens to hold is the address of `age`.",
     );
 
     m.read(p);
@@ -75,7 +75,7 @@ export const pointers: Program = {
     m.write(age, "30");
     m.snap(
       at("*p = 30"),
-      "`*p = 30` followed the arrow and wrote at the far end. The arrow itself did not move — `age` changed.",
+      "`*p = 30` followed the arrow and wrote at the far end. The arrow itself did not move - `age` changed.",
       { tone: "ok" },
     );
 
@@ -86,7 +86,7 @@ export const pointers: Program = {
     m.aim(p, other);
     m.snap(
       at("p = &other"),
-      "`p = &other` changed the pointer itself. Nothing was written to `age` or `other` — only the arrow moved. Same asterisk-free line, opposite effect from the one above.",
+      "`p = &other` changed the pointer itself. Nothing was written to `age` or `other` - only the arrow moved. Same asterisk-free line, opposite effect from the one above.",
       { tone: "warn" },
     );
 

@@ -75,7 +75,7 @@ export const workSplit: Program = {
     m.pushFrame("main");
     m.snap(
       at("int main"),
-      `\`data\` is shared by every thread — and that is fine, because nobody writes to it. Concurrent reads of memory that never changes need no protection at all.`,
+      `\`data\` is shared by every thread - and that is fine, because nobody writes to it. Concurrent reads of memory that never changes need no protection at all.`,
     );
 
     const spawned = [false, false, false];
@@ -102,7 +102,7 @@ export const workSplit: Program = {
           spawned[k] = true;
           m.snap(
             at("pthread_create"),
-            `Thread ${k} gets its own malloc'd Task at ${hex(block.addr)}: which slice to read (${from}..${to - 1}) and where to put the answer. One block per thread — the passo-16 pattern.`,
+            `Thread ${k} gets its own malloc'd Task at ${hex(block.addr)}: which slice to read (${from}..${to - 1}) and where to put the answer. One block per thread - the passo-16 pattern.`,
             { tone: "ok" },
           );
         },
@@ -114,7 +114,7 @@ export const workSplit: Program = {
         total = m.declare({ name: "total", type: "long", value: "0", size: 8 });
         m.snap(
           at("long total = 0"),
-          "main's accumulator. It stays on main's stack and no thread can see it — which is exactly why no lock is needed here either.",
+          "main's accumulator. It stays on main's stack and no thread can see it - which is exactly why no lock is needed here either.",
         );
       },
     });
@@ -160,7 +160,7 @@ export const workSplit: Program = {
         m.setThread(0, { state: "done", line: null });
         m.snap(
           at("printf("),
-          `${TOTAL}. Shuffle the schedule as many times as you like — this program prints ${TOTAL} on every possible interleaving, because no two threads ever write to the same box. That is the whole trick, and it is cheaper than a mutex.`,
+          `${TOTAL}. Shuffle the schedule as many times as you like - this program prints ${TOTAL} on every possible interleaving, because no two threads ever write to the same box. That is the whole trick, and it is cheaper than a mutex.`,
           { tone: "ok" },
         );
       },
@@ -206,7 +206,7 @@ export const workSplit: Program = {
               m.setThread(tid, { detail: `sum = ${value}` });
               m.snap(
                 at("sum += data[i]"),
-                `Thread ${k} reads data[${from}] and data[${from + 1}] — shared memory, read-only — and accumulates ${value} into its own local \`sum\`.`,
+                `Thread ${k} reads data[${from}] and data[${from + 1}] - shared memory, read-only - and accumulates ${value} into its own local \`sum\`.`,
                 { thread: tid },
               );
             },
@@ -226,7 +226,7 @@ export const workSplit: Program = {
               finished[k] = true;
               m.snap(
                 at("t->sum = sum"),
-                `Thread ${k} publishes ${sum.value} into its own block. This is the only write it makes to shared memory, and it is the only thread that ever touches that slot — so there is nothing to race with.`,
+                `Thread ${k} publishes ${sum.value} into its own block. This is the only write it makes to shared memory, and it is the only thread that ever touches that slot - so there is nothing to race with.`,
                 { thread: tid, tone: "ok" },
               );
             },
