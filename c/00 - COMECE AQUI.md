@@ -17,7 +17,7 @@ Ou pelo terminal:
 cd ~/c-playground/c-do-zero && make 01
 ```
 
-`make 01` até `make 19`. `make limpar` apaga os binários.
+`make 01` até `make 27`. `make limpar` apaga os binários.
 
 Os passos 17 e 18 recebem argumentos, então precisam do terminal:
 
@@ -74,7 +74,23 @@ serve para olhar antes e depois.
 | `18` | `strtol`/`strtod`: validar a entrada de verdade | ✅ conserta 17 |
 | `19` | header `.h` + `.c`, compilar e **linkar** | |
 
-Os cinco 🔑 são os que o resto depende. Se um deles não entrou, volte nele
+## Bloco 2 — o C que o PPD pede
+
+Daqui em diante os comentários estão **em inglês** (os passos 01–19 estão em
+português; peça se quiser que eu traduza para o conjunto ficar uniforme).
+
+| Passo | Ideia | |
+|---|---|---|
+| `20` | **ponteiro para função** — é o que `pthread_create` recebe | 🔑 |
+| `21` | swap "genérico" que só sabe `int` — corrompe `double` em silêncio | ⚠ errado |
+| `22` | o genérico de verdade: `void *` + `size_t`, o modelo do `qsort` | ✅ conserta 21 |
+| `23` | `signed` vs `unsigned` — o bug que **nenhum sanitizer pega** | 🔑 |
+| `24` | bits: flags, máscaras, `<<`, e a precedência de `&` | |
+| `25` | `union` e type punning — os mesmos bytes, duas leituras | |
+| `26` | `int m[3][4]` **não** é `int *rows[3]` — layout e `argv` | 🔑 |
+| `27` | recursão: os quadros empilhando, medidos, até estourar | |
+
+Os 🔑 são os que o resto depende. Se um deles não entrou, volte nele
 antes de seguir.
 
 Complemento: [[memoria]] — pilha, heap e área estática num diagrama só.
