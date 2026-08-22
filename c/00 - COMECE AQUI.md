@@ -17,7 +17,7 @@ Ou pelo terminal:
 cd ~/c-playground/c-do-zero && make 01
 ```
 
-`make 01` até `make 37`. `make limpar` apaga os binários.
+`make 01` até `make 40`. `make limpar` apaga os binários.
 
 Os passos `09`, `12`, `14` e `36` **terminam com erro de propósito**: o
 sanitizer mata o programa e o `make` reporta falha. É o comportamento
@@ -109,6 +109,9 @@ português; peça se quiser que eu traduza para o conjunto ficar uniforme).
 | `35` | `errno`: as três convenções, e por que pthreads não usa nenhuma delas | 🔑 |
 | `36` | `gdb` num programa que quebra de propósito, sessão real capturada | 🔑 |
 | `37` | `volatile`, e tudo o que ele **não** faz (spoiler: não serve pra thread) | 🔑 |
+| `38` | `_Atomic`: o que o `volatile` nunca deu, medido e com preço | 🔑 |
+| `39` | medindo: por que a mesma conta pode ser 23x mais lenta, e por que 8 threads não dá 8x | 🔑 |
+| `40` | uma thread vista pelo SO: `clone3`, a página de guarda, `strace -f` | 🔑 |
 
 Complemento: [[tools]] - todo o ferramental (warnings, sanitizers, `nm`,
 `gdb`, `strace`, `perf`), com o que está instalado nesta máquina e o que não
