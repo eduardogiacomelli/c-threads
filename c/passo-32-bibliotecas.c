@@ -22,9 +22,9 @@
 
 int main(void)
 {
-    printf("soma_ate(10)      = %ld\n", soma_ate(10));
-    printf("eh_par(7)         = %d\n", eh_par(7));
-    printf("quantas_chamadas  = %d\n", quantas_chamadas());
+    printf("sum_to(10)      = %ld\n", sum_to(10));
+    printf("is_even(7)         = %d\n", is_even(7));
+    printf("call_count  = %d\n", call_count());
 
     /* Right now contas.c is compiled and linked in directly, the way the
      * Makefile has always done it. The footer turns it into a real library
@@ -127,14 +127,14 @@ int main(void)
  *
  *  1. Build both, run ldd on each, and note which lists libcontas.
  *
- *  2. With app_shared built and working, change contas.c (make soma_ate
+ *  2. With app_shared built and working, change contas.c (make sum_to
  *     return 0), rebuild ONLY the .so, and run app_shared again without
  *     relinking it. The behaviour changes. Do the same with the static one:
  *     nothing changes until you relink. That is the whole trade in one
  *     experiment.
  *
  *  3. `nm -D libcontas.so` lists the dynamic symbols the library exports.
- *     Compare with `nm libcontas.a`. Then confirm that `chamadas`, the
+ *     Compare with `nm libcontas.a`. Then confirm that `calls`, the
  *     static variable inside contas.c, is exported by neither.
  *
  *  4. Put -lcontas before main.c and read the failure. Then move it back.

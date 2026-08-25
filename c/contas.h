@@ -1,33 +1,34 @@
 /* ============================================================================
- * contas.h - o CONTRATO do módulo. Leia junto com passo-19.
+ * contas.h - the module's CONTRACT. Read it alongside passo-19.
  *
- * Um header não contém código que roda. Ele contém DECLARAÇÕES: as
- * assinaturas das funções que outro arquivo pode chamar. É a lista do que
- * este módulo oferece, e é a única parte que os outros arquivos enxergam.
+ * A header holds no code that runs. It holds DECLARATIONS: the signatures of
+ * the functions another file may call. It is the list of what this module
+ * offers, and it is the only part other files ever see.
  *
- * O que fica aqui:  o que os outros precisam saber (assinaturas, structs,
- *                   #define, typedef)
- * O que fica no .c: como as coisas funcionam de verdade
+ * What belongs here: what others need to know (signatures, structs,
+ *                    #define, typedef)
+ * What belongs in the .c: how any of it actually works
  * ========================================================================= */
 
-/* GUARDA DE INCLUSÃO. Sem estas três linhas, um header incluído duas vezes
- * (direto e através de outro header) faz o compilador ver as mesmas
- * declarações duas vezes.
+/* INCLUDE GUARD. Without these three lines, a header included twice (once
+ * directly and once through another header) makes the compiler see the same
+ * declarations twice.
  *
- * O nome é convenção: o do arquivo, em maiúsculas, com underline.
- * Na primeira vez, CONTAS_H não está definido -> define e segue.
- * Na segunda, já está definido -> o pré-processador pula tudo até o #endif. */
+ * The name is convention: the file's, in capitals, with an underscore.
+ * The first time, CONTAS_H is not defined, so it defines it and carries on.
+ * The second time it is already defined, so the preprocessor skips
+ * everything up to the #endif. */
 #ifndef CONTAS_H
 #define CONTAS_H
 
-/* Soma todos os inteiros de 1 até n. Devolve 0 se n < 1. */
-long soma_ate(int n);
+/* Adds every integer from 1 to n. Returns 0 when n < 1. */
+long sum_to(int n);
 
-/* 1 se n é par, 0 se é ímpar. */
-int eh_par(int n);
+/* 1 if n is even, 0 if odd. */
+int is_even(int n);
 
-/* Quantas vezes soma_ate foi chamada desde o início do programa.
- * (Existe só pra mostrar como um módulo guarda estado privado.) */
-int quantas_chamadas(void);
+/* How many times sum_to has been called since the program started.
+ * (It exists only to show how a module keeps private state.) */
+int call_count(void);
 
 #endif /* CONTAS_H */

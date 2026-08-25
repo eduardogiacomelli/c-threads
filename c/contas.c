@@ -1,25 +1,25 @@
 /* ============================================================================
- * contas.c - a IMPLEMENTAÇÃO. Aqui mora o código de verdade.
+ * contas.c - the IMPLEMENTATION. The real code lives here.
  * ========================================================================= */
 
-/* Um módulo inclui o próprio header. Parece redundante, mas serve pra que o
- * compilador confira se a implementação bate com o que foi prometido: se
- * você mudar o tipo de retorno aqui e esquecer lá, ele acusa na hora. */
+/* A module includes its own header. It looks redundant, but it lets the
+ * compiler check that the implementation matches what was promised: change a
+ * return type here and forget to change it there, and it says so at once. */
 #include "contas.h"
-/* Aspas, não < >:
- *     "contas.h"   procura primeiro na pasta deste arquivo  -> seu código
- *     <stdio.h>    procura nas pastas do sistema            -> biblioteca
+/* Quotes, not < >:
+ *     "contas.h"   looks in this file's directory first  -> your code
+ *     <stdio.h>    looks in the system directories       -> the library
  */
 
-/* `static` numa variável GLOBAL significa "visível só neste arquivo". Nada a
- * ver com o static de dentro de função (passo-14). É assim que um módulo
- * guarda estado sem expô-lo: nenhum outro arquivo consegue mexer neste
- * contador, porque nenhum outro arquivo sabe que ele existe. */
-static int chamadas = 0;
+/* `static` on a GLOBAL variable means "visible only in this file". It has
+ * nothing to do with the static inside a function (step 14). This is how a
+ * module keeps state without exposing it: no other file can touch this
+ * counter, because no other file knows it exists. */
+static int calls = 0;
 
-long soma_ate(int n)
+long sum_to(int n)
 {
-    chamadas++;
+    calls++;
 
     if (n < 1)
         return 0;
@@ -30,16 +30,17 @@ long soma_ate(int n)
     return total;
 }
 
-int eh_par(int n)
+int is_even(int n)
 {
     return n % 2 == 0;
 }
 
-int quantas_chamadas(void)
+int call_count(void)
 {
-    return chamadas;
+    return calls;
 }
 
-/* `static` também funciona em função: esta existe só aqui dentro, não está
- * no header, e nenhum outro arquivo consegue chamá-la. É o "privado" do C.
- * Se ninguém usar, o gcc avisa que ela está sobrando - o que é útil. */
+/* `static` works on functions too: one declared that way exists only in this
+ * file, is absent from the header, and cannot be called from anywhere else.
+ * It is C's version of private. If nobody uses it, gcc warns that it is
+ * unused, which is helpful. */

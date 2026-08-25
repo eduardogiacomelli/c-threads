@@ -36,25 +36,25 @@ static int secret_helper(int x)
 }
 
 /* A static global: same rule, same reason. */
-static int call_count = 0;
+static int helper_calls = 0;
 
 int main(void)
 {
     announce("main starting");
 
-    call_count++;
+    helper_calls++;
     printf("  secret_helper(4) = %d, called %d time(s)\n",
-           secret_helper(4), call_count);
+           secret_helper(4), helper_calls);
 
-    /* soma_ate and quantas_chamadas come from contas.c, a different object
+    /* sum_to and call_count come from contas.c, a different object
      * file. This file only ever saw their declarations in contas.h; the
      * linker is what connects the call to the code. */
-    printf("  soma_ate(10) from contas.o = %ld\n", soma_ate(10));
-    printf("  quantas_chamadas() = %d\n", quantas_chamadas());
+    printf("  sum_to(10) from contas.o = %ld\n", sum_to(10));
+    printf("  call_count() = %d\n", call_count());
 
-    /* `chamadas` is static inside contas.c, so this file cannot name it.
+    /* `calls` is static inside contas.c, so this file cannot name it.
      * Uncomment to see the compiler refuse (experiment 4). */
-    /* printf("%d\n", chamadas); */
+    /* printf("%d\n", calls); */
 
     announce("done");
     return 0;
@@ -77,7 +77,7 @@ int main(void)
  *         land in B instead, see below)
  *     d   defined, initialised data, local
  *     B   defined, uninitialised (bss), global
- *     b   defined, uninitialised (bss), local    (call_count)
+ *     b   defined, uninitialised (bss), local    (helper_calls)
  *     R   read-only data, global                 (string literals live near here)
  *     U   UNDEFINED: needed, not provided by this file
  *
@@ -85,17 +85,17 @@ int main(void)
  *
  *     nm /tmp/s31.o | grep -i helper     ->  t secret_helper
  *     nm /tmp/s31.o | grep -i announce   ->  T announce
- *     nm /tmp/s31.o | grep soma_ate      ->  U soma_ate
+ *     nm /tmp/s31.o | grep sum_to      ->  U sum_to
  *
  * That last line IS the error message you get when you forget contas.c. The
  * linker walks every U and looks for a matching T or D somewhere else. If it
  * finds none:
  *
- *     undefined reference to `soma_ate'
+ *     undefined reference to `sum_to'
  *
  * And if it finds two, from two different files:
  *
- *     multiple definition of `soma_ate'
+ *     multiple definition of `sum_to'
  *
  * Two errors, one table, no mystery.
  *
@@ -103,9 +103,9 @@ int main(void)
  *
  *     gcc /tmp/s31.o -o /tmp/broken            <- undefined reference
  *     gcc /tmp/s31.o /tmp/contas.o -o /tmp/ok  <- fine
- *     nm /tmp/ok | grep -E "soma_ate|printf"
+ *     nm /tmp/ok | grep -E "sum_to|printf"
  *
- * In the linked executable soma_ate is now T. printf stays U, because it
+ * In the linked executable sum_to is now T. printf stays U, because it
  * lives in the shared C library and is resolved when the program starts, not
  * when it is linked. passo-32 is about that.
  *
@@ -133,18 +133,18 @@ int main(void)
  *
  *  1. `nm /tmp/s31.o | sort -k2` and read every line. Match each letter to
  *     the declaration that produced it. Note where program_counter and
- *     call_count ended up, and why an initialiser of 0 does not put a
+ *     helper_calls ended up, and why an initialiser of 0 does not put a
  *     variable in .data: zeroed data goes in .bss, which costs no space in
  *     the file because the kernel zeroes the page for you.
  *
  *  2. Delete `static` from secret_helper and rerun nm. Lowercase t becomes
  *     uppercase T: the function just became visible to the entire program.
  *
- *  3. Cause "multiple definition" on purpose: add `int soma_ate(int n)
+ *  3. Cause "multiple definition" on purpose: add `int sum_to(int n)
  *     { return 0; }` to this file and run `make 31`. Read the error, then
  *     note that it names both files.
  *
- *  4. Uncomment the `chamadas` line in main. The COMPILER stops you, not the
+ *  4. Uncomment the `calls` line in main. The COMPILER stops you, not the
  *     linker, because static also means the name is not declared here. Two
  *     different defences from one keyword.
  *
