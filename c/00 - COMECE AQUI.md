@@ -114,6 +114,10 @@ português.
 | `39` | medindo: por que a mesma conta pode ser 23x mais lenta, e por que 8 threads não dá 8x | 🔑 |
 | `40` | uma thread vista pelo SO: `clone3`, a página de guarda, `strace -f` | 🔑 |
 
+Complemento: [[cheatsheet]] - as formas que você escreve toda hora
+(printf, laços, strings, malloc, argv, o esqueleto de pthreads) com a
+armadilha de cada uma.
+
 Complemento: [[tools]] - todo o ferramental (warnings, sanitizers, `nm`,
 `gdb`, `strace`, `perf`), com o que está instalado nesta máquina e o que não
 está.
