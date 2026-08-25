@@ -1,125 +1,127 @@
 /* ============================================================================
- * PASSO 5 - & e *, com o diagrama do lado.
+ * STEP 5 - & and *, with the diagram alongside.
  *
- * Nada aqui é difícil. É só notação nova para uma ideia que você já usa em
- * Python sem ver: toda variável mora em algum lugar, e esse lugar tem número.
+ * Nothing here is hard. It is new notation for an idea you already rely on in
+ * Python without seeing it: every variable lives somewhere, and that
+ * somewhere has a number.
  *
- *     Ctrl+Shift+B      (ou: make 05)
+ *     Ctrl+Shift+B      (or: make 05)
  *
- * Este passo não quebra nada. Ele é a base dos passos 06 até 16.
+ * This step breaks nothing. It is the foundation for steps 06 through 16.
  * ========================================================================= */
 
 #include <stdio.h>
 
 int main(void)
 {
-    /* Uma variável é uma CAIXA com um endereço.
+    /* A variable is a BOX with an address.
      *
-     *     endereço            conteúdo
-     *     0x7ffd1234    ->    [ 25 ]      <- a variável `idade`
+     *     address             contents
+     *     0x7ffd1234    ->    [ 25 ]      <- the variable `age`
      *
-     * Duas coisas separadas, e a confusão inteira de ponteiros vem de
-     * misturá-las: o ENDEREÇO (onde a caixa está) e o VALOR (o que tem
-     * dentro dela). */
-    int idade = 25;
+     * Two separate things, and the entire confusion around pointers comes
+     * from mixing them: the ADDRESS (where the box is) and the VALUE (what
+     * is inside it). */
+    int age = 25;
 
-    /* & = "me dê o endereço de". %p imprime endereço, em hexadecimal.
-     * O (void *) no cast é o que o %p espera formalmente. */
-    printf("idade  vale     %d\n",  idade);
-    printf("idade  mora em  %p\n", (void *) &idade);
+    /* & means "give me the address of". %p prints an address, in hex.
+     * The (void *) cast is what %p formally expects. */
+    printf("age  holds    %d\n",  age);
+    printf("age  lives at %p\n", (void *) &age);
 
-    /* Um PONTEIRO é uma caixa como qualquer outra. O que ela guarda por
-     * acaso é um endereço.
+    /* A POINTER is a box like any other. What it happens to hold is an
+     * address.
      *
-     *     0x7ffd1234    ->  [ 25 ]              <- idade
-     *     0x7ffd9999    ->  [ 0x7ffd1234 ]      <- p, guarda o ENDEREÇO
-     *                                              de idade
+     *     0x7ffd1234    ->  [ 25 ]              <- age
+     *     0x7ffd9999    ->  [ 0x7ffd1234 ]      <- p, holding the ADDRESS
+     *                                              of age
      *
-     * Leia `int *p` como: "p é do tipo 'endereço de int'". */
-    int *p = &idade;
+     * Read `int *p` as: "p has type 'address of int'". */
+    int *p = &age;
 
-    printf("\np      vale     %p   <- é o endereço de idade\n", (void *) p);
-    printf("p      mora em  %p   <- p também é uma caixa\n",   (void *) &p);
+    printf("\np    holds    %p   <- the address of age\n", (void *) p);
+    printf("p    lives at %p   <- p is a box too\n",       (void *) &p);
 
-    /* * na frente de um ponteiro = "vá até esse endereço e leia o que tem lá".
-     * A palavra pra isso é DESREFERENCIAR.
+    /* A * in front of a pointer means "go to that address and read what is
+     * there". The word for this is DEREFERENCING.
      *
-     * Cuidado com a sobrecarga do símbolo:
-     *     int *p        na DECLARAÇÃO -> "p é um ponteiro"
-     *     *p            no USO        -> "o conteúdo apontado por p"
-     * Mesmo caractere, dois significados. */
-    printf("*p     vale     %d   <- o que tem no endereço guardado em p\n", *p);
+     * Watch out for the overloaded symbol:
+     *     int *p        in a DECLARATION -> "p is a pointer"
+     *     *p            in USE           -> "the thing p points at"
+     * Same character, two meanings. */
+    printf("*p   holds    %d   <- what is at the address stored in p\n", *p);
 
-    /* Escrever através do ponteiro altera a caixa original. Não existe cópia
-     * envolvida: p aponta pra caixa da idade, e é nela que gravamos. */
+    /* Writing through the pointer changes the original box. No copy is
+     * involved: p points at age's box, and that is where we write. */
     *p = 30;
-    printf("\ndepois de *p = 30, idade agora é %d\n", idade);
+    printf("\nafter *p = 30, age is now %d\n", age);
 
-    /* Aquilo que o passo-02 antecipou: o tamanho do ponteiro não depende do
-     * que ele aponta. Endereço é endereço - 8 bytes numa máquina 64 bits. */
+    /* What step 02 hinted at: a pointer's size does not depend on what it
+     * points at. An address is an address, 8 bytes on a 64-bit machine. */
     double d = 3.14;
     char   c = 'x';
     printf("\nsizeof(int *)    = %zu\n", sizeof(int *));
     printf("sizeof(double *) = %zu\n", sizeof(double *));
     printf("sizeof(char *)   = %zu\n", sizeof(char *));
 
-    /* Então pra que serve o tipo do ponteiro, se todos têm 8 bytes?
-     * Pra saber QUANTOS bytes ler no *p, e como interpretá-los.
-     * `int *` lê 4 bytes como inteiro. `double *` lê 8 como ponto flutuante.
-     * O tipo é uma instrução de leitura pro compilador, não algo guardado
-     * na memória. */
+    /* So what is the pointer's type for, if they are all 8 bytes?
+     * To know HOW MANY bytes to read at *p, and how to interpret them.
+     * `int *` reads 4 bytes as an integer. `double *` reads 8 as floating
+     * point. The type is a reading instruction for the compiler, not
+     * something stored in memory. Step 25 makes this literal. */
     double *pd = &d;
     char   *pc = &c;
     printf("*pd = %.2f   *pc = %c\n", *pd, *pc);
 
-    /* Um ponteiro que não aponta pra nada tem um valor combinado: NULL.
-     * Nunca deixe um ponteiro sem inicializar - um ponteiro com lixo aponta
-     * pra um endereço qualquer, e escrever nele destrói o que estiver lá. */
-    int *vazio = NULL;
-    printf("\nvazio = %p (isto é o NULL)\n", (void *) vazio);
-    if (vazio == NULL)
-        printf("testar antes de usar é o hábito que te salva\n");
+    /* A pointer that points at nothing has an agreed value: NULL.
+     * Never leave a pointer uninitialised. A pointer full of garbage points
+     * at some arbitrary address, and writing through it destroys whatever
+     * lives there. */
+    int *empty = NULL;
+    printf("\nempty = %p (this is NULL)\n", (void *) empty);
+    if (empty == NULL)
+        printf("checking before use is the habit that saves you\n");
 
     return 0;
 }
 
 /* ============================================================================
- * O DIAGRAMA COMPLETO DESTE PROGRAMA
+ * THE COMPLETE DIAGRAM FOR THIS PROGRAM
  *
- *     0x7ffd1234  [ 30 ]            idade     (era 25, mudamos por *p)
- *     0x7ffd9999  [ 0x7ffd1234 ]    p         guarda o endereço de idade
+ *     0x7ffd1234  [ 30 ]            age    (was 25, changed through *p)
+ *     0x7ffd9999  [ 0x7ffd1234 ]    p      holds the address of age
  *                    |
- *                    +-----> aponta de volta pra caixa de cima
+ *                    +-----> points back at the box above
  *
- *     &idade  = 0x7ffd1234    o endereço da caixa
- *      idade  = 30            o conteúdo da caixa
- *          p  = 0x7ffd1234    a cópia do endereço, guardada em p
- *         *p  = 30            o conteúdo lá onde p aponta
- *         &p  = 0x7ffd9999    o endereço da caixa DO PONTEIRO
+ *     &age  = 0x7ffd1234    the address of the box
+ *      age  = 30            the contents of the box
+ *        p  = 0x7ffd1234    the copy of that address, stored in p
+ *       *p  = 30            the contents where p points
+ *       &p  = 0x7ffd9999    the address of the POINTER's own box
  *
- * Se você consegue ler essas cinco linhas sem hesitar, os próximos onze
- * passos são só consequência.
+ * If you can read those five lines without hesitating, the next eleven steps
+ * are consequences.
  *
  * EXPERIMENTE:
  *
- *  1. Rode duas vezes. Os endereços mudam. Isso é o ASLR, uma proteção do
- *     sistema: a cada execução o programa nasce num lugar diferente da
- *     memória. Endereço nunca é algo pra você decorar ou comparar entre
- *     execuções.
+ *  1. Run it twice. The addresses change. That is ASLR, a system protection:
+ *     every run puts the program somewhere different in memory. An address is
+ *     never something to memorise or to compare across runs. Step 33 shows
+ *     where those numbers come from.
  *
- *  2. Escreva `printf("%d\n", *vazio);` no fim. Rode. O sanitizer mata o
- *     programa e diz exatamente onde:
+ *  2. Add `printf("%d\n", *empty);` at the end. Run it. The sanitizer kills
+ *     the program and says exactly where:
  *     "load of null pointer of type 'int'".
- *     Sem sanitizer, isto seria só "Segmentation fault (core dumped)".
+ *     Without the sanitizer this would just be "Segmentation fault".
  *
- *  3. Aponte dois ponteiros pra mesma caixa (`int *q = &idade;`) e mude por
- *     um (`*q = 99;`). Leia pelo outro (`*p`). Mesma caixa, dois nomes. É
- *     exatamente isso que acontece entre threads - e é por isso que threads
- *     precisam de mutex.
+ *  3. Point two pointers at the same box (`int *q = &age;`) and change it
+ *     through one (`*q = 99;`). Read it through the other (`*p`). One box,
+ *     two names. That is precisely what happens between threads, and it is
+ *     why threads need a mutex.
  *
- *  4. Tente `int *errado = idade;` (sem o &). O gcc reclama de conversão
- *     inteiro->ponteiro. Leia a mensagem com calma: ele está dizendo que
- *     você tentou usar o VALOR 30 como se fosse um ENDEREÇO.
+ *  4. Try `int *wrong = age;` (no &). gcc complains about an
+ *     integer-to-pointer conversion. Read the message slowly: it is saying
+ *     you tried to use the VALUE 30 as if it were an ADDRESS.
  *
- * -> passo-06, que é onde ponteiro deixa de ser curiosidade e vira necessidade
+ * -> passo-06, where pointers stop being a curiosity and become necessary
  * ========================================================================= */

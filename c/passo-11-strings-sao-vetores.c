@@ -1,11 +1,12 @@
 /* ============================================================================
- * PASSO 11 - string em C é um vetor de char terminado por '\0'.
+ * STEP 11 - a C string is a char array terminated by '\0'.
  *
- * Não existe tipo string. Não existe .length. O que existe é uma convenção:
- * a string acaba quando aparece um byte zero. Toda função de string do C
- * confia nessa convenção - e é ela que vai quebrar no passo-12.
+ * There is no string type. There is no .length. What there is, is a
+ * convention: the string ends when a zero byte turns up. Every string
+ * function in C trusts that convention, and it is the convention step 12
+ * breaks.
  *
- *     Ctrl+Shift+B      (ou: make 11)
+ *     Ctrl+Shift+B      (or: make 11)
  * ========================================================================= */
 
 #include <stdio.h>
@@ -13,115 +14,120 @@
 
 int main(void)
 {
-    /* Duas formas de escrever a mesma coisa. A de cima é o que você usa;
-     * a de baixo mostra o que ela realmente é. */
-    char nome[6] = "Ana";
-    char igual[6] = {'A', 'n', 'a', '\0', 0, 0};
+    /* Two ways of writing the same thing. The first is what you use; the
+     * second shows what it actually is. */
+    char name[6]  = "Ana";
+    char same[6]  = {'A', 'n', 'a', '\0', 0, 0};
 
-    printf("nome  = %s\n", nome);
-    printf("igual = %s\n", igual);
+    printf("name = %s\n", name);
+    printf("same = %s\n", same);
 
-    /* O '\0' (byte zero) não é o caractere '0'. É o valor numérico 0, e ele
-     * ocupa uma posição no vetor. "Ana" precisa de 4 bytes, não 3. */
-    printf("\nbyte a byte de nome[6]:\n");
+    /* The '\0' (zero byte) is not the character '0'. It is the numeric value
+     * 0, and it occupies a position in the array. "Ana" needs 4 bytes, not
+     * 3. */
+    printf("\nname[6], byte by byte:\n");
     for (size_t i = 0; i < 6; i++)
-        printf("  nome[%zu] = %3d  '%c'\n", i, nome[i],
-               nome[i] ? nome[i] : ' ');
+        printf("  name[%zu] = %3d  '%c'\n", i, name[i],
+               name[i] ? name[i] : ' ');
 
-    /* strlen CONTA os bytes até achar o zero. É um laço, custa O(n) - não é
-     * um campo guardado como o len() do Python. Chamar strlen dentro da
-     * condição de um laço percorre a string a cada volta. */
-    printf("\nstrlen(nome)  = %zu  <- caracteres, o \\0 não conta\n",
-           strlen(nome));
-    printf("sizeof(nome)  = %zu  <- bytes reservados, o \\0 conta\n",
-           sizeof(nome));
+    /* strlen COUNTS bytes until it finds the zero. It is a loop, costing
+     * O(n). It is not a stored field like Python's len(). Calling strlen in
+     * a loop condition walks the whole string on every iteration. */
+    printf("\nstrlen(name)  = %zu  <- characters, the \\0 does not count\n",
+           strlen(name));
+    printf("sizeof(name)  = %zu  <- bytes reserved, the \\0 does count\n",
+           sizeof(name));
 
-    /* Duas declarações que parecem iguais e não são:
+    /* Two declarations that look alike and are not:
      *
-     *   char v[] = "oi";    um VETOR seu, na pilha, com uma cópia do texto.
-     *                       Você pode escrever nele.
+     *   char v[] = "hi";    an ARRAY of your own, on the stack, holding a
+     *                       copy of the text. You may write to it.
      *
-     *   char *p  = "oi";    um PONTEIRO pro texto que está gravado numa área
-     *                       SÓ LEITURA do binário. Escrever ali mata o
-     *                       programa. Por isso o certo é `const char *`.
+     *   char *p  = "hi";    a POINTER to text stored in a READ-ONLY area of
+     *                       the binary. Writing there kills the program,
+     *                       which is why the correct spelling is
+     *                       `const char *`. Step 33 shows the r-- permission
+     *                       that enforces it.
      */
-    char meu[] = "oi";
-    const char *literal = "oi";
+    char mine[] = "hi";
+    const char *literal = "hi";
 
-    meu[0] = 'O';                      /* legal: o vetor é seu */
-    printf("\nmeu     = %s  (dá pra alterar)\n", meu);
-    printf("literal = %s  (const: o compilador te impede de alterar)\n",
+    mine[0] = 'H';                     /* fine: the array is yours */
+    printf("\nmine    = %s  (can be changed)\n", mine);
+    printf("literal = %s  (const: the compiler stops you changing it)\n",
            literal);
 
-    /* Comparar strings com == compara ENDEREÇOS, não conteúdo. É quase
-     * sempre um bug. Use strcmp, que devolve 0 quando são iguais.
-     * (Sim: ZERO significa igual. Leia como "diferença zero".) */
+    /* Comparing strings with == compares ADDRESSES, not contents. It is
+     * almost always a bug. Use strcmp, which returns 0 when they are equal.
+     * (Yes: ZERO means equal. Read it as "zero difference".) */
     char a[] = "abc";
     char b[] = "abc";
 
-    /* Escrevi com ponteiros porque `a == b` direto entre dois vetores faz o
-     * gcc avisar ("comparison between two arrays"). Com `char *` ele deixa
-     * passar caladinho - e é assim que o bug chega no código de verdade. */
+    /* Written through pointers because `a == b` directly between two arrays
+     * makes gcc warn ("comparison between two arrays"). With `char *` it
+     * says nothing, and that is how the bug reaches real code. */
     char *pa = a;
     char *pb = b;
-    printf("\npa == pb       ? %s  <- compara endereços: caixas diferentes\n",
-           pa == pb ? "sim" : "não");
-    printf("strcmp(a,b)==0 ? %s  <- compara conteúdo\n",
-           strcmp(a, b) == 0 ? "sim" : "não");
+    printf("\npa == pb       ? %s  <- compares addresses: different boxes\n",
+           pa == pb ? "yes" : "no");
+    printf("strcmp(a,b)==0 ? %s  <- compares contents\n",
+           strcmp(a, b) == 0 ? "yes" : "no");
 
-    /* Copiar também é função, não `=`. `destino = origem` entre vetores nem
-     * compila (passo-10). strcpy copia byte a byte ATÉ O '\0', inclusive. */
-    char destino[10];
-    strcpy(destino, "Ana");
-    printf("\ndestino após strcpy = %s\n", destino);
+    /* Copying is a function too, not `=`. `dest = src` between arrays does
+     * not even compile (step 10). strcpy copies byte by byte UP TO AND
+     * INCLUDING the '\0'. */
+    char dest[10];
+    strcpy(dest, "Ana");
+    printf("\ndest after strcpy = %s\n", dest);
 
     return 0;
 }
 
 /* ============================================================================
- * O DIAGRAMA
+ * THE DIAGRAM
  *
- *     char nome[6] = "Ana";
+ *     char name[6] = "Ana";
  *
  *     0x7ffd1000  [ 'A' ]  65
  *     0x7ffd1001  [ 'n' ]  110
  *     0x7ffd1002  [ 'a' ]  97
- *     0x7ffd1003  [ \0  ]  0     <- AQUI a string acaba
- *     0x7ffd1004  [  0  ]        <- reservado, sobrando
+ *     0x7ffd1003  [ \0  ]  0     <- the string ends HERE
+ *     0x7ffd1004  [  0  ]        <- reserved, spare
  *     0x7ffd1005  [  0  ]
  *
- *     printf("%s") recebe o endereço 0x7ffd1000 e imprime byte a byte até
- *     encontrar o zero. Se o zero não estiver lá, ele continua lendo pela
- *     memória adentro. Isso é o passo-12.
+ *     printf("%s") receives the address 0x7ffd1000 and prints byte by byte
+ *     until it finds the zero. If the zero is not there, it keeps reading on
+ *     into memory. That is step 12.
  *
- * A CONTA QUE VOCÊ SEMPRE PRECISA FAZER
+ * THE ARITHMETIC YOU ALWAYS HAVE TO DO
  *
- *     texto de N caracteres  ->  vetor de N+1 bytes, no mínimo.
+ *     text of N characters  ->  an array of at least N+1 bytes.
  *
- * Esquecer o +1 é o bug de string mais comum que existe.
+ * Forgetting the +1 is the most common string bug there is.
  *
  * EXPERIMENTE:
  *
- *  1. Apague o '\0' à mão: `nome[3] = 'X';` antes do printf. Rode.
- *     Agora printf não encontra o terminador em nome[3] e segue lendo o
- *     resto do vetor e o que vier depois. Com sorte, o ASan te pega lendo
- *     fora. Sem sorte, aparece lixo na tela.
+ *  1. Erase the '\0' by hand: `name[3] = 'X';` before the printf. Run it.
+ *     printf no longer finds a terminator at name[3] and keeps reading
+ *     through the rest of the array and past it. With luck ASan catches the
+ *     out-of-bounds read. Without luck, garbage on screen.
  *
- *  2. Declare `char apertado[3] = "Ana";` - 3 letras em 3 bytes, sem espaço
- *     pro terminador. O gcc até deixa (com aviso). Imprima com %s e veja o
- *     que acontece.
+ *  2. Declare `char tight[3] = "Ana";`, three letters in three bytes with no
+ *     room for a terminator. gcc allows it (with a warning). Print it with
+ *     %s and see what happens.
  *
- *  3. Tente escrever num literal:
+ *  3. Try writing to a literal:
  *
- *         char *p = "oi";     // sem const, pra o compilador deixar
- *         p[0] = 'O';
+ *         char *p = "hi";     // no const, so the compiler allows it
+ *         p[0] = 'H';
  *
- *     Segmentation fault na hora. Aquela memória é só-leitura de verdade,
- *     o sistema operacional garante. Por isso literal se escreve
- *     `const char *`.
+ *     Segmentation fault immediately. That memory really is read only, and
+ *     the operating system enforces it. This is why a literal should be
+ *     written as `const char *`.
  *
- *  4. Imprima `strcmp("abc", "abd")` e `strcmp("abd", "abc")`. Negativo e
- *     positivo: é ordem alfabética, no estilo "a - b". Zero é igual.
+ *  4. Print `strcmp("abc", "abd")` and `strcmp("abd", "abc")`. Negative and
+ *     positive: it is alphabetical order, in the style of "a - b". Zero
+ *     means equal.
  *
- * -> passo-12: estourando uma string
+ * -> passo-12: overflowing a string
  * ========================================================================= */

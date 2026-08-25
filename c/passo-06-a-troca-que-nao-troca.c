@@ -1,24 +1,24 @@
 /* ============================================================================
- * PASSO 6 - ERRADO DE PROPÓSITO. A função que troca dois valores... e não troca.
+ * STEP 6 - WRONG ON PURPOSE. The function that swaps two values, and does not.
  *
- * Rode primeiro. O programa não quebra, não avisa nada, o compilador fica
- * calado. Ele só não faz o que diz que faz.
+ * Run it first. Nothing crashes, nothing warns, the compiler stays quiet. It
+ * simply does not do what it says it does.
  *
- *     Ctrl+Shift+B      (ou: make 06)
+ *     Ctrl+Shift+B      (or: make 06)
  * ========================================================================= */
 
 #include <stdio.h>
 
-/* A ideia é óbvia e o código parece certo. */
-void trocar(int a, int b)
+/* The idea is obvious and the code looks right. */
+void swap(int a, int b)
 {
-    printf("   [dentro] recebi a=%d b=%d\n", a, b);
+    printf("   [inside] received a=%d b=%d\n", a, b);
 
-    int temporario = a;
+    int temp = a;
     a = b;
-    b = temporario;
+    b = temp;
 
-    printf("   [dentro] agora a=%d b=%d - trocou aqui dentro!\n", a, b);
+    printf("   [inside] now a=%d b=%d - swapped in here!\n", a, b);
 }
 
 int main(void)
@@ -26,59 +26,61 @@ int main(void)
     int x = 10;
     int y = 20;
 
-    printf("antes:  x=%d y=%d\n", x, y);
-    trocar(x, y);
-    printf("depois: x=%d y=%d   <- não mudou nada\n", x, y);
+    printf("before: x=%d y=%d\n", x, y);
+    swap(x, y);
+    printf("after:  x=%d y=%d   <- nothing changed\n", x, y);
 
     return 0;
 }
 
 /* ============================================================================
- * O QUE ACONTECEU
+ * WHAT HAPPENED
  *
- * C SEMPRE passa argumentos por CÓPIA. Sem exceção, para qualquer tipo.
+ * C ALWAYS passes arguments by COPY. No exceptions, for any type.
  *
- * Quando main chama trocar(x, y), o que a função recebe são caixas NOVAS,
- * com o mesmo conteúdo:
+ * When main calls swap(x, y), what the function receives are NEW boxes with
+ * the same contents:
  *
- *     main:                      trocar:
- *     0x7ffd1000 [ 10 ]  x       0x7ffd0900 [ 10 ]  a   <- cópia de x
- *     0x7ffd1004 [ 20 ]  y       0x7ffd0904 [ 20 ]  b   <- cópia de y
+ *     main:                      swap:
+ *     0x7ffd1000 [ 10 ]  x       0x7ffd0900 [ 10 ]  a   <- a copy of x
+ *     0x7ffd1004 [ 20 ]  y       0x7ffd0904 [ 20 ]  b   <- a copy of y
  *
- * A função troca as CÓPIAS dela:
+ * The function swaps ITS OWN copies:
  *
- *     main:                      trocar:
+ *     main:                      swap:
  *     0x7ffd1000 [ 10 ]  x       0x7ffd0900 [ 20 ]  a
  *     0x7ffd1004 [ 20 ]  y       0x7ffd0904 [ 10 ]  b
  *
- * e quando a função termina, as caixas `a` e `b` deixam de existir. O
- * trabalho todo é jogado fora. `x` e `y` nunca souberam de nada.
+ * and when the function ends, the boxes `a` and `b` stop existing. All that
+ * work is thrown away. `x` and `y` never heard about any of it.
  *
- * "Mas em Python uma função consegue mudar minha lista!" - consegue, e é a
- * mesma regra: Python também copia o ARGUMENTO, que no caso de uma lista é
- * uma referência. A cópia da referência aponta pro mesmo objeto. C não tem
- * referência automática: se você quer que a função alcance sua caixa, você
- * entrega o endereço dela na mão.
+ * "But in Python a function can change my list!" It can, and it is the same
+ * rule: Python also copies the ARGUMENT, which for a list is a reference. The
+ * copied reference points at the same object. C has no automatic references:
+ * if you want the function to reach your box, you hand over its address
+ * yourself.
  *
- * A pergunta que resolve isso, e que vale pra vida inteira em C:
+ * The question that settles this, and that keeps paying off for the rest of
+ * your time in C:
  *
- *     "A função precisa MUDAR algo meu, ou só LER?"
+ *     "Does the function need to CHANGE something of mine, or only READ it?"
  *
- *     só ler   -> passe o valor
- *     mudar    -> passe o endereço
+ *     read only -> pass the value
+ *     change    -> pass the address
  *
  * EXPERIMENTE:
  *
- *  1. Imprima os endereços dos dois lados e veja que são caixas diferentes:
+ *  1. Print the addresses on both sides and see that they are different
+ *     boxes:
  *
- *         dentro de trocar:  printf("   [dentro] &a=%p\n", (void *) &a);
- *         dentro de main:    printf("&x=%p\n", (void *) &x);
+ *         inside swap:  printf("   [inside] &a=%p\n", (void *) &a);
+ *         inside main:  printf("&x=%p\n", (void *) &x);
  *
- *     Endereços diferentes = caixas diferentes = nada do que a função faz
- *     alcança as suas.
+ *     Different addresses means different boxes, which means nothing the
+ *     function does can reach yours.
  *
- *  2. Faça trocar() devolver algo (`return a;`). Você consegue devolver UM
- *     valor. Precisa mudar dois. É por isso que ponteiro não é opcional aqui.
+ *  2. Make swap() return something (`return a;`). You can return ONE value.
+ *     You need to change two. That is why a pointer is not optional here.
  *
- * -> passo-07, a correção
+ * -> passo-07, the fix
  * ========================================================================= */

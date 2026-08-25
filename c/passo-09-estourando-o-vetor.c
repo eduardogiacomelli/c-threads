@@ -1,77 +1,78 @@
 /* ============================================================================
- * PASSO 9 - ERRADO DE PROPÓSITO. Escrever fora do vetor.
+ * STEP 9 - WRONG ON PURPOSE. Writing past the end of an array.
  *
- * Este é o bug que o C é famoso por deixar passar. O programa compila limpo,
- * roda, e o estrago pode aparecer numa variável que você nem tocou.
+ * This is the bug C is famous for letting through. The program compiles
+ * clean, runs, and the damage can surface in a variable you never touched.
  *
- *     Ctrl+Shift+B      (ou: make 09)
+ *     Ctrl+Shift+B      (or: make 09)
  *
- * O AddressSanitizer vai MATAR o programa na primeira linha errada. Leia a
- * mensagem inteira dele - ela é longa e ela é o conteúdo desta aula.
+ * AddressSanitizer will KILL the program on the first bad line. Read its
+ * whole message: it is long, and it is the content of this step.
  * ========================================================================= */
 
 #include <stdio.h>
 
 int main(void)
 {
-    int antes  = 111;
+    int before = 111;
     int v[5]   = {0, 0, 0, 0, 0};
-    int depois = 999;
+    int after  = 999;
 
-    printf("antes=%d  depois=%d\n", antes, depois);
-    printf("v tem 5 caixas: índices válidos de 0 a 4\n\n");
+    printf("before=%d  after=%d\n", before, after);
+    printf("v has 5 boxes: valid indices are 0 to 4\n\n");
 
-    /* O BUG ESTÁ NO <=.
+    /* THE BUG IS THE <=.
      *
-     * Com i <= 5, o laço roda seis vezes: 0,1,2,3,4 e o 5. Mas v[5] não
-     * existe - o vetor acaba no 4. A escrita cai nos 4 bytes seguintes ao
-     * vetor, que pertencem a outra coisa.
+     * With i <= 5 the loop runs six times: 0,1,2,3,4 and 5. But v[5] does
+     * not exist; the array ends at 4. The write lands in the 4 bytes after
+     * the array, which belong to something else.
      *
-     * C não confere índice. Nunca. Não existe IndexError. O endereço é
-     * calculado (início + 5*4) e a escrita simplesmente acontece. */
+     * C does not check indices. Ever. There is no IndexError. The address is
+     * computed (start + 5*4) and the write simply happens. */
     for (int i = 0; i <= 5; i++) {
-        printf("escrevendo 7 em v[%d]\n", i);
+        printf("writing 7 into v[%d]\n", i);
         v[i] = 7;
     }
 
-    /* Se você chegou aqui, é porque compilou SEM sanitizer. Repare no que
-     * pode ter acontecido com as variáveis vizinhas: */
+    /* If you got this far, you compiled WITHOUT the sanitizer. Look at what
+     * may have happened to the neighbouring variables: */
     printf("\nv[0]=%d v[4]=%d\n", v[0], v[4]);
-    printf("antes=%d  depois=%d\n", antes, depois);
-    printf("uma delas pode ter virado 7 sem você encostar nela.\n");
+    printf("before=%d  after=%d\n", before, after);
+    printf("one of them may have turned into 7 without you touching it.\n");
 
     return 0;
 }
 
 /* ============================================================================
- * O QUE ACONTECEU
+ * WHAT HAPPENED
  *
  *     0x7ffd1000  [ 7 ]   v[0]
  *     0x7ffd1004  [ 7 ]   v[1]
  *     0x7ffd1008  [ 7 ]   v[2]
  *     0x7ffd100c  [ 7 ]   v[3]
- *     0x7ffd1010  [ 7 ]   v[4]     <- fim do vetor
- *     0x7ffd1014  [ 7 ]   <- v[5]: NÃO É SEU. Escrevemos aqui mesmo assim.
+ *     0x7ffd1010  [ 7 ]   v[4]     <- end of the array
+ *     0x7ffd1014  [ 7 ]   <- v[5]: NOT YOURS. We wrote here anyway.
  *
- * O que mora em 0x7ffd1014 depende de como o compilador arrumou a pilha:
- * pode ser `antes`, pode ser `depois`, pode ser espaço de alinhamento sem
- * uso, pode ser o endereço de retorno da função. Muda com o nível de
- * otimização, com a versão do gcc, com a ordem das declarações.
+ * What lives at 0x7ffd1014 depends on how the compiler laid out the stack:
+ * it could be `before`, it could be `after`, it could be unused alignment
+ * padding, it could be the function's return address. It changes with the
+ * optimisation level, the gcc version, and the order of the declarations.
  *
- * Por isso este bug é tão caro: ele não falha onde está. Ele corrompe algo,
- * e o programa quebra três funções depois, num lugar que está correto.
+ * That is why this bug is so expensive: it does not fail where it is. It
+ * corrupts something, and the program breaks three functions later, in code
+ * that is correct.
  *
- * O QUE OS SANITIZERS FIZERAM
+ * WHAT THE SANITIZERS DID
  *
- * Você recebeu DUAS reclamações, de duas ferramentas diferentes. Leia na
- * ordem em que saíram.
+ * You got TWO complaints from two different tools. Read them in the order
+ * they came out.
  *
- * Primeiro o UBSan, que sabe o TIPO da variável e vê o índice inválido:
+ * First UBSan, which knows the TYPE of the variable and sees a bad index:
  *
  *     runtime error: index 5 out of bounds for type 'int [5]'
  *
- * Depois o ASan, que não olha tipos: ele põe "zonas vermelhas" (redzones)
- * em volta de cada vetor e vigia todo acesso à memória:
+ * Then ASan, which does not look at types: it puts "redzones" around every
+ * array and watches every memory access:
  *
  *     ERROR: AddressSanitizer: stack-buffer-overflow
  *     WRITE of size 4 at 0x...
@@ -81,34 +82,37 @@ int main(void)
  *         [32, 52) 'v' (line 18) <== Memory access at offset 52 overflows
  *                                    this variable
  *
- * Traduzindo a última linha: o vetor `v` ocupa da posição 32 até a 52 da
- * pilha (20 bytes, os 5 ints), e você escreveu exatamente na 52 - o
- * primeiro byte depois do fim. Um passo além, e o ASan viu.
+ * Translating that last line: the array `v` occupies stack positions 32 to
+ * 52 (20 bytes, the five ints), and you wrote at exactly 52, the first byte
+ * past the end. One step beyond, and ASan saw it.
  *
- * Repare também no que NÃO apareceu: os printf antes do erro. O ASan aborta
- * o processo sem esvaziar o buffer do stdout. Se um dia seus printf de
- * depuração "sumirem" num crash, é isso - não é que a linha não rodou.
+ * Notice also what did NOT appear: the printf output from before the error.
+ * ASan aborts the process without flushing stdout. If your debugging printf
+ * ever "disappears" in a crash, that is why, and it does not mean the line
+ * failed to run. Step 34 is about exactly this.
  *
  * EXPERIMENTE:
  *
- *  1. Conserte: troque `i <= 5` por `i < 5`. Melhor ainda, use o
- *     sizeof do passo-08 pra não repetir o número 5 em dois lugares -
- *     números repetidos no código é como off-by-one nasce.
+ *  1. Fix it: change `i <= 5` to `i < 5`. Better still, use the sizeof trick
+ *     from step 08 so the number 5 is not written in two places. Repeated
+ *     numbers in code are how off-by-one is born.
  *
- *  2. Veja a versão SEM rede. No terminal:
+ *  2. See the version with no safety net. In the terminal:
  *
- *         gcc -std=gnu17 -Wall -g passo-09-estourando-o-vetor.c -o /tmp/sem
- *         /tmp/sem
+ *         gcc -std=gnu17 -Wall -g passo-09-estourando-o-vetor.c -o /tmp/bare
+ *         /tmp/bare
  *
- *     Sem sanitizer o programa provavelmente termina "normalmente", e uma
- *     das variáveis vizinhas está corrompida. Compare as duas saídas. É esta
- *     diferença que justifica manter o sanitizer sempre ligado.
+ *     Without the sanitizer the program probably finishes "normally" with
+ *     one of the neighbours corrupted. Compare the two outputs. That
+ *     difference is the argument for leaving the sanitizer on.
  *
- *  3. Troque `v[i] = 7` por `v[i + 1000] = 7`. Agora você está longe do
- *     vetor. Rode com e sem sanitizer: sem ele, é Segmentation fault seco.
+ *  3. Change `v[i] = 7` to `v[i + 1000] = 7`. Now you are far from the
+ *     array. Run with and without the sanitizer: without it, a bare
+ *     Segmentation fault.
  *
- *  4. Só LEIA fora do vetor (`printf("%d", v[5]);`). O ASan pega igual:
- *     "READ of size 4". Ler fora também é bug, mesmo sem estragar nada.
+ *  4. Only READ past the end (`printf("%d", v[5]);`). ASan catches it just
+ *     the same: "READ of size 4". Reading out of bounds is a bug too, even
+ *     when it breaks nothing.
  *
- * -> passo-10: por que vetor e ponteiro são quase a mesma coisa
+ * -> passo-10: why an array and a pointer are almost the same thing
  * ========================================================================= */

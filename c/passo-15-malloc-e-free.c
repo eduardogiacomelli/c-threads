@@ -1,159 +1,161 @@
 /* ============================================================================
- * PASSO 15 - a correção do passo-14: memória que você controla.
+ * STEP 15 - the fix for step 14: memory you control.
  *
- * malloc pede um pedaço de memória ao sistema. Esse pedaço não pertence a
- * nenhuma função: ele existe até você devolvê-lo com free. É a única
- * memória em C cuja duração é decisão sua.
+ * malloc asks the system for a piece of memory. That piece belongs to no
+ * function: it exists until you hand it back with free. It is the only
+ * memory in C whose lifetime is your decision.
  *
- *     Ctrl+Shift+B      (ou: make 15)
+ *     Ctrl+Shift+B      (or: make 15)
  * ========================================================================= */
 
 #include <stdio.h>
 #include <stdlib.h>     /* malloc, calloc, free: man 3 malloc */
 
-/* Agora a função devolve um endereço que continua válido depois do return,
- * porque a caixa não está na pilha dela. */
-int *fabricar_numero(void)
+/* Now the function returns an address that stays valid after the return,
+ * because the box is not on its stack. */
+int *make_number(void)
 {
-    /* malloc recebe um número de BYTES e devolve o endereço do início do
-     * bloco - ou NULL se não conseguiu.
+    /* malloc takes a number of BYTES and returns the address of the start of
+     * the block, or NULL if it could not.
      *
-     * Escreva sizeof(int), não 4. O sizeof documenta a intenção e continua
-     * certo se o tipo mudar. */
+     * Write sizeof(int), not 4. sizeof documents the intent and stays
+     * correct if the type ever changes. */
     int *p = malloc(sizeof(int));
 
-    /* Sempre teste o retorno. Na prática malloc quase nunca falha no Linux
-     * moderno, mas "quase nunca" com ponteiro é um crash silencioso: sem
-     * este if, o *p abaixo escreveria no endereço 0. */
+    /* Always test the return. In practice malloc almost never fails on
+     * modern Linux, but "almost never" with a pointer is a silent crash:
+     * without this if, the *p below would write to address 0. */
     if (p == NULL) {
         perror("malloc");
         return NULL;
     }
 
-    *p = 42;                 /* escreva ATRAVÉS do ponteiro, como no passo-07 */
-    printf("   [fabricar] aloquei em %p e guardei %d\n", (void *) p, *p);
-    return p;                /* devolvemos o endereço, e ele continua válido */
+    *p = 42;                 /* write THROUGH the pointer, as in step 07 */
+    printf("   [make]  allocated at %p and stored %d\n", (void *) p, *p);
+    return p;                /* we return the address, and it stays valid */
 }
 
-/* A mesma função do passo-14: ela reaproveita o pedaço de pilha que
- * fabricar_numero deixou. Repare no endereço que ela imprime. */
-void outra_funcao(void)
+/* The same function as in step 14: it reuses the piece of stack that
+ * make_number gave up. Watch the address it prints. */
+void other_function(void)
 {
-    int outro = 777;
-    printf("   [outra]    outro = %d, mora em %p\n", outro, (void *) &outro);
+    int other = 777;
+    printf("   [other] other = %d, lives at %p\n", other, (void *) &other);
 }
 
 int main(void)
 {
-    int *p = fabricar_numero();
+    int *p = make_number();
     if (p == NULL)
         return 1;
 
-    printf("logo depois:  *p = %d\n", *p);
-    outra_funcao();
-    printf("depois de outra função rodar:  *p = %d   <- intacto\n", *p);
-    printf("^ o endereço do malloc não tem nada a ver com o da pilha.\n");
+    printf("right after:  *p = %d\n", *p);
+    other_function();
+    printf("after another function ran:  *p = %d   <- untouched\n", *p);
+    printf("^ the malloc address has nothing to do with the stack one.\n");
 
-    /* free devolve o bloco. Depois disso o ponteiro está pendurado de novo:
-     * o endereço continua sendo um número válido, e a memória não é mais sua.
+    /* free hands the block back. After that the pointer is dangling again:
+     * the address is still a valid number, and the memory is no longer
+     * yours.
      *
-     * Hábito que evita o bug: zere o ponteiro logo após liberar. */
+     * The habit that avoids the bug: null the pointer right after freeing. */
     free(p);
     p = NULL;
-    printf("\nliberado. p agora é NULL, então um uso acidental estoura na\n"
-           "hora em vez de ler lixo.\n");
+    printf("\nfreed. p is NULL now, so an accidental use blows up straight\n"
+           "away instead of reading garbage.\n");
 
-    /* Um vetor de tamanho decidido em tempo de EXECUÇÃO - coisa que
-     * `int v[n]` de tamanho fixo não dá. Aqui está a outra metade do valor
-     * do malloc. */
-    int quantos = 5;
-    int *v = malloc(quantos * sizeof(int));     /* n elementos, não n bytes! */
+    /* An array whose size is decided at RUN time, which a fixed `int v[n]`
+     * cannot give you. This is the other half of what malloc is for. */
+    int count = 5;
+    int *v = malloc(count * sizeof(int));   /* n elements, not n bytes! */
     if (v == NULL)
         return 1;
 
-    for (int i = 0; i < quantos; i++)
-        v[i] = (i + 1) * 10;                    /* indexa igualzinho a vetor */
+    for (int i = 0; i < count; i++)
+        v[i] = (i + 1) * 10;                /* indexed exactly like an array */
 
-    printf("\nvetor no heap: ");
-    for (int i = 0; i < quantos; i++)
+    printf("\narray on the heap: ");
+    for (int i = 0; i < count; i++)
         printf("%d ", v[i]);
     printf("\n");
 
-    /* calloc faz o mesmo e ainda zera tudo. Assinatura diferente:
-     * (quantidade, tamanho de cada um). */
-    int *zerado = calloc(quantos, sizeof(int));
-    printf("calloc já vem zerado: zerado[3] = %d\n", zerado[3]);
+    /* calloc does the same and zeroes it too. Different signature:
+     * (how many, size of each). */
+    int *zeroed = calloc(count, sizeof(int));
+    if (zeroed == NULL)
+        return 1;
+    printf("calloc arrives zeroed: zeroed[3] = %d\n", zeroed[3]);
 
     free(v);
-    free(zerado);
+    free(zeroed);
 
-    /* Se você esquecer um free, o LeakSanitizer avisa quando o programa
-     * termina. Experimento 1. */
+    /* If you forget a free, LeakSanitizer reports it when the program ends.
+     * Experiment 1. */
     return 0;
 }
 
 /* ============================================================================
- * PILHA x HEAP, LADO A LADO
+ * STACK vs HEAP, SIDE BY SIDE
  *
- *   PILHA (stack)                      HEAP
- *   int x;  dentro de uma função       malloc
+ *   STACK                              HEAP
+ *   int x;  inside a function          malloc
  *   ---------------------------        --------------------------------
- *   o compilador cuida                 você cuida
- *   morre no fim do bloco              morre no free
- *   rápida, automática                 mais lenta, manual
- *   tamanho fixo, decidido ao          tamanho decidido ao rodar
- *     compilar
- *   ~8 MB no total, e acaba            limitada pela RAM
+ *   the compiler manages it            you manage it
+ *   dies at the closing brace          dies at the free
+ *   fast, automatic                    slower, manual
+ *   fixed size, decided at             size decided at run time
+ *     compile time
+ *   about 8 MB total, and it runs out  limited by RAM
  *
  *   +-------------------+
  *   | main: p [0x5a10] -|---> HEAP: 0x5a10 [ 42 ]
- *   +-------------------+                (não pertence a função nenhuma;
- *   | fabricar_numero   |                 sobrevive ao return)
- *   |   (já foi embora) |
+ *   +-------------------+                (belongs to no function;
+ *   | make_number       |                 survives the return)
+ *   |   (already gone)  |
  *   +-------------------+
  *
- * AS QUATRO REGRAS
+ * THE FOUR RULES
  *
- *   1. Todo malloc tem exatamente um free. Um só.
- *   2. Teste o retorno de malloc contra NULL.
- *   3. Depois do free, ponha NULL. Usar memória liberada é
- *      "use-after-free", e é bug de segurança, não só de correção.
- *   4. Deixe explícito QUEM libera. "Esta função devolve memória alocada,
- *      o chamador é quem dá free" é comentário obrigatório. Em C isso é
- *      contrato social, o compilador não ajuda.
+ *   1. Every malloc has exactly one free. One.
+ *   2. Test malloc's return against NULL.
+ *   3. After free, assign NULL. Using freed memory is "use-after-free", and
+ *      it is a security bug, not merely a correctness one.
+ *   4. Make it explicit WHO frees. "This function returns allocated memory;
+ *      the caller frees it" is a mandatory comment. In C that is a social
+ *      contract, and the compiler will not help you keep it.
  *
- * PARA ONDE ISSO VAI, EM PPD
+ * WHERE THIS GOES IN PPD
  *
- *   Uma thread só pode receber UM argumento, e ele precisa continuar
- *   existindo enquanto a thread roda - depois que a função que criou a
- *   thread já retornou, possivelmente. É o passo-14 de novo.
+ *   A thread can receive only ONE argument, and it has to keep existing
+ *   while the thread runs, possibly after the function that created the
+ *   thread has already returned. That is step 14 again.
  *
- *   A resposta é esta: um malloc por thread, cada uma com o SEU bloco, e o
- *   free feito por quem combinou de fazer.
+ *   The answer is this: one malloc per thread, each with ITS OWN block, and
+ *   the free done by whoever agreed to do it.
  *
  * EXPERIMENTE:
  *
- *  1. Comente `free(v);` e rode. O LeakSanitizer imprime no fim:
- *     "Direct leak of 20 byte(s) in 1 object(s)", com a pilha da alocação.
- *     Ele te mostra a LINHA DO MALLOC que vazou.
+ *  1. Comment out `free(v);` and run. LeakSanitizer prints at the end:
+ *     "Direct leak of 20 byte(s) in 1 object(s)", with the allocation stack.
+ *     It shows you the LINE OF THE MALLOC that leaked.
  *
- *  2. Chame `free(p)` duas vezes. O ASan mata com "attempting double-free"
- *     e mostra as três pilhas: onde alocou, onde liberou, onde tentou de
- *     novo. Sem sanitizer, isso corrompe as estruturas internas do malloc e
- *     quebra bem longe dali.
+ *  2. Call `free(p)` twice. ASan kills it with "attempting double-free" and
+ *     shows three stacks: where it was allocated, where it was freed, and
+ *     where you tried again. Without the sanitizer this corrupts malloc's
+ *     internal structures and breaks somewhere far away.
  *
- *  3. Depois de `free(v)`, leia `v[0]` (tire o NULL do caminho). O ASan diz
- *     "heap-use-after-free". Compare com o passo-14: mesmo bug, outra área
- *     de memória.
+ *  3. After `free(v)`, read `v[0]` (with the NULL out of the way). ASan says
+ *     "heap-use-after-free". Compare with step 14: same bug, different
+ *     region of memory.
  *
- *  4. Erro clássico: escreva `malloc(quantos)` em vez de
- *     `malloc(quantos * sizeof(int))`. Você pediu 5 BYTES e usou 5 INTS =
- *     20 bytes. ASan: "heap-buffer-overflow". Sempre multiplique pelo
- *     sizeof.
+ *  4. The classic mistake: write `malloc(count)` instead of
+ *     `malloc(count * sizeof(int))`. You asked for 5 BYTES and used 5 INTS,
+ *     which is 20 bytes. ASan: "heap-buffer-overflow". Always multiply by
+ *     the sizeof.
  *
- *  5. Devolva um VETOR alocado: `int *criar_vetor(int n)` que faz o malloc,
- *     preenche e retorna. Chame de main, use, dê free em main. Escreva no
- *     comentário da função quem libera.
+ *  5. Return an allocated ARRAY: `int *make_array(int n)` that mallocs,
+ *     fills and returns it. Call it from main, use it, free it in main.
+ *     Write in the function's comment who frees.
  *
- * -> passo-16: structs, o último tijolo antes das threads
+ * -> passo-16: structs, the last brick before threads
  * ========================================================================= */

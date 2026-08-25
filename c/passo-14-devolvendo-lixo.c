@@ -1,157 +1,160 @@
 /* ============================================================================
- * PASSO 14 - ERRADO DE PROPÓSITO. Guardar o endereço de uma variável local.
+ * STEP 14 - WRONG ON PURPOSE. Keeping the address of a local variable.
  *
- * Até aqui você viu ONDE as caixas ficam. Este passo é sobre POR QUANTO
- * TEMPO elas existem. É a ideia que faltava, e é a que mais dá trabalho em
- * programas com threads.
+ * So far you have seen WHERE the boxes are. This step is about HOW LONG they
+ * exist. It is the missing idea, and it is the one that causes the most
+ * trouble in threaded programs.
  *
- *     Ctrl+Shift+B      (ou: make 14)
+ *     Ctrl+Shift+B      (or: make 14)
  *
- * O ASan mata o programa logo na primeira leitura. O experimento 1 mostra o
- * que teria acontecido sem ele - e é aí que o bug fica assustador.
+ * ASan kills the program on the very first read. Experiment 1 shows what
+ * would have happened without it, and that is where the bug gets frightening.
  * ========================================================================= */
 
 #include <stdio.h>
 
-/* Um ponteiro global, pra guardar um endereço entre chamadas. */
-int *guardado;
+/* A global pointer, to keep an address between calls. */
+int *saved;
 
-/* Toda variável local nasce na PILHA (stack) quando a função começa e some
- * quando a função retorna. "Some" não significa apagada: significa que aquele
- * pedaço de memória volta a estar disponível, e a próxima função chamada vai
- * usar o mesmo espaço pras variáveis dela.
+/* Every local variable is born on the STACK when the function starts and
+ * disappears when the function returns. "Disappears" does not mean erased:
+ * it means that stretch of memory becomes available again, and the next
+ * function called will use the same space for its own variables.
  *
- * Guardar &numero é guardar o endereço de uma caixa que está sendo desmontada
- * nesse exato momento. */
-void fabricar_numero(void)
+ * Keeping &number is keeping the address of a box that is being taken apart
+ * at that very moment. */
+void make_number(void)
 {
-    int numero = 42;
+    int number = 42;
 
-    printf("   [fabricar]  numero = %d, mora em %p\n",
-           numero, (void *) &numero);
+    printf("   [make]   number = %d, lives at %p\n",
+           number, (void *) &number);
 
-    guardado = &numero;      /* <- O BUG. Anotamos um endereço que vai expirar
-                              *    daqui a uma linha.
+    saved = &number;         /* <- THE BUG. We noted an address that expires
+                              *    one line from now.
                               *
-                              *    O gcc já reclamou disto no painel:
+                              *    gcc already complained in the panel:
                               *    "storing the address of local variable
-                              *    'numero' in 'guardado' [-Wdangling-pointer]".
-                              *    Ele viu antes de você rodar. */
+                              *    'number' in 'saved' [-Wdangling-pointer]".
+                              *    It saw this before you ran it. */
 }
 
-/* Esta função não tem nada a ver com a de cima. Ela só é chamada depois -
- * e por isso ganha o mesmo pedaço de pilha, com uma variável dela. */
-void outra_funcao(void)
+/* This function has nothing to do with the one above. It is simply called
+ * afterwards, and so it gets the same piece of stack, with a variable of
+ * its own in it. */
+void other_function(void)
 {
-    int outro = 777;
-    printf("   [outra]     outro  = %d, mora em %p\n",
-           outro, (void *) &outro);
+    int other = 777;
+    printf("   [other]  other  = %d, lives at %p\n",
+           other, (void *) &other);
 }
 
 int main(void)
 {
-    fabricar_numero();
+    make_number();
 
-    /* Pode ser que imprima 42. ISSO É O PIOR CASO POSSÍVEL: o valor velho
-     * ainda está lá porque ninguém pisou em cima ainda. O bug fica invisível
-     * até o dia em que alguém pisa. */
-    printf("logo depois:  *guardado = %d\n", *guardado);
+    /* It may well print 42. THAT IS THE WORST POSSIBLE CASE: the old value
+     * is still there because nothing has stepped on it yet. The bug stays
+     * invisible until the day something does. */
+    printf("right after:  *saved = %d\n", *saved);
 
-    outra_funcao();
+    other_function();
 
-    printf("depois de outra função rodar:  *guardado = %d\n", *guardado);
-    printf("^ compare os dois endereços impressos acima. São o MESMO.\n");
+    printf("after another function ran:  *saved = %d\n", *saved);
+    printf("^ compare the two addresses printed above. They are the SAME.\n");
 
     return 0;
 }
 
 /* ============================================================================
- * O QUE ACONTECEU
+ * WHAT HAPPENED
  *
- * A pilha é reaproveitada o tempo todo:
+ * The stack is reused constantly:
  *
- *   1) main chama fabricar_numero. A pilha cresce:
+ *   1) main calls make_number. The stack grows:
  *
- *        [ main ........................ ]
- *        [ fabricar_numero: numero = 42  ]  <- 0x7fff...bf4
+ *        [ main ...................... ]
+ *        [ make_number: number = 42    ]  <- 0x7fff...bf4
  *
- *   2) fabricar_numero retorna. Aquele quadro é abandonado - mas o número
- *      0x7fff...bf4 que anotamos continua sendo um endereço:
+ *   2) make_number returns. That frame is abandoned, but the number
+ *      0x7fff...bf4 we noted down is still an address:
  *
- *        [ main ........................ ]
- *        [ ...disponível, ainda com 42.. ]  <- 0x7fff...bf4
+ *        [ main ...................... ]
+ *        [ ...available, still with 42 ]  <- 0x7fff...bf4
  *
- *   3) main chama outra_funcao, que recebe exatamente o mesmo espaço:
+ *   3) main calls other_function, which gets exactly the same space:
  *
- *        [ main ........................ ]
- *        [ outra_funcao: outro = 777     ]  <- 0x7fff...bf4, agora 777
+ *        [ main ...................... ]
+ *        [ other_function: other = 777 ]  <- 0x7fff...bf4, now 777
  *
- *   4) *guardado lê 0x7fff...bf4 e encontra o que a outra função deixou.
+ *   4) *saved reads 0x7fff...bf4 and finds what the other function left.
  *
- * O ponteiro nunca "soube" que ficou inválido. Um ponteiro é só um número.
- * Ele não tem como saber que a caixa dele foi embora - quem tem que saber é
- * você. O nome disto é DANGLING POINTER (ponteiro pendurado).
+ * The pointer never "knew" it had become invalid. A pointer is just a
+ * number. It has no way to know its box has gone; you are the one who has to
+ * know. The name for this is a DANGLING POINTER.
  *
- * O QUE O ASan DISSE
+ * WHAT ASan SAID
  *
  *     ERROR: AddressSanitizer: stack-use-after-return
  *     READ of size 4 at 0x...
- *         #0 in main passo-14-devolvendo-lixo.c:LINHA
+ *         #0 in main passo-14-devolvendo-lixo.c:LINE
  *     Address is located in stack of thread T0 in frame
- *         #0 in fabricar_numero
+ *         #0 in make_number
  *       This frame has 1 object(s):
- *         [32, 36) 'numero' <== Memory access is inside this variable
+ *         [32, 36) 'number' <== Memory access is inside this variable
  *
- * Leia a parte importante: o endereço que main leu pertence ao QUADRO DE
- * OUTRA FUNÇÃO, uma que já retornou. O ASan guarda esse mapa justamente pra
- * conseguir te dizer isso.
+ * Read the important part: the address main read belongs to ANOTHER
+ * FUNCTION'S FRAME, one that has already returned. ASan keeps that map
+ * precisely so it can tell you this.
  *
- * AS TRÊS DURAÇÕES DE VIDA EM C
+ * THE THREE LIFETIMES IN C
  *
- *   automática (pilha)   int x;            morre no fim do bloco { }
- *   estática             static int x;     vive o programa inteiro
- *   alocada (heap)       malloc            vive até VOCÊ chamar free
+ *   automatic (stack)   int x;            dies at the closing brace
+ *   static              static int x;     lives for the whole program
+ *   allocated (heap)    malloc            lives until YOU call free
  *
- * Precisa que sobreviva ao return? Só as duas últimas servem. Passo-15.
+ * Need it to survive the return? Only the last two will do. Step 15.
  *
- * POR QUE ISSO IMPORTA DEMAIS COM THREADS
+ * WHY THIS MATTERS SO MUCH WITH THREADS
  *
- * Troque "a função retornou" por "a thread ainda está rodando" e é o mesmo
- * bug, muito mais difícil de ver:
+ * Swap "the function returned" for "the thread has not run yet" and it is
+ * the same bug, much harder to see:
  *
  *     for (int i = 0; i < 4; i++)
- *         pthread_create(&t[i], NULL, funcao, &i);   // &i: a caixa de main
+ *         pthread_create(&t[i], NULL, worker, &i);   // &i: main's box
  *
- * A thread vai ler aquele endereço depois, quando main já mudou o `i` - ou
- * já saiu do laço onde ele existia. Este é o erro nº 1 do trabalho de PPD, e
- * você acabou de ver a mecânica dele sem thread nenhuma envolvida.
+ * The thread will read that address later, once main has already changed `i`
+ * or left the loop where it existed. This is the number one mistake in the
+ * PPD assignment, and you have just seen its mechanics with no thread
+ * involved at all.
  *
  * EXPERIMENTE:
  *
- *  1. O MAIS IMPORTANTE DOS EXPERIMENTOS DESTE ARQUIVO. Compile sem
- *     sanitizer, no terminal:
+ *  1. THE MOST IMPORTANT EXPERIMENT IN THIS FILE. Build without the
+ *     sanitizer, in the terminal:
  *
  *         gcc -std=gnu17 -Wall -g passo-14-devolvendo-lixo.c -o /tmp/s14
  *         /tmp/s14
  *
- *     Nada de erro. O programa roda até o fim, imprime 42 e depois 777, e os
- *     dois endereços impressos são idênticos. Um programa em produção faria
- *     isso em silêncio, com o valor errado, por anos.
+ *     No error at all. The program runs to the end, prints 42 and then 777,
+ *     and the two addresses printed are identical. A production program
+ *     would do this silently, with the wrong value, for years.
  *
- *  2. Tente a versão que todo mundo escreve primeiro: transforme em
- *     `int *fabricar_numero(void)` com `return &numero;`. Duas coisas
- *     acontecem, e as duas valem a pena ver:
- *       - o gcc avisa: "function returns address of local variable";
- *       - e ele SUBSTITUI o retorno por NULL, de propósito, pra você bater
- *         de cara. O programa morre com "load of null pointer".
- *     O compilador conhece esse erro tão bem que sabota a sua versão dele.
+ *  2. Try the version everybody writes first: turn it into
+ *     `int *make_number(void)` with `return &number;`. Two things happen,
+ *     and both are worth seeing:
+ *       - gcc warns: "function returns address of local variable";
+ *       - and it REPLACES the return with NULL, deliberately, so you hit the
+ *         wall. The program dies with "load of null pointer".
+ *     The compiler knows this mistake so well that it sabotages your version
+ *     of it.
  *
- *  3. Troque `int numero = 42;` por `static int numero = 42;` e rode.
- *     Funciona, e continua funcionando depois de outra_funcao - a variável
- *     saiu da pilha e foi pra área estática. Agora pense: e se duas threads
- *     chamarem essa função ao mesmo tempo? Elas compartilham a MESMA caixa.
- *     Trocamos um bug por outro. É por isso que a resposta certa é o
- *     passo-15.
+ *  3. Change `int number = 42;` to `static int number = 42;` and run.
+ *     It works, and keeps working after other_function, because the variable
+ *     left the stack for the static area. Now think: what if two threads
+ *     called that function at the same time? They share the SAME box. We
+ *     traded one bug for another, and that is why the right answer is
+ *     step 15.
  *
- * -> passo-15, malloc e free
+ * -> passo-15, malloc and free
  * ========================================================================= */

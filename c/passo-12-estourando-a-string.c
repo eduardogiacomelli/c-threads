@@ -1,12 +1,12 @@
 /* ============================================================================
- * PASSO 12 - ERRADO DE PROPÓSITO. strcpy num destino pequeno demais.
+ * STEP 12 - WRONG ON PURPOSE. strcpy into a destination that is too small.
  *
- * Este é, literalmente, o bug que gerou a maior parte das falhas de
- * segurança da história do software. E ele é só o passo-09 com char.
+ * This is, literally, the bug behind most of the security failures in the
+ * history of software. And it is step 09 with char.
  *
- *     Ctrl+Shift+B      (ou: make 12)
+ *     Ctrl+Shift+B      (or: make 12)
  *
- * O AddressSanitizer mata o programa. Leia o relatório inteiro dele.
+ * AddressSanitizer kills the program. Read its whole report.
  * ========================================================================= */
 
 #include <stdio.h>
@@ -14,100 +14,103 @@
 
 int main(void)
 {
-    /* Espaço para 7 caracteres + o '\0'. */
-    char nome[8];
-    char sobrenome[8] = "Silva";
+    /* Room for 7 characters plus the '\0'. */
+    char first[8];
+    char last[8] = "Silva";
 
-    printf("nome[] tem %zu bytes -> cabem 7 letras + o terminador\n\n",
-           sizeof(nome));
+    printf("first[] is %zu bytes -> 7 letters plus the terminator fit\n\n",
+           sizeof(first));
 
-    /* BUG 1 - strcpy não pergunta o tamanho do destino. NÃO TEM COMO: ela
-     * recebe só dois endereços. Ela copia da origem até achar o '\0', e
-     * escreve tudo isso no destino, doa a quem doer.
+    /* BUG 1 - strcpy does not ask how big the destination is. IT CANNOT: it
+     * receives two addresses and nothing else. It copies from the source
+     * until it finds a '\0' and writes all of that into the destination,
+     * whatever the cost.
      *
-     * "Eduardo Giacomelli" tem 18 caracteres + terminador = 19 bytes.
-     * O destino tem 8. Onde vão os outros 11? Na memória depois de nome[]. */
-    strcpy(nome, "Eduardo Giacomelli");
+     * "Eduardo Giacomelli" is 18 characters plus a terminator, 19 bytes.
+     * The destination holds 8. Where do the other 11 go? Into the memory
+     * after first[]. */
+    strcpy(first, "Eduardo Giacomelli");
 
-    printf("nome      = %s\n", nome);
-    printf("sobrenome = %s   <- olhe bem\n", sobrenome);
+    printf("first = %s\n", first);
+    printf("last  = %s   <- look closely\n", last);
 
-    /* BUG 2 - o mesmo erro por outro caminho: concatenar sem conferir se
-     * cabe. strcat vai até o '\0' do destino e escreve a partir dali. */
-    char pequeno[10] = "12345";
-    strcat(pequeno, "67890abcdef");
-    printf("pequeno   = %s\n", pequeno);
+    /* BUG 2 - the same mistake by another route: concatenating without
+     * checking whether it fits. strcat walks to the destination's '\0' and
+     * starts writing from there. */
+    char small[10] = "12345";
+    strcat(small, "67890abcdef");
+    printf("small = %s\n", small);
 
     return 0;
 }
 
 /* ============================================================================
- * O QUE ACONTECEU
+ * WHAT HAPPENED
  *
- *     char nome[8];          char sobrenome[8] = "Silva";
+ *     char first[8];          char last[8] = "Silva";
  *
- *     antes do strcpy:
+ *     before the strcpy:
  *     0x..00 [?][?][?][?][?][?][?][?]  [S][i][l][v][a][\0][0][0]
- *            \___________ nome _____/  \_________ sobrenome ____/
+ *            \__________ first _____/  \___________ last ______/
  *
- *     strcpy(nome, "Eduardo Giacomelli") escreve 19 bytes a partir de 0x..00:
+ *     strcpy(first, "Eduardo Giacomelli") writes 19 bytes from 0x..00:
  *
  *     0x..00 [E][d][u][a][r][d][o][ ]  [G][i][a][c][o][m][e][l][l][i][\0]
- *            \___________ nome _____/  \___ onde sobrenome morava ____/
- *                                       \-- e ainda passou disso
+ *            \__________ first _____/  \____ where last used to be ____/
+ *                                       \-- and then past even that
  *
- * O `sobrenome` foi sobrescrito por uma variável que não tem relação nenhuma
- * com ele. Nenhuma linha do programa menciona `sobrenome` - e ele mudou.
+ * `last` was overwritten by a variable that has nothing to do with it. No
+ * line in the program mentions `last`, and it changed.
  *
- * Agora imagine que, em vez de `sobrenome`, ali estivesse o endereço de
- * retorno da função. Quem controla o texto de entrada passa a controlar para
- * onde o programa desvia. É esse o mecanismo por trás de "buffer overflow"
- * nas notícias de segurança.
+ * Now imagine that instead of `last`, the function's return address sat
+ * there. Whoever controls the input text then controls where the program
+ * jumps. That is the mechanism behind "buffer overflow" in security news.
  *
- * O RELATÓRIO DO ASan
+ * THE ASan REPORT
  *
  *     ERROR: AddressSanitizer: stack-buffer-overflow
  *     WRITE of size 19 at 0x...
  *         #0 in memcpy
  *         #1 in main passo-12-estourando-a-string.c:30
  *     This frame has 3 object(s):
- *       [32,  40) 'nome' (line 18) <== Memory access at offset 40 overflows
- *                                      this variable
- *       [64,  72) 'sobrenome' (line 19)
- *       [96, 106) 'pequeno' (line 37)
+ *       [32,  40) 'first' (line 18) <== Memory access at offset 40 overflows
+ *                                       this variable
+ *       [64,  72) 'last' (line 19)
+ *       [96, 106) 'small' (line 37)
  *
- * "WRITE of size 19" num objeto de 8 bytes: a conta está toda ali. E repare
- * que o ASan lista as três variáveis da pilha com os limites exatos de cada
- * uma - é assim que você descobre em QUEM você pisou.
+ * "WRITE of size 19" into an 8-byte object: the arithmetic is right there.
+ * And note that ASan lists all three stack variables with their exact
+ * bounds, which is how you find out WHO you stepped on.
  *
- * (O strcpy virou memcpy no relatório: o gcc troca por uma versão otimizada
- * quando conhece o tamanho. É a mesma linha 30 do seu código.)
+ * (strcpy became memcpy in the report: gcc swaps in an optimised version
+ * when it knows the length. It is still your line 30.)
  *
- * A REGRA
+ * THE RULE
  *
- *   Nunca use strcpy, strcat ou sprintf com dado de tamanho que você não
- *   controla. Existem versões que recebem o tamanho do destino - passo-13.
+ *   Never use strcpy, strcat or sprintf with data whose size you do not
+ *   control. There are versions that take the destination size: step 13.
  *
  * EXPERIMENTE:
  *
- *  1. Comente o strcpy e rode só o strcat. Mesmo tipo de erro, outra função.
- *     O ASan aponta o strcat.
+ *  1. Comment out the strcpy and run only the strcat. Same kind of error,
+ *     different function. ASan points at strcat.
  *
- *  2. Aumente nome para char nome[64] e rode. Passa limpo. Note o incômodo:
- *     o programa está "certo" só porque o nome coube desta vez. Bug de
- *     tamanho é sempre bug de "e se o dado for maior?".
+ *  2. Enlarge it to char first[64] and run. It passes clean. Notice the
+ *     discomfort: the program is "correct" only because the name happened to
+ *     fit this time. A size bug is always a "what if the data is bigger?"
+ *     bug.
  *
- *  3. Rode sem sanitizer e compare:
+ *  3. Run it without the sanitizer and compare:
  *
  *         gcc -std=gnu17 -Wall -g passo-12-estourando-a-string.c -o /tmp/s12
  *         /tmp/s12
  *
- *     Pode imprimir tudo "normalmente", com sobrenome corrompido - ou
- *     quebrar. Depende do humor do compilador naquele dia.
+ *     It may print everything "normally" with `last` corrupted, or it may
+ *     crash. It depends on the compiler's mood that day.
  *
- *  4. Copie exatamente 7 letras ("Eduardo") pro nome[8]. Cabe, com o
- *     terminador no oitavo byte. Agora tente 8 letras. Um byte a mais, e o
- *     ASan pega. Essa é a margem com que você trabalha em C.
+ *  4. Copy exactly 7 letters ("Eduardo") into first[8]. It fits, with the
+ *     terminator in the eighth byte. Now try 8 letters. One byte more, and
+ *     ASan catches it. That is the margin you work with in C.
  *
- * -> passo-13, o jeito certo
+ * -> passo-13, the right way
  * ========================================================================= */

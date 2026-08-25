@@ -1,12 +1,13 @@
 /* ============================================================================
- * PASSO 3 - ERRADO DE PROPÓSITO. Contas com tipos misturados.
+ * STEP 3 - WRONG ON PURPOSE. Arithmetic with mixed types.
  *
- * Rode ANTES de ler a explicação. Olhe a saída errada com os próprios olhos,
- * e repare que o gcc te avisou (leia o painel de problemas do VS Code).
+ * Run it BEFORE reading the explanation. Look at the wrong output with your
+ * own eyes, and notice that gcc warned you (check the problems panel).
  *
- *     Ctrl+Shift+B      (ou: make 03)
+ *     Ctrl+Shift+B      (or: make 03)
  *
- * Este programa COMPILA e RODA. C deixa. É por isso que o erro é perigoso.
+ * This program COMPILES and RUNS. C allows it. That is what makes the bug
+ * dangerous.
  * ========================================================================= */
 
 #include <stdio.h>
@@ -14,89 +15,89 @@
 int main(void)
 {
     int total = 7;
-    int gente = 2;
+    int people = 2;
 
-    /* BUG 1 - divisão entre dois int é divisão INTEIRA.
-     * Não existe 3.5 aqui: o resultado é 3, e o 0.5 é jogado fora ANTES de
-     * chegar no double. Declarar o destino como double não salva nada - a
-     * conta já aconteceu. */
-    double media = total / gente;
-    printf("média de %d entre %d pessoas: %f\n", total, gente, media);
+    /* BUG 1 - dividing two ints is INTEGER division.
+     * There is no 3.5 here: the result is 3, and the 0.5 is thrown away
+     * BEFORE it ever reaches a double. Declaring the destination as double
+     * saves nothing, because the arithmetic already happened. */
+    double average = total / people;
+    printf("average of %d across %d people: %f\n", total, people, average);
 
-    /* BUG 2 - printf não sabe os tipos do que você passou. Ele CONFIA no
-     * molde: %d significa "vá buscar um int no lugar onde ints são
-     * entregues". Você entregou um double, que viaja por outro caminho.
-     * printf pega o que estiver naquele lugar, e imprime. */
-    double preco = 19.9;
-    printf("preço com %%d: %d      <- lixo\n", preco);
+    /* BUG 2 - printf does not know the types of what you passed. It TRUSTS
+     * the template: %d means "go and fetch an int from the place ints are
+     * delivered". You delivered a double, which travels by another route.
+     * printf takes whatever is sitting in that place and prints it. */
+    double price = 19.9;
+    printf("price with %%d: %d      <- garbage\n", price);
 
-    /* BUG 3 - o contrário: %f vai buscar um double, e você entregou um int.
-     * Olhe bem o número que sai. Ele não é aleatório: é o `preco` da linha
-     * de cima, que ficou parado no lugar de onde %f lê. A explicação está
-     * no rodapé, e é mais interessante que "deu lixo". */
-    int quantidade = 3;
-    printf("quantidade com %%f: %f  <- lixo\n", quantidade);
+    /* BUG 3 - the reverse: %f fetches a double, and you handed over an int.
+     * Look closely at the number that comes out. It is not random: it is the
+     * `price` from the line above, still sitting where %f reads from. The
+     * footer explains it, and it is more interesting than "got garbage". */
+    int quantity = 3;
+    printf("quantity with %%f: %f  <- garbage\n", quantity);
 
-    /* BUG 4 - o mesmo BUG 1 escondido dentro de uma expressão maior.
-     * (9/5) vira 1, não 1.8. A fórmula está certa; a aritmética, não. */
+    /* BUG 4 - the same as BUG 1, hidden inside a larger expression.
+     * (9/5) becomes 1, not 1.8. The formula is right; the arithmetic is not. */
     int celsius = 100;
     double fahrenheit = celsius * (9 / 5) + 32;
-    printf("\n100 °C em °F: %.1f   (o certo é 212.0)\n", fahrenheit);
+    printf("\n100 C in F: %.1f   (should be 212.0)\n", fahrenheit);
 
     return 0;
 }
 
 /* ============================================================================
- * O QUE ACONTECEU
+ * WHAT HAPPENED
  *
- * Duas regras, e as quatro linhas erradas saem delas:
+ * Two rules, and all four wrong lines follow from them:
  *
- * 1. O TIPO DO RESULTADO VEM DOS OPERANDOS, NÃO DO DESTINO.
+ * 1. THE TYPE OF THE RESULT COMES FROM THE OPERANDS, NOT THE DESTINATION.
  *
- *        int / int  ->  int      (7/2 = 3, o resto some)
+ *        int / int  ->  int      (7/2 is 3, the remainder disappears)
  *
- *    O compilador calcula 3 e só DEPOIS converte pra double, virando 3.0.
- *    A parte fracionária nunca existiu.
+ *    The compiler computes 3 and only THEN converts it to double, giving
+ *    3.0. The fractional part never existed.
  *
- * 2. printf NÃO SABE O QUE VOCÊ PASSOU.
+ * 2. printf DOES NOT KNOW WHAT YOU PASSED.
  *
- *    Os argumentos chegam sem etiqueta nenhuma. O molde é a única instrução
- *    de onde buscá-los e como lê-los. E aqui entra um detalhe da máquina que
- *    explica a saída esquisita: no x86-64, inteiros e ponto flutuante viajam
- *    por CAMINHOS DIFERENTES - registradores separados.
+ *    The arguments arrive with no labels at all. The template is the only
+ *    instruction for where to fetch them and how to read them. And here a
+ *    machine detail explains the strange output: on x86-64, integers and
+ *    floating point travel by DIFFERENT ROUTES, in separate registers.
  *
- *        entregas de inteiro:        [ ? ][ ? ]        <- %d lê daqui
- *        entregas de ponto flutuante:[ 19.9 ]          <- %f lê daqui
+ *        integer deliveries:        [ ? ][ ? ]        <- %d reads here
+ *        floating point deliveries: [ 19.9 ]          <- %f reads here
  *
- *    No BUG 2 você entregou 19.9 pelo caminho do ponto flutuante e mandou o
- *    %d ler pelo caminho dos inteiros: ele leu o que estava sobrando ali -
- *    aquele número grande sem sentido.
+ *    In BUG 2 you delivered 19.9 by the floating point route and told %d to
+ *    read from the integer route: it read whatever was left over there, which
+ *    is that large meaningless number.
  *
- *    No BUG 3 você entregou um int e mandou o %f ler pelo caminho do ponto
- *    flutuante: ele encontrou o 19.9 que ainda estava lá do printf anterior.
- *    Por isso a quantidade "3" saiu como 19.900000.
+ *    In BUG 3 you delivered an int and told %f to read the floating point
+ *    route: it found the 19.9 still sitting there from the previous printf.
+ *    That is why a quantity of "3" printed as 19.900000.
  *
- *    Não é aleatório e não é um número corrompido. É o valor errado, lido do
- *    lugar errado, de um jeito perfeitamente determinístico - e é por isso
- *    que esse bug engana: ele parece estável.
+ *    Not random, not a corrupted number. The wrong value, read from the wrong
+ *    place, perfectly deterministically, which is exactly why this bug fools
+ *    people: it looks stable.
  *
- * O gcc AVISOU nos dois casos de printf (-Wformat, ligado pelo -Wall).
- * Em C, warning não é ruído: é o compilador vendo o bug antes de você.
+ * gcc WARNED about both printf cases (-Wformat, switched on by -Wall).
+ * In C a warning is not noise: it is the compiler seeing the bug first.
  *
  * EXPERIMENTE:
  *
- *  1. Leia a saída do compilador no painel de baixo. Ache as duas linhas
+ *  1. Read the compiler output in the panel below. Find the two lines saying
  *     "format '%d' expects argument of type 'int', but argument 2 has type
- *     'double'". Ele te disse exatamente onde.
+ *     'double'". It told you exactly where.
  *
- *  2. Rode duas vezes. A saída é a MESMA, e o 19.900000 do BUG 3 continua
- *     ali. Agora inverta a ordem: ponha o printf do BUG 3 ANTES do BUG 2.
- *     O número muda, porque agora não tem mais um double "recém-entregue"
- *     pro %f encontrar. O bug depende do código vizinho.
+ *  2. Run it twice. The output is the SAME, and BUG 3's 19.900000 is still
+ *     there. Now swap the order: put BUG 3's printf BEFORE BUG 2's. The
+ *     number changes, because there is no longer a freshly delivered double
+ *     for %f to find. The bug depends on the code around it.
  *
- *  3. Troque `int gente = 2;` por `double gente = 2;` e rode. A média
- *     conserta sozinha. Por quê? Porque agora um dos operandos é double, e
- *     C promove o outro antes de dividir. Essa é a chave do passo-04.
+ *  3. Change `int people = 2;` to `double people = 2;` and run. The average
+ *     fixes itself. Why? Because now one operand is a double, and C promotes
+ *     the other before dividing. That is the key to step 04.
  *
- * -> passo-04, a correção
+ * -> passo-04, the fix
  * ========================================================================= */

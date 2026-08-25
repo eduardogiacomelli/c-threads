@@ -1,121 +1,126 @@
 /* ============================================================================
- * PASSO 19 - quando um arquivo só não basta: header + implementação.
+ * STEP 19 - when one file is not enough: header plus implementation.
  *
- * Este passo tem TRÊS arquivos: contas.h, contas.c e este aqui.
+ * This step has THREE files: contas.h, contas.c and this one.
  *
  *     make 19
  *
- * ATENÇÃO: o Ctrl+Shift+B NÃO funciona aqui, e o erro que ele dá é o
- * conteúdo da aula. Aperte assim mesmo, leia o erro, e depois volte.
+ * NOTE: Ctrl+Shift+B does NOT work here, and the error it gives is the point
+ * of the lesson. Press it anyway, read the error, then come back.
  * ========================================================================= */
 
 #include <stdio.h>
-#include "contas.h"     /* aspas = arquivo meu; < > = do sistema */
+#include "contas.h"     /* quotes = my file; < > = the system's */
 
 int main(void)
 {
-    /* Este arquivo NÃO sabe como soma_ate funciona. Ele só viu a assinatura
-     * no header: recebe int, devolve long. É o suficiente pra compilar.
+    /* This file does NOT know how sum_to works. It has only seen the
+     * signature in the header: takes an int, returns a long. That is enough
+     * to compile.
      *
-     * Essa é a ideia toda: separar "o que dá pra usar" de "como está feito".
-     * Você faz isso desde sempre com printf - nunca leu o código dele. */
-    printf("soma_ate(10)   = %ld\n", soma_ate(10));
-    printf("soma_ate(100)  = %ld\n", soma_ate(100));
-    printf("eh_par(7)      = %d\n",  eh_par(7));
+     * That is the whole idea: separate "what you can use" from "how it is
+     * built". You have been doing it with printf all along, without ever
+     * reading its source. */
+    printf("sum_to(10)   = %ld\n", sum_to(10));
+    printf("sum_to(100)  = %ld\n", sum_to(100));
+    printf("is_even(7)   = %d\n",  is_even(7));
 
-    /* O estado privado do módulo, acessível só pela função que ele expõe. */
-    printf("\nsoma_ate foi chamada %d vezes\n", quantas_chamadas());
+    /* The module's private state, reachable only through the function it
+     * chooses to expose. */
+    printf("\nsum_to has been called %d times\n", call_count());
 
-    /* Tente `chamadas++` aqui. Não compila: aquela variável é `static` no
-     * contas.c, então este arquivo nem sabe que ela existe. */
+    /* Try `calls++` here. It does not compile: that variable is `static` in
+     * contas.c, so this file does not even know it exists. */
 
     return 0;
 }
 
 /* ============================================================================
- * AS DUAS ETAPAS, AGORA VISÍVEIS
+ * THE TWO STAGES, NOW VISIBLE
  *
- * No passo-01 eu disse que compilar tem etapas separadas. Com um arquivo só
- * isso é invisível. Com dois, não:
+ * Step 01 said compiling has separate stages. With one file that is
+ * invisible. With two it is not:
  *
- *     COMPILAR (cada .c vira um .o, separadamente e sem saber do outro)
+ *     COMPILE (each .c becomes a .o, separately, knowing nothing of the other)
  *
  *       passo-19-varios-arquivos.c --> passo-19.o
- *          "existe soma_ate, devolve long. Vou anotar uma chamada pendente
- *           pra ela e deixar o endereço em branco."
+ *          "there is a sum_to, it returns long. I will note a pending call
+ *           to it and leave the address blank."
  *
  *       contas.c --> contas.o
- *          "aqui está o código de soma_ate, neste offset."
+ *          "here is the code for sum_to, at this offset."
  *
- *     LINKAR (junta os .o e resolve os pendentes)
+ *     LINK (join the .o files and resolve every pending reference)
  *
- *       passo-19.o + contas.o --> executável
- *          "a chamada pendente aponta pro código que veio do contas.o."
+ *       passo-19.o + contas.o --> executable
+ *          "the pending call points at the code that came from contas.o."
  *
- * Daí os dois erros mais confusos do C, que agora têm endereço certo:
+ * Hence the two most confusing errors in C, which now have addresses:
  *
- *   "implicit declaration of function 'soma_ate'"
- *        -> erro de COMPILAÇÃO. Faltou o #include: este arquivo nunca viu a
- *           assinatura.
+ *   "implicit declaration of function 'sum_to'"
+ *        -> a COMPILE error. The #include is missing: this file never saw
+ *           the signature.
  *
- *   "undefined reference to 'soma_ate'"
- *        -> erro de LINKAGEM. A assinatura ele viu; o código não. Você
- *           esqueceu de passar contas.c (ou contas.o) no comando.
+ *   "undefined reference to 'sum_to'"
+ *        -> a LINK error. It saw the signature; it never got the code. You
+ *           forgot to pass contas.c (or contas.o) on the command line.
  *
- * Decore a diferença. "undefined reference" nunca se resolve com #include.
+ * Memorise the difference. "undefined reference" is never fixed by an
+ * #include. Step 28 runs all four stages by hand, and step 31 shows the
+ * symbol table the linker is actually consulting.
  *
- * NA MÃO, PRA VER ACONTECENDO
+ * BY HAND, TO SEE IT HAPPEN
  *
- *     # os dois de uma vez (o que o make faz):
+ *     # both at once (what make does):
  *     gcc -std=gnu17 -Wall -Wextra -g passo-19-varios-arquivos.c contas.c -o prog
  *
- *     # ou em duas etapas, que é o que projetos de verdade fazem:
- *     gcc -c contas.c                     # -c = só compile, não linke
+ *     # or in two stages, which is what real projects do:
+ *     gcc -c contas.c                     # -c = compile only, do not link
  *     gcc -c passo-19-varios-arquivos.c
  *     gcc passo-19-varios-arquivos.o contas.o -o prog
  *
- * A vantagem da segunda: mudou só um .c, recompila só ele. É pra isso que
- * existe o Makefile.
+ * The advantage of the second: change one .c and only that one is
+ * recompiled. That is what a Makefile is for.
  *
- * E COM PTHREADS
+ * AND WITH PTHREADS
  *
- *     gcc ... programa.c -o programa -pthread
+ *     gcc ... program.c -o program -pthread
  *
- * A flag `-pthread` (sem o "l") faz as duas coisas: liga a biblioteca no
- * linker e ajusta o compilador. Esquecer dela dá exatamente
- * "undefined reference to 'pthread_create'" - que agora você sabe ler: a
- * declaração veio do #include <pthread.h>, o código não veio de lugar nenhum.
+ * The `-pthread` flag (no "l") does both jobs: it links the library and
+ * adjusts the compiler. Forgetting it gives exactly
+ * "undefined reference to 'pthread_create'", which you can now read: the
+ * declaration came from #include <pthread.h>, the code came from nowhere.
  *
- * QUANDO SEPARAR EM ARQUIVOS
+ * WHEN TO SPLIT INTO FILES
  *
- * Nos exercícios da lista de pthreads, quase nunca: um programa de 120 linhas
- * cabe num arquivo só, e o professor pediu um programa, não uma biblioteca.
- * Vale a pena quando você tem uma função que quer reaproveitar em vários
- * exercícios - a de medir tempo, por exemplo, que aparece no 7 e nos dois
- * desafios.
+ * For the pthreads exercises, almost never: a 120-line program fits in one
+ * file, and the professor asked for a program, not a library. It pays off
+ * when you have a function you want to reuse across several exercises, such
+ * as the timing helper, which turns up in Exercise 7 and in both challenges.
  *
- * O que você precisa daqui, mesmo, é saber LER os erros de linkagem. Eles vão
- * aparecer.
+ * What you really need from this step is the ability to READ link errors.
+ * They will happen.
  *
  * EXPERIMENTE:
  *
- *  1. Aperte Ctrl+Shift+B neste arquivo. Ele compila só ${file} e você recebe
- *     "undefined reference to `soma_ate'". Confirme no painel que o erro é do
- *     linker (a mensagem vem do `ld` ou do `collect2`), não do compilador.
+ *  1. Press Ctrl+Shift+B on this file. It compiles only ${file} and you get
+ *     "undefined reference to `sum_to'". Confirm in the panel that the error
+ *     comes from the linker (the message mentions `ld` or `collect2`), not
+ *     the compiler.
  *
- *  2. Apague o `#include "contas.h"` e rode `make 19`. Agora é o outro erro:
- *     "implicit declaration". Os dois erros, o mesmo programa, causas
- *     opostas.
+ *  2. Delete the `#include "contas.h"` and run `make 19`. Now it is the
+ *     other error: "implicit declaration". Two errors, one program,
+ *     opposite causes.
  *
- *  3. Tire as guardas (#ifndef/#define/#endif) do contas.h e inclua o header
- *     duas vezes seguidas neste arquivo. Com só declarações de função o gcc
- *     tolera; agora ponha um `typedef struct { int x; } Ponto;` no header e
- *     repita: "redefinition of 'Ponto'". É pra isso que a guarda existe.
+ *  3. Remove the guards (#ifndef/#define/#endif) from contas.h and include
+ *     the header twice in a row in this file. With only function
+ *     declarations gcc tolerates it; now add a `typedef struct { int x; }
+ *     Point;` to the header and try again: "redefinition of 'Point'". That
+ *     is what the guard is for.
  *
- *  4. Mude o tipo de retorno de soma_ate no contas.c (de long pra int) e
- *     deixe o header como está. `make 19` acusa o conflito, porque contas.c
- *     inclui o próprio header. Foi por isso que ele o incluiu.
+ *  4. Change sum_to's return type in contas.c (long to int) and leave the
+ *     header alone. `make 19` reports the conflict, because contas.c
+ *     includes its own header. That is why it includes it.
  *
- * -> Fim dos fundamentos. Volte ao "00 - COMECE AQUI.md" e siga pra lista de
- *    pthreads.
+ * -> passo-20, and from there the second block
  * ========================================================================= */

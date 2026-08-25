@@ -80,8 +80,9 @@ serve para olhar antes e depois.
 
 ## Bloco 2 - o C que o PPD pede
 
-Daqui em diante os comentários estão **em inglês** (os passos 01–19 estão em
-português; peça se quiser que eu traduza para o conjunto ficar uniforme).
+Os comentários de **todos** os passos estão em inglês (01 a 19 foram
+traduzidos em 21/08/2026). Só este índice e o [[memoria]] seguem em
+português.
 
 | Passo | Ideia | |
 |---|---|---|

@@ -1,8 +1,8 @@
 /* ============================================================================
- * PASSO 18 - a correção do passo-17: strtol e strtod, que sabem falhar.
+ * STEP 18 - the fix for step 17: strtol and strtod, which can report failure.
  *
- * O Desafio 2 pede explicitamente "teste de consistência da entrada
- * fornecida". Isto aqui é esse teste.
+ * Challenge 2 asks explicitly for a "consistency test of the input
+ * provided". This is that test.
  *
  *     make 18 ARGS="1e9 4"
  *     ./passo-18-validando-a-entrada abc 4
@@ -13,147 +13,148 @@
 #include <stdio.h>
 #include <stdlib.h>     /* strtol, strtod */
 #include <errno.h>      /* errno, ERANGE  */
-#include <limits.h>     /* LONG_MAX       */
+#include <limits.h>     /* INT_MAX        */
 
-/* A diferença entre atoi e strtol é que strtol tem COMO te contar o que
- * aconteceu, por dois canais:
+/* The difference between atoi and strtol is that strtol HAS a way to tell
+ * you what happened, through two channels:
  *
- *   - `fim`, um ponteiro que ela faz apontar pro primeiro caractere que ela
- *     NÃO conseguiu ler. Se ele aponta pro '\0', ela leu a string inteira;
- *     se aponta pro começo, ela não leu nada;
- *   - `errno`, uma variável global do sistema, que vira ERANGE se o número
- *     não coube no tipo.
+ *   - `end`, a pointer it makes point at the first character it could NOT
+ *     read. If it points at the '\0', it read the whole string; if it points
+ *     at the start, it read nothing;
+ *   - `errno`, a system variable that becomes ERANGE if the number did not
+ *     fit in the type.
  *
- * Por isso ela recebe `char **fim`: é o passo-07 (a função precisa escrever
- * numa variável sua), só que a variável é um ponteiro. Você passa o endereço
- * de um `char *`, e ela escreve lá dentro.
+ * That is why it takes a `char **end`: it is step 07 (a function needs to
+ * write into a variable of yours), except the variable is itself a pointer.
+ * You pass the address of a `char *`, and it writes in there.
  *
- * Esta função devolve 1 se deu certo e 0 se não deu, escrevendo o resultado
- * em *destino - mesmo padrão. */
-int ler_inteiro_positivo(const char *texto, long *destino)
+ * This function returns 1 on success and 0 on failure, writing the result
+ * through *out. Same pattern, and step 35 says more about why. */
+int read_positive_int(const char *text, long *out)
 {
-    char *fim;
+    char *end;
 
-    errno = 0;                                  /* zere ANTES de chamar */
-    long valor = strtol(texto, &fim, 10);       /* 10 = base decimal */
+    errno = 0;                                /* zero it BEFORE the call */
+    long value = strtol(text, &end, 10);      /* 10 = base ten */
 
-    if (fim == texto)                return 0;  /* não leu nada: "abc" */
-    if (*fim != '\0')                return 0;  /* sobrou lixo: "12abc" */
-    if (errno == ERANGE)             return 0;  /* não coube num long */
-    if (valor <= 0)                  return 0;  /* a regra do enunciado */
-    if (valor > INT_MAX)             return 0;  /* vai virar int depois? */
+    if (end == text)        return 0;   /* read nothing at all: "abc"   */
+    if (*end != '\0')       return 0;   /* trailing junk: "12abc"       */
+    if (errno == ERANGE)    return 0;   /* did not fit in a long        */
+    if (value <= 0)         return 0;   /* the assignment's own rule    */
+    if (value > INT_MAX)    return 0;   /* will it become an int later? */
 
-    *destino = valor;
+    *out = value;
     return 1;
 }
 
-/* Mesma ideia, mas com strtod, que entende notação científica - o "1e9" que
- * o Desafio 1 exige. strtod devolve double; converta pra long depois. */
-int ler_iteracoes(const char *texto, long *destino)
+/* Same idea with strtod, which understands scientific notation: the "1e9"
+ * Challenge 1 requires. strtod returns a double; convert afterwards. */
+int read_iterations(const char *text, long *out)
 {
-    char *fim;
+    char *end;
 
     errno = 0;
-    double valor = strtod(texto, &fim);
+    double value = strtod(text, &end);
 
-    if (fim == texto)      return 0;
-    if (*fim != '\0')      return 0;
-    if (errno == ERANGE)   return 0;
-    if (valor < 1.0)       return 0;
+    if (end == text)      return 0;
+    if (*end != '\0')     return 0;
+    if (errno == ERANGE)  return 0;
+    if (value < 1.0)      return 0;
 
-    *destino = (long) valor;    /* 1e9 -> 1000000000 */
+    *out = (long) value;      /* 1e9 -> 1000000000 */
     return 1;
 }
 
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
-        fprintf(stderr, "uso: %s <iteracoes> <threads>\n", argv[0]);
-        fprintf(stderr, "  iteracoes: inteiro ou notação científica (1e9)\n");
-        fprintf(stderr, "  threads:   inteiro positivo\n");
+        fprintf(stderr, "usage: %s <iterations> <threads>\n", argv[0]);
+        fprintf(stderr, "  iterations: an integer, or scientific notation (1e9)\n");
+        fprintf(stderr, "  threads:    a positive integer\n");
         return 1;
     }
 
-    long iteracoes;
+    long iterations;
     long threads;
 
-    /* Valide CADA argumento separadamente, com uma mensagem que diz qual
-     * deles está errado e o que veio. "entrada inválida" sozinho é inútil
-     * pra quem está usando o programa - inclusive pra você, testando. */
-    if (!ler_iteracoes(argv[1], &iteracoes)) {
-        fprintf(stderr, "erro: iteracoes inválido: \"%s\"\n", argv[1]);
+    /* Validate EACH argument separately, with a message that says which one
+     * is wrong and what arrived. A bare "invalid input" is useless to whoever
+     * is running the program, including you while testing. */
+    if (!read_iterations(argv[1], &iterations)) {
+        fprintf(stderr, "error: invalid iterations: \"%s\"\n", argv[1]);
         return 1;
     }
-    if (!ler_inteiro_positivo(argv[2], &threads)) {
-        fprintf(stderr, "erro: threads inválido: \"%s\"\n", argv[2]);
-        return 1;
-    }
-
-    /* Regras que dependem dos dois valores juntos vêm depois de ambos
-     * validados. Aqui entra o tipo de pergunta que o Exercício 7 faz:
-     * mais threads que trabalho faz sentido? */
-    if (threads > iteracoes) {
-        fprintf(stderr, "erro: %ld threads para %ld iterações não faz sentido\n",
-                threads, iteracoes);
+    if (!read_positive_int(argv[2], &threads)) {
+        fprintf(stderr, "error: invalid threads: \"%s\"\n", argv[2]);
         return 1;
     }
 
-    printf("ok: %ld iterações, %ld threads\n", iteracoes, threads);
-    printf("cada thread pega %ld, e sobram %ld\n",
-           iteracoes / threads, iteracoes % threads);
+    /* Rules that depend on both values come after both are valid. This is
+     * where the question Exercise 7 asks belongs: does having more threads
+     * than work make any sense? */
+    if (threads > iterations) {
+        fprintf(stderr, "error: %ld threads for %ld iterations makes no sense\n",
+                threads, iterations);
+        return 1;
+    }
 
-    /* Esse resto é o detalhe que o Desafio 2 avisa em letras miúdas:
-     * "lembre-se de tratar casos onde a divisão do worksize pelo número de
-     * threads não seja exata". Rode com 10 e 3 e olhe o que sobra. */
+    printf("ok: %ld iterations, %ld threads\n", iterations, threads);
+    printf("each thread takes %ld, and %ld are left over\n",
+           iterations / threads, iterations % threads);
+
+    /* That leftover is the detail Challenge 2 warns about in small print:
+     * "remember to handle the case where the worksize does not divide
+     * evenly by the number of threads". Run it with 10 and 3 and look. */
 
     return 0;
 }
 
 /* ============================================================================
- * O PADRÃO, EM TRÊS LINHAS
+ * THE PATTERN, IN THREE LINES
  *
  *     errno = 0;
- *     long v = strtol(texto, &fim, 10);
- *     deu certo = (fim != texto) && (*fim == '\0') && (errno != ERANGE);
+ *     long v = strtol(text, &end, 10);
+ *     ok = (end != text) && (*end == '\0') && (errno != ERANGE);
  *
- * O `&fim` é o passo-07 aplicado a um ponteiro:
+ * The `&end` is step 07 applied to a pointer:
  *
  *     "1e9\0"
  *      ^   ^
- *      |   +-- se `fim` parar aqui (no \0), leu tudo
- *      +------ se `fim` ficar aqui (no começo), não leu nada
+ *      |   +-- if `end` stops here (at the \0), it read everything
+ *      +------ if `end` stays here (at the start), it read nothing
  *
- * Com strtol, "1e9" para no 'e' -> `*fim` é 'e' -> rejeitado, e você fica
- * sabendo. Com atoi, o mesmo caso vira 1 em silêncio. A diferença entre as
- * duas não é a conversão: é o relatório.
+ * With strtol, "1e9" stops at the 'e', so `*end` is 'e', so it is rejected
+ * and you know about it. With atoi the same input silently becomes 1. The
+ * difference between the two is not the conversion, it is the report.
  *
- * O CHECKLIST DE VALIDAÇÃO QUE OS ENUNCIADOS PEDEM
+ * THE VALIDATION CHECKLIST THE ASSIGNMENTS ASK FOR
  *
- *   [ ] argc é o que você espera (lembre do argv[0])
- *   [ ] cada argumento converteu inteiro, sem sobra
- *   [ ] não estourou o tipo (ERANGE)
- *   [ ] respeita a regra do enunciado (positivo, != 0)
- *   [ ] as combinações fazem sentido (M > N? threads = 0?)
- *   [ ] mensagem em stderr dizendo QUAL argumento e COMO usar
- *   [ ] return != 0
+ *   [ ] argc is what you expect (remember argv[0])
+ *   [ ] each argument converted completely, with nothing left over
+ *   [ ] it did not overflow the type (ERANGE)
+ *   [ ] it respects the assignment's rule (positive, non-zero)
+ *   [ ] the combination makes sense (M > N? threads = 0?)
+ *   [ ] a message on stderr saying WHICH argument and HOW to use it
+ *   [ ] a non-zero return
  *
  * EXPERIMENTE:
  *
- *  1. Rode os quatro casos do cabeçalho e leia cada mensagem. Depois rode
- *     `./passo-18-validando-a-entrada 10 3` e olhe o resto da divisão: 1
- *     elemento sem dono. Quem processa esse? Guarde a pergunta - ela volta
- *     no Exercício 6, no 7 e no Desafio 2.
+ *  1. Run the four cases from the header and read each message. Then run
+ *     `./passo-18-validando-a-entrada 10 3` and look at the remainder: one
+ *     element with no owner. Who processes it? Keep the question; it comes
+ *     back in Exercise 6, Exercise 7 and Challenge 2.
  *
- *  2. Tire o `errno = 0;` e rode com um número gigante duas vezes seguidas.
- *     errno é global e ninguém zera pra você: ele guarda o erro da última
- *     função que falhou, possivelmente de outro lugar do programa.
+ *  2. Remove the `errno = 0;` and run with a huge number twice in a row.
+ *     errno is not cleared for you: it holds the error from the last
+ *     function that failed, possibly from somewhere else entirely. Step 35
+ *     is the whole story.
  *
- *  3. Troque a base de strtol pra 16 e passe "ff". Dá 255. A base é
- *     parâmetro; base 0 faz ela adivinhar pelo prefixo (0x, 0).
+ *  3. Change strtol's base to 16 and pass "ff". You get 255. The base is a
+ *     parameter, and base 0 makes it guess from the prefix (0x, 0).
  *
- *  4. Escreva a validação como o enunciado do Desafio 2 pede - threads e
- *     worksizetotal - e teste com entrada vazia, negativa, zero, texto e
- *     um número absurdo. São cinco testes de 10 segundos que salvam a nota.
+ *  4. Write the validation Challenge 2 asks for, threads and worksizetotal,
+ *     and test it with empty input, negative, zero, text and an absurd
+ *     number. Five ten-second tests that protect the grade.
  *
- * -> passo-19: quando um arquivo só não basta
+ * -> passo-19: when one file is not enough
  * ========================================================================= */

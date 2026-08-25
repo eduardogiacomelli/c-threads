@@ -1,165 +1,169 @@
 /* ============================================================================
- * PASSO 16 - struct: várias caixas com um nome só.
+ * STEP 16 - struct: several boxes under one name.
  *
- * Este é o último passo antes das threads, e não é coincidência: a única
- * maneira de passar mais de um dado pra uma thread é enfiar tudo numa struct
- * e passar o endereço dela.
+ * This is the last step before threads, and that is no coincidence: the only
+ * way to pass more than one piece of data to a thread is to put it all in a
+ * struct and pass the address of that.
  *
- *     Ctrl+Shift+B      (ou: make 16)
+ *     Ctrl+Shift+B      (or: make 16)
  * ========================================================================= */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-/* Uma struct é uma RECEITA de layout de memória: estes campos, nesta ordem,
- * grudados. Declarada fora de qualquer função, fica visível ao arquivo todo.
+/* A struct is a RECIPE for a memory layout: these fields, in this order,
+ * glued together. Declared outside any function, it is visible to the whole
+ * file.
  *
- * `typedef` no começo é o que permite escrever `Aluno x` depois em vez de
- * `struct Aluno x`. É costume, não obrigação. */
+ * The `typedef` is what lets you write `Student x` later instead of
+ * `struct Student x`. Convention, not obligation. */
 typedef struct {
-    char   nome[20];
-    int    idade;
-    double nota;
-} Aluno;
+    char   name[20];
+    int    age;
+    double grade;
+} Student;
 
-/* POR VALOR: recebe uma CÓPIA da struct inteira - todos os 36 bytes.
- * Funciona, e é seguro (não altera o original), mas copia tudo a cada
- * chamada. Para ler, com struct pequena, tudo bem. */
-void mostrar(Aluno a)
+/* BY VALUE: receives a COPY of the whole struct, all 32 bytes. It works, and
+ * it is safe (the original cannot be changed), but it copies everything on
+ * every call. For reading a small struct, that is fine. */
+void show(Student s)
 {
-    /* ponto, porque `a` é uma struct, não um ponteiro */
-    printf("   %s, %d anos, nota %.1f\n", a.nome, a.idade, a.nota);
+    /* a dot, because `s` is a struct, not a pointer */
+    printf("   %s, %d years old, grade %.1f\n", s.name, s.age, s.grade);
 }
 
-/* POR PONTEIRO: recebe só o endereço, 8 bytes, e alcança o original.
- * Este é o padrão: por ponteiro quase sempre, e `const` quando é só leitura. */
-void aumentar_nota(Aluno *a, double quanto)
+/* BY POINTER: receives only the address, 8 bytes, and reaches the original.
+ * This is the default: by pointer nearly always, with `const` when the
+ * function only reads. */
+void raise_grade(Student *s, double amount)
 {
-    /* `a->nota` é abreviação de `(*a).nota`, e lê-se "o campo nota da struct
-     * apontada por a". A seta existe porque a forma com parênteses é
-     * insuportável de escrever. Os parênteses seriam obrigatórios: `*a.nota`
-     * significa outra coisa (o . liga mais forte que o *). */
-    a->nota += quanto;
-    if (a->nota > 10.0)
-        a->nota = 10.0;
+    /* `s->grade` is shorthand for `(*s).grade`, read as "the grade field of
+     * the struct pointed at by s". The arrow exists because the parenthesised
+     * form is unbearable to type. The parentheses would be mandatory:
+     * `*s.grade` means something else, since . binds tighter than *. */
+    s->grade += amount;
+    if (s->grade > 10.0)
+        s->grade = 10.0;
 }
 
 int main(void)
 {
-    /* Inicialização por nome de campo: legível, e você não depende da ordem. */
-    Aluno ana = { .nome = "Ana", .idade = 20, .nota = 7.5 };
+    /* Initialising by field name: readable, and independent of the order. */
+    Student ana = { .name = "Ana", .age = 20, .grade = 7.5 };
 
-    printf("struct Aluno ocupa %zu bytes ", sizeof(Aluno));
-    printf("(%zu do nome + %zu da idade + %zu da nota, mais alinhamento)\n\n",
-           sizeof(ana.nome), sizeof(ana.idade), sizeof(ana.nota));
+    printf("struct Student takes %zu bytes ", sizeof(Student));
+    printf("(%zu name + %zu age + %zu grade, plus alignment)\n\n",
+           sizeof(ana.name), sizeof(ana.age), sizeof(ana.grade));
 
     printf("ana:\n");
-    mostrar(ana);
+    show(ana);
 
-    aumentar_nota(&ana, 2.0);
-    printf("depois de +2.0:\n");
-    mostrar(ana);
+    raise_grade(&ana, 2.0);
+    printf("after +2.0:\n");
+    show(ana);
 
-    /* ATRIBUIÇÃO ENTRE STRUCTS COPIA TUDO. Isto é a exceção interessante:
-     * struct você pode copiar com `=`; vetor, não (passo-10). Copiar uma
-     * struct copia os vetores que estão DENTRO dela. */
-    Aluno copia = ana;
-    strcpy(copia.nome, "Clone");
-    printf("\napós `copia = ana` e mudar o nome da cópia:\n");
-    printf("   original: "); mostrar(ana);
-    printf("   cópia:    "); mostrar(copia);
-    printf("   -> caixas independentes\n");
+    /* ASSIGNMENT BETWEEN STRUCTS COPIES EVERYTHING. This is the interesting
+     * exception: a struct you can copy with `=`; an array you cannot (step
+     * 10). Copying a struct copies the arrays INSIDE it. */
+    Student copy = ana;
+    strcpy(copy.name, "Clone");
+    printf("\nafter `copy = ana` and renaming the copy:\n");
+    printf("   original: "); show(ana);
+    printf("   copy:     "); show(copy);
+    printf("   -> independent boxes\n");
 
-    /* Vetor de structs: exatamente o passo-08, com um tipo maior. */
-    Aluno turma[3] = {
-        { .nome = "Bruno", .idade = 21, .nota = 6.0 },
-        { .nome = "Carla", .idade = 19, .nota = 9.5 },
-        { .nome = "Davi",  .idade = 22, .nota = 8.0 },
+    /* An array of structs: exactly step 08, with a bigger type. */
+    Student group[3] = {
+        { .name = "Bruno", .age = 21, .grade = 6.0 },
+        { .name = "Carla", .age = 19, .grade = 9.5 },
+        { .name = "Davi",  .age = 22, .grade = 8.0 },
     };
 
-    printf("\nturma:\n");
-    for (size_t i = 0; i < sizeof(turma) / sizeof(turma[0]); i++)
-        mostrar(turma[i]);
+    printf("\ngroup:\n");
+    for (size_t i = 0; i < sizeof(group) / sizeof(group[0]); i++)
+        show(group[i]);
 
-    /* STRUCT NO HEAP - o padrão que as threads vão exigir.
-     * Junte o passo-15 com este: um bloco por unidade de trabalho, cada um
-     * com os seus próprios dados, todos independentes. */
-    Aluno *novo = malloc(sizeof(Aluno));   /* sizeof do TIPO, não do ponteiro */
-    if (novo == NULL)
+    /* A STRUCT ON THE HEAP, the pattern threads will demand.
+     * Put step 15 together with this one: one block per unit of work, each
+     * with its own data, all independent. */
+    Student *fresh = malloc(sizeof(Student));   /* sizeof the TYPE, not the
+                                                   pointer */
+    if (fresh == NULL)
         return 1;
 
-    /* Com ponteiro, todo acesso é com seta. */
-    strcpy(novo->nome, "Elisa");
-    novo->idade = 23;
-    novo->nota  = 8.8;
+    /* With a pointer, every access uses the arrow. */
+    strcpy(fresh->name, "Elisa");
+    fresh->age   = 23;
+    fresh->grade = 8.8;
 
-    printf("\naluno alocado no heap:\n");
-    mostrar(*novo);        /* *novo desreferencia: passa a struct por valor */
-    printf("   (o mesmo, por ponteiro: %s, nota %.1f)\n",
-           novo->nome, novo->nota);
+    printf("\nstudent allocated on the heap:\n");
+    show(*fresh);          /* *fresh dereferences: passes the struct by value */
+    printf("   (the same, through the pointer: %s, grade %.1f)\n",
+           fresh->name, fresh->grade);
 
-    free(novo);
+    free(fresh);
 
     return 0;
 }
 
 /* ============================================================================
- * O DIAGRAMA
+ * THE DIAGRAM
  *
- *   Aluno ana = { "Ana", 20, 7.5 };   um bloco contíguo:
+ *   Student ana = { "Ana", 20, 7.5 };   one contiguous block:
  *
- *     0x7ffd1000  [ 'A''n''a' \0 ... ]   nome[20]    20 bytes
- *     0x7ffd1014  [ 20 ]                 idade        4 bytes
- *     0x7ffd1018  [ 7.5 ]                nota         8 bytes
+ *     0x7ffd1000  [ 'A''n''a' \0 ... ]   name[20]    20 bytes
+ *     0x7ffd1014  [ 20 ]                 age          4 bytes
+ *     0x7ffd1018  [ 7.5 ]                grade        8 bytes
  *                                                    -----------
- *                                        sizeof(Aluno) = 32
+ *                                        sizeof(Student) = 32
  *
- *   O compilador pode inserir bytes vazios entre campos pra alinhar cada
- *   tipo num endereço múltiplo do tamanho dele (padding). Por isso
- *   sizeof(struct) nem sempre é a soma dos campos - confira na saída.
+ *   The compiler may insert empty bytes between fields so each type starts
+ *   at an address that is a multiple of its own size (padding). That is why
+ *   sizeof(struct) is not always the sum of the fields: check the output.
+ *   Step 31 and the visualiser's byte view show this directly.
  *
- * PONTO OU SETA?
+ * DOT OR ARROW?
  *
- *     tenho a struct       ->  ana.nota
- *     tenho o endereço     ->  p->nota      (que é (*p).nota)
+ *     I have the struct     ->  ana.grade
+ *     I have the address    ->  p->grade      (which is (*p).grade)
  *
- *   Errar isso é erro de compilação, não bug silencioso. O gcc diz
- *   "invalid type argument of '->'". Alívio raro em C.
+ *   Getting this wrong is a compile error, not a silent bug. gcc says
+ *   "invalid type argument of '->'". A rare relief in C.
  *
- * A PONTE PRAS THREADS
+ * THE BRIDGE TO THREADS
  *
- *   pthread_create passa UM argumento, do tipo void *. Precisa mandar três
- *   coisas pra thread? Struct, e passa o endereço:
+ *   pthread_create passes ONE argument, of type void *. Need to send three
+ *   things to a thread? A struct, and pass its address:
  *
- *       typedef struct { int id; int *vetor; size_t inicio, fim; } Tarefa;
+ *       typedef struct { int id; int *data; size_t from, to; } Task;
  *
- *       Tarefa *t = malloc(sizeof(Tarefa));    // um por thread (passo-15)
+ *       Task *t = malloc(sizeof(Task));    // one per thread (step 15)
  *       t->id = i;  ...
- *       pthread_create(&threads[i], NULL, funcao, t);
+ *       pthread_create(&threads[i], NULL, worker, t);
  *
- *   Reutilizar uma struct só para todas as threads é o bug do passo-14 com
- *   outra roupa: todas leem a mesma caixa, e quem escreveu por último ganha.
+ *   Reusing a single struct for every thread is step 14's bug in different
+ *   clothing: they all read the same box, and whoever wrote last wins.
  *
  * EXPERIMENTE:
  *
- *  1. Troque `void mostrar(Aluno a)` por `void mostrar(Aluno *a)` e ajuste
- *     os pontos para setas e as chamadas para `&ana`. Compare os dois: 32
- *     bytes copiados contra 8.
+ *  1. Change `void show(Student s)` to `void show(Student *s)`, turn the
+ *     dots into arrows and the calls into `&ana`. Compare the two: 32 bytes
+ *     copied against 8.
  *
- *  2. Dentro de mostrar (versão por valor), escreva `a.nota = 0;`. Imprima
- *     de novo em main. Nada mudou - é o passo-06 outra vez, agora com
- *     struct. Marque o parâmetro como `const Aluno *a` na versão por
- *     ponteiro e tente alterar: o compilador impede. Use const sempre que a
- *     função só lê.
+ *  2. Inside show (the by-value version), write `s.grade = 0;`. Print again
+ *     in main. Nothing changed: step 06 all over again, now with a struct.
+ *     Then mark the parameter `const Student *s` in the pointer version and
+ *     try to change it: the compiler stops you. Use const whenever the
+ *     function only reads.
  *
- *  3. Reordene os campos (double primeiro, depois int, depois o nome) e
- *     imprima sizeof(Aluno). O número pode mudar por causa do padding.
+ *  3. Reorder the fields (double first, then int, then the name) and print
+ *     sizeof(Student). The number can change because of padding.
  *
- *  4. Faça um vetor de 3 ponteiros para Aluno, cada um com seu malloc,
- *     preencha num laço e libere num segundo laço. Esse é, quase letra por
- *     letra, o esqueleto de um programa com 3 threads.
+ *  4. Make an array of 3 pointers to Student, each with its own malloc, fill
+ *     them in one loop and free them in a second. That is, almost letter for
+ *     letter, the skeleton of a program with 3 threads.
  *
- * -> Fim dos fundamentos. Vá para o "00 - COMECE AQUI.md" e siga para o
- *    tutorial de pthreads.
+ * -> End of the fundamentals. Back to "00 - COMECE AQUI.md", then on to the
+ *    pthreads tutorial.
  * ========================================================================= */
